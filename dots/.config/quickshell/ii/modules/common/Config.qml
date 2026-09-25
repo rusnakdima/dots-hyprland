@@ -575,6 +575,7 @@ Singleton {
                     property bool showMic: false
                     property bool showVolume: true
                     property bool showBrightness: true
+                    property bool showClipboard: true
                 }
             }
 

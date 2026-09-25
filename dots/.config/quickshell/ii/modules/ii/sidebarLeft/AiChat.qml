@@ -35,10 +35,30 @@ Item {
             } else if (event.key === Qt.Key_PageDown) {
                 messageListView.contentY = Math.min(messageListView.contentHeight - messageListView.height / 2, messageListView.contentY + messageListView.height / 2);
                 event.accepted = true;
+            } else if (event.key === Qt.Key_Home) {
+                // Jump to start of message list
+                messageListView.positionViewAtBeginning();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_End) {
+                // Jump to end of message list
+                messageListView.positionViewAtEnd();
+                event.accepted = true;
             }
         }
         if ((event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.ShiftModifier) && event.key === Qt.Key_O) {
             Ai.clearMessages();
+        }
+        // Ctrl+Shift+C to copy last AI response
+        if ((event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.ShiftModifier) && event.key === Qt.Key_C) {
+            const lastAiMessage = Ai.messageIDs.slice().reverse().find(id => {
+                const msg = Ai.messageByID[id];
+                return msg?.role === "model";
+            });
+            if (lastAiMessage) {
+                const msg = Ai.messageByID[lastAiMessage];
+                Quickshell.execDetached(["bash", "-c", `printf '${StringUtils.shellSingleQuoteEscape(msg.content)}' | wl-copy`]);
+            }
+            event.accepted = true;
         }
     }
 

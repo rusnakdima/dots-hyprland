@@ -16,6 +16,7 @@ import qs.modules.ii.sidebarRight.bluetoothDevices
 import qs.modules.ii.sidebarRight.nightLight
 import qs.modules.ii.sidebarRight.volumeMixer
 import qs.modules.ii.sidebarRight.wifiNetworks
+import qs.modules.ii.sidebarRight.clipboard
 
 Item {
     id: root
@@ -82,6 +83,14 @@ Item {
                     return true;
                 }
                 sourceComponent: QuickSliders {}
+            }
+
+            Loader {
+                id: clipboardLoader
+                Layout.fillWidth: true
+                Layout.preferredHeight: 32
+                active: Config.options.sidebar.quickSliders.showClipboard ?? false
+                sourceComponent: ClipboardWidget {}
             }
 
             LoaderedQuickPanelImplementation {

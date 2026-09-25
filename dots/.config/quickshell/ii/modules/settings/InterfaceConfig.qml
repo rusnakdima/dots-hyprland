@@ -565,6 +565,16 @@ ContentPage {
                     Config.options.sidebar.quickSliders.showMic = checked;
                 }
             }
+
+            ConfigSwitch {
+                buttonIcon: "content_paste"
+                text: Translation.tr("Clipboard")
+                enabled: Config.options.sidebar.quickSliders.enable
+                checked: Config.options.sidebar.quickSliders.showClipboard
+                onCheckedChanged: {
+                    Config.options.sidebar.quickSliders.showClipboard = checked;
+                }
+            }
         }
 
         ContentSubsection {
