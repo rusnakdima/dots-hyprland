@@ -82,10 +82,24 @@ Item {
                 }
             }
 
-            placeholder: PagePlaceholder {
-                shown: clipboardList.count === 0
-                icon: "content_paste_off"
-                description: Translation.tr("Empty")
+            // Empty state
+            Item {
+                anchors.fill: parent
+                visible: clipboardList.count === 0
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 8
+                    MaterialSymbol {
+                        text: "content_paste_off"
+                        iconSize: 24
+                        opacity: 0.5
+                    }
+                    StyledText {
+                        text: Translation.tr("Empty")
+                        font.pixelSize: 12
+                        opacity: 0.5
+                    }
+                }
             }
         }
     }
