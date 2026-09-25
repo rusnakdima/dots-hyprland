@@ -16,10 +16,7 @@ Singleton {
     property bool sloppySearch: Config.options?.search.sloppy ?? false
     property real scoreThreshold: 0.2
     property list<string> entries: []
-    readonly property var preparedEntries: entries.map(a => ({
-        name: Fuzzy.prepare(`${a.replace(/^\s*\S+\s+/, "")}`),
-        entry: a
-    }))
+    property var preparedEntries: ([])
     function fuzzyQuery(search: string): var {
         if (search.trim() === "") {
             return entries;
@@ -141,6 +138,11 @@ Singleton {
         onExited: (exitCode, exitStatus) => {
             if (exitCode === 0) {
                 root.entries = readProc.buffer
+                // Rebuild prepared entries incrementally (was: re-map all entries on every fuzzyQuery call)
+                root.preparedEntries = root.entries.map(a => ({
+                    name: Fuzzy.prepare(`${a.replace(/^\s*\S+\s+/, "")}`),
+                    entry: a
+                }))
             } else {
                 console.error("[Cliphist] Failed to refresh with code", exitCode, "and status", exitStatus)
             }
