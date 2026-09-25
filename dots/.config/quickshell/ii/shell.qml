@@ -47,18 +47,6 @@ ShellRoot {
         })
     }
 
-    // Also cycle the bar on config reload — Component.onCompleted doesn't fire on reload,
-    // so we use the Config.configReloaded signal to restore the bar after any config change.
-    Connections {
-        target: Config
-        function onConfigReloaded() {
-            if (root._startupCycleDone) {
-                console.log("[shell] Config changed, cycling panel family to restore bar")
-                root.cyclePanelFamily()
-            }
-        }
-    }
-
     // Panel families
     property list<string> families: ["ii", "waffle"]
     function cyclePanelFamily() {
