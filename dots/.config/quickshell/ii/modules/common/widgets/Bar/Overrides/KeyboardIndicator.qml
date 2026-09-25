@@ -128,7 +128,7 @@ Loader {
             width: 120
             height: switcherColumn.implicitHeight + 10
             color: Appearance.colors.colLayer1
-            radius: Appearance.rounding.medium
+            radius: Appearance.rounding.normal
             border.width: 1
             border.color: Appearance.colors.colOutlineVariant
 

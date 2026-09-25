@@ -11,7 +11,7 @@ Rectangle {
     signal clicked()
 
     color: Appearance.colors.colSurfaceContainerHighest
-    radius: Appearance.rounding.medium
+    radius: Appearance.rounding.normal
     implicitWidth: 75
     implicitHeight: 60
 

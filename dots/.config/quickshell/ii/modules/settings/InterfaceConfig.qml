@@ -962,4 +962,133 @@ ContentPage {
         }
     }
 
+    ContentSection {
+        icon: "dock"
+        title: Translation.tr("Dock")
+
+        ConfigSpinBox {
+            icon: "height"
+            text: Translation.tr("Icon size")
+            value: Config.options.dock?.height ?? 60
+            from: 30
+            to: 100
+            stepSize: 5
+            onValueChanged: {
+                if (!Config.options.dock) Config.options.dock = {};
+                Config.options.dock.height = value;
+            }
+        }
+    }
+
+    ContentSection {
+        icon: "apps"
+        title: Translation.tr("System Apps")
+
+        ContentSubsection {
+            title: Translation.tr("Launcher commands")
+            Layout.fillWidth: true
+
+            ConfigRow {
+                ColumnLayout {
+                    StyledText {
+                        text: Translation.tr("Bluetooth")
+                        font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+                    }
+                    MaterialTextArea {
+                        Layout.fillWidth: true
+                        placeholderText: "kcmshell6 bluetooth"
+                        text: Config.options.apps?.bluetooth ?? ""
+                        wrapMode: TextEdit.NoWrap
+                        onTextChanged: {
+                            if (!Config.options.apps) Config.options.apps = {};
+                            Config.options.apps.bluetooth = text;
+                        }
+                    }
+                }
+            }
+
+            ConfigRow {
+                ColumnLayout {
+                    StyledText {
+                        text: Translation.tr("Network")
+                        font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+                    }
+                    MaterialTextArea {
+                        Layout.fillWidth: true
+                        placeholderText: "nm-connection-editor"
+                        text: Config.options.apps?.network ?? ""
+                        wrapMode: TextEdit.NoWrap
+                        onTextChanged: {
+                            if (!Config.options.apps) Config.options.apps = {};
+                            Config.options.apps.network = text;
+                        }
+                    }
+                }
+            }
+
+            ConfigRow {
+                ColumnLayout {
+                    StyledText {
+                        text: Translation.tr("Volume Mixer")
+                        font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+                    }
+                    MaterialTextArea {
+                        Layout.fillWidth: true
+                        placeholderText: "pavucontrol"
+                        text: Config.options.apps?.volumeMixer ?? ""
+                        wrapMode: TextEdit.NoWrap
+                        onTextChanged: {
+                            if (!Config.options.apps) Config.options.apps = {};
+                            Config.options.apps.volumeMixer = text;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ContentSection {
+        icon: "translate"
+        title: Translation.tr("Translator")
+
+        ContentSubsection {
+            title: Translation.tr("Engine")
+            Layout.fillWidth: true
+
+            ConfigSelectionArray {
+                currentValue: Config.options.language?.translator?.engine ?? "auto"
+                onSelected: newValue => {
+                    if (!Config.options.language) Config.options.language = {};
+                    if (!Config.options.language.translator) Config.options.language.translator = {};
+                    Config.options.language.translator.engine = newValue;
+                }
+                options: [
+                    { displayName: "Auto", value: "auto" },
+                    { displayName: "Google", value: "google" },
+                    { displayName: "DeepL", value: "deepl" }
+                ]
+            }
+        }
+
+        ConfigRow {
+            ColumnLayout {
+                StyledText {
+                    text: Translation.tr("Target language")
+                    font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+                }
+                MaterialTextArea {
+                    Layout.fillWidth: true
+                    placeholderText: "auto"
+                    text: Config.options.language?.translator?.targetLanguage ?? "auto"
+                    wrapMode: TextEdit.NoWrap
+                    onTextChanged: {
+                        if (!Config.options.language) Config.options.language = {};
+                        if (!Config.options.language.translator) Config.options.language.translator = {};
+                        Config.options.language.translator.targetLanguage = text;
+                    }
+                }
+            }
+        }
+    }
+
 }
