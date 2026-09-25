@@ -48,49 +48,11 @@ ShellRoot {
     }
 
     // Panel families
-    property list<string> families: ["ii", "waffle"]
-    function cyclePanelFamily() {
-        const currentIndex = families.indexOf(Config.options.panelFamily)
-        const nextIndex = (currentIndex + 1) % families.length
-        const nextFamily = families[nextIndex]
-        // Only write to config if the value is actually changing (avoids restart loops on startup)
-        if (Config.options.panelFamily !== nextFamily) {
-            Config.options.panelFamily = nextFamily
-        }
-        // Toggle barOpen to force bar LazyLoader to re-evaluate after family switch
-        GlobalStates.barOpen = false
-        GlobalStates.barOpen = true
-    }
-
-    component PanelFamilyLoader: LazyLoader {
-        required property string identifier
-        property bool extraCondition: true
-        active: Config.ready && Config.options.panelFamily === identifier && extraCondition
-    }
-    
+    // Note: waffle is disabled - only ii is used
     PanelFamilyLoader {
         identifier: "ii"
         component: IllogicalImpulseFamily {}
     }
 
-    PanelFamilyLoader {
-        identifier: "waffle"
-        component: WaffleFamily {}
-    }
-
-    // Shortcuts
-    IpcHandler {
-        target: "panelFamily"
-
-        function cycle(): void {
-            root.cyclePanelFamily()
-        }
-    }
-
-    GlobalShortcut {
-        name: "panelFamilyCycle"
-        description: "Cycles panel family"
-
-        onPressed: root.cyclePanelFamily()
-    }
 }
+
