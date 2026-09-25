@@ -87,6 +87,7 @@ Item { // Bar content region
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: Appearance.rounding.screenRounding
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+                visible: Config.options?.bar?.elements?.sidebarButton ?? true
             }
 
             ActiveWindow {
@@ -131,9 +132,10 @@ Item { // Bar content region
         BarGroup {
             id: middleCenterGroup
             anchors.verticalCenter: parent.verticalCenter
-            padding: workspacesWidget.widgetPadding
+            padding: 8
 
             Workspaces {
+                visible: Config.options?.bar?.elements?.workspaces ?? true
                 id: workspacesWidget
                 Layout.fillHeight: true
                 MouseArea {
@@ -172,6 +174,7 @@ Item { // Bar content region
                     showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
                     Layout.alignment: Qt.AlignVCenter
                     Layout.fillWidth: true
+                    visible: Config.options?.bar?.elements?.clock ?? true
                 }
 
                 UtilButtons {
@@ -180,7 +183,7 @@ Item { // Bar content region
                 }
 
                 BatteryIndicator {
-                    visible: (root.useShortenedForm < 2 && Battery.available)
+                    visible: (root.useShortenedForm < 2 && Battery.available) && (Config.options?.bar?.elements?.battery ?? true)
                     Layout.alignment: Qt.AlignVCenter
                 }
             }
@@ -300,12 +303,14 @@ Item { // Bar content region
                         }
                         NotificationUnreadCount {
                             id: notificationUnreadCount
+                            visible: Config.options?.bar?.elements?.notificationIndicator ?? true
                         }
                     }
                     MaterialSymbol {
                         text: Network.materialSymbol
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
+                        visible: Config.options?.bar?.elements?.network ?? true
                     }
                     MaterialSymbol {
                         Layout.leftMargin: indicatorsRowLayout.realSpacing
@@ -332,7 +337,7 @@ Item { // Bar content region
             // Weather
             Loader {
                 Layout.leftMargin: 4
-                active: Config.options.bar.weather.enable
+                active: Config.options.bar.weather.enable && (Config.options?.bar?.elements?.weather ?? true)
 
                 sourceComponent: BarGroup {
                     WeatherBar {}

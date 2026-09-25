@@ -5,6 +5,7 @@ import QtQuick.Layouts
 Item {
     id: root
     property bool vertical: false
+    property bool isPillStyle: Config.options?.bar?.style === "pills"
     property real padding: 5
     implicitWidth: vertical ? Appearance.sizes.baseVerticalBarWidth : (gridLayout.implicitWidth + padding * 2)
     implicitHeight: vertical ? (gridLayout.implicitHeight + padding * 2) : Appearance.sizes.baseBarHeight
@@ -20,7 +21,8 @@ Item {
             rightMargin: root.vertical ? 4 : 0
         }
         color: Config.options?.bar.borderless ? "transparent" : Appearance.colors.colLayer1
-        radius: Appearance.rounding.small
+        // Use full rounding for pills, small for default
+        radius: root.isPillStyle ? height / 2 : Appearance.rounding.small
     }
 
     GridLayout {
