@@ -10,6 +10,14 @@ import Quickshell.Io
  * A nice wrapper for date and time strings.
  */
 Singleton {
+    property int clockTick: 0
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: clockTick++
+    }
+
     property var clock: SystemClock {
         id: clock
         precision: {
@@ -18,10 +26,38 @@ Singleton {
             return SystemClock.Minutes;
         }
     }
-    property string time: Qt.locale().toString(clock.date, Config.options?.time.format ?? "hh:mm")
-    property string shortDate: Qt.locale().toString(clock.date, Config.options?.time.shortDateFormat ?? "dd/MM")
-    property string date: Qt.locale().toString(clock.date, Config.options?.time.dateWithYearFormat ?? "dd/MM/yyyy")
-    property string longDate: Qt.locale().toString(clock.date, Config.options?.time.dateFormat ?? "dddd, dd/MM")
+    property string time: {
+        let tick = clockTick;
+        let fmt = Config.options.time.format;
+        if (!fmt) fmt = "hh:mm";
+        if (Config.options.time.secondPrecision)
+            fmt = fmt + ":ss";
+        return Qt.locale().toString(clock.date, fmt);
+    }
+    property string shortDate: {
+        let tick = clockTick;
+        let fmt = Config.options.time.shortDateFormat;
+        if (!fmt) fmt = "dd/MM";
+        return Qt.locale().toString(clock.date, fmt);
+    }
+    property string date
+    function updateDate() {
+        let fmt = Config.options.time.dateWithYearFormat;
+        date = Qt.locale().toString(clock.date, fmt || "dd/MM/yyyy");
+    }
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: updateDate()
+    }
+    Component.onCompleted: updateDate()
+    property string longDate: {
+        let tick = clockTick;
+        let fmt = Config.options.time.dateWithYearFormat;
+        if (!fmt) fmt = "dddd, dd/MM";
+        return Qt.locale().toString(clock.date, fmt);
+    }
     property string collapsedCalendarFormat: Qt.locale().toString(clock.date, "dddd, MMMM dd")
     property string uptime: "0h, 0m"
 
