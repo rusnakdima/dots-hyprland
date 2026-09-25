@@ -336,6 +336,103 @@ ContentPage {
     }
 
     ContentSection {
+        icon: "calendar_today"
+        title: Translation.tr("Date & Time")
+
+        ContentSubsection {
+            title: Translation.tr("Date format")
+            Layout.fillWidth: true
+
+            ConfigSelectionArray {
+                currentValue: Config.options.time.shortDateFormat || "dd/MM"
+                onSelected: newValue => {
+                    Config.options.time.shortDateFormat = newValue;
+                }
+                options: [
+                    {
+                        displayName: "DD/MM",
+                        value: "dd/MM"
+                    },
+                    {
+                        displayName: "MM/DD",
+                        value: "MM/dd"
+                    },
+                    {
+                        displayName: "YYYY-MM-DD",
+                        value: "yyyy-MM-dd"
+                    }
+                ]
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "timer"
+            text: Translation.tr("Pomodoro focus (min)")
+            value: (Config.options.time.pomodoro?.focus ?? 1500) / 60
+            from: 1
+            to: 120
+            onValueChanged: {
+                if (!Config.options.time.pomodoro) Config.options.time.pomodoro = {};
+                Config.options.time.pomodoro.focus = value * 60;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "free_breakfast"
+            text: Translation.tr("Short break (min)")
+            value: (Config.options.time.pomodoro?.breakTime ?? 300) / 60
+            from: 1
+            to: 30
+            onValueChanged: {
+                if (!Config.options.time.pomodoro) Config.options.time.pomodoro = {};
+                Config.options.time.pomodoro.breakTime = value * 60;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "weekend"
+            text: Translation.tr("Long break (min)")
+            value: (Config.options.time.pomodoro?.longBreak ?? 900) / 60
+            from: 1
+            to: 60
+            onValueChanged: {
+                if (!Config.options.time.pomodoro) Config.options.time.pomodoro = {};
+                Config.options.time.pomodoro.longBreak = value * 60;
+            }
+        }
+    }
+
+    ContentSection {
+        icon: "dark_mode"
+        title: Translation.tr("Night Light")
+
+        ConfigSwitch {
+            buttonIcon: "schedule"
+            text: Translation.tr("Automatic schedule")
+            checked: Config.options.light?.night?.automatic ?? true
+            onCheckedChanged: {
+                if (!Config.options.light) Config.options.light = {};
+                if (!Config.options.light.night) Config.options.light.night = {};
+                Config.options.light.night.automatic = checked;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "thermostat"
+            text: Translation.tr("Color temperature (K)")
+            value: Config.options.light?.night?.colorTemperature ?? 5000
+            from: 2500
+            to: 9000
+            stepSize: 500
+            onValueChanged: {
+                if (!Config.options.light) Config.options.light = {};
+                if (!Config.options.light.night) Config.options.light.night = {};
+                Config.options.light.night.colorTemperature = value;
+            }
+        }
+    }
+
+    ContentSection {
         icon: "work_alert"
         title: Translation.tr("Work safety")
 

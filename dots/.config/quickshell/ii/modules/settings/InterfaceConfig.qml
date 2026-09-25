@@ -929,4 +929,37 @@ ContentPage {
         }
     }
 
+    ContentSection {
+        icon: "swipe"
+        title: Translation.tr("Scrolling")
+
+        ConfigSpinBox {
+            icon: "computer"
+            text: Translation.tr("Mouse scroll speed")
+            value: Config.options.interactions?.scrolling?.mouseScrollFactor ?? 120
+            from: 30
+            to: 600
+            stepSize: 30
+            onValueChanged: {
+                if (!Config.options.interactions) Config.options.interactions = {};
+                if (!Config.options.interactions.scrolling) Config.options.interactions.scrolling = {};
+                Config.options.interactions.scrolling.mouseScrollFactor = value;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "touch_app"
+            text: Translation.tr("Touchpad scroll speed")
+            value: Config.options.interactions?.scrolling?.touchpadScrollFactor ?? 450
+            from: 100
+            to: 1000
+            stepSize: 50
+            onValueChanged: {
+                if (!Config.options.interactions) Config.options.interactions = {};
+                if (!Config.options.interactions.scrolling) Config.options.interactions.scrolling = {};
+                Config.options.interactions.scrolling.touchpadScrollFactor = value;
+            }
+        }
+    }
+
 }

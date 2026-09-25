@@ -25,6 +25,23 @@ import qs.services
 ContentPage {
     forceWidth: true
 
+    // ─── Dark Mode ───────────────────────────────────────────────────────────
+
+    ContentSection {
+        icon: "dark_mode"
+        title: Translation.tr("Theme")
+
+        ConfigSwitch {
+            buttonIcon: "dark_mode"
+            text: Translation.tr("Dark mode (fcitx theme)")
+            checked: Config.options.appearance?.darkMode ?? false
+            onCheckedChanged: {
+                if (!Config.options.appearance) Config.options.appearance = {};
+                Config.options.appearance.darkMode = checked;
+            }
+        }
+    }
+
     // ─── JSON read/write helpers ───────────────────────────────────────────────
 
     function getGlobalOpacity(): double {
