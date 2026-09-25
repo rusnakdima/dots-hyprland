@@ -9,7 +9,12 @@ Singleton {
     id: root
     property string filePath: Directories.shellConfigPath
     property alias options: configOptionsJsonAdapter
-    property bool ready: false
+    property bool ready: true
+    // Emitted whenever config is reloaded from disk (after initial load)
+    signal configReloaded()
+
+    // Guard: only emit configReloaded on subsequent reloads, not initial load
+    property bool _initialLoadDone: false
     property int readWriteDelay: 50 // milliseconds
     property bool blockWrites: false
 
@@ -66,9 +71,19 @@ Singleton {
         path: root.filePath
         watchChanges: true
         blockWrites: root.blockWrites
-        onFileChanged: fileReloadTimer.restart()
-        onAdapterUpdated: fileWriteTimer.restart()
-        onLoaded: root.ready = true
+        onFileChanged: {
+            fileReloadTimer.restart()
+        }
+        onAdapterUpdated: {
+            fileWriteTimer.restart()
+        }
+        onLoaded: {
+            if (root._initialLoadDone) {
+                root.configReloaded()
+            }
+            root._initialLoadDone = true
+            root.ready = true
+        }
         onLoadFailed: error => {
             if (error == FileViewError.FileNotFound) {
                 writeAdapter();
@@ -105,6 +120,8 @@ Singleton {
             }
 
             property JsonObject appearance: JsonObject {
+                property bool darkMode: false   // drives fcitx5 UseDarkTheme via fcitx-render-config.sh
+                property real globalOpacity: 0.9
                 property bool extraBackgroundTint: true
                 property int fakeScreenRounding: 2 // 0: None | 1: Always | 2: When not fullscreen
                 property JsonObject fonts: JsonObject {
@@ -241,6 +258,20 @@ Singleton {
                 property bool showBackground: true
                 property bool verbose: true
                 property bool vertical: false
+                // Bar style: "default" or "pills" (ambxst-style)
+                property string style: "default"
+                // Element visibility toggles
+                property JsonObject elements: JsonObject {
+                    property bool sidebarButton: true
+                    property bool workspaces: true
+                    property bool notificationIndicator: true
+                    property bool clock: true
+                    property bool battery: true
+                    property bool audio: true
+                    property bool network: true
+                    property bool weather: true
+                    property bool systemIndicators: true
+                }
                 property JsonObject resources: JsonObject {
                     property bool alwaysShowSwap: true
                     property bool alwaysShowCpu: true

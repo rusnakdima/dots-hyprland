@@ -33,7 +33,7 @@ ShellRoot {
         ConflictKiller.load()
         Cliphist.refresh()
         Wallpapers.load()
-        Updates.load()
+        // Updates.load() // disabled - causes freeze on checkupdates
 
         // Deferred cycle + barOpen toggle to restore bar on fresh start.
         // Direct call fails because Config.options isn't ready in onCompleted.
