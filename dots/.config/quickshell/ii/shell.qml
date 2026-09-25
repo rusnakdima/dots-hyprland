@@ -22,10 +22,6 @@ ShellRoot {
     // Stuff for every panel family
     ReloadPopup {}
 
-    // Guard: prevent double-cycle on startup. Using a deferred flag because
-    // both Component.onCompleted and Config.configReloaded fire on startup.
-    property bool _startupCycleDone: false
-
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme()
         Hyprsunset.load()
@@ -34,25 +30,18 @@ ShellRoot {
         Cliphist.refresh()
         Wallpapers.load()
         // Updates.load() // disabled - causes freeze on checkupdates
-
-        // Deferred cycle + barOpen toggle to restore bar on fresh start.
-        // Direct call fails because Config.options isn't ready in onCompleted.
-        // barOpen toggle forces LazyLoader to re-evaluate after family switch.
-        // Guard is set INSIDE deferred call to definitely prevent configReloaded race.
-        Qt.callLater(() => {
-            root._startupCycleDone = true
-            root.cyclePanelFamily()
-            GlobalStates.barOpen = false
-            GlobalStates.barOpen = true
-        })
     }
 
     // Panel families
     // Note: waffle is disabled - only ii is used
+    component PanelFamilyLoader: LazyLoader {
+        required property string identifier
+        property bool extraCondition: true
+        active: Config.ready && Config.options.panelFamily === identifier && extraCondition
+    }
+
     PanelFamilyLoader {
         identifier: "ii"
         component: IllogicalImpulseFamily {}
     }
-
 }
-
