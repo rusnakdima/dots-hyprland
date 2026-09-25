@@ -347,4 +347,86 @@ ContentPage {
             }
         }
     }
+
+    ContentSection {
+        icon: "widgets"
+        title: Translation.tr("Elements")
+
+        ConfigRow {
+            uniform: true
+            ConfigSwitch {
+                buttonIcon: "sidebar"
+                text: Translation.tr("Sidebar button")
+                checked: Config.options.bar.elements.sidebarButton
+                onCheckedChanged: {
+                    Config.options.bar.elements.sidebarButton = checked;
+                }
+            }
+            ConfigSwitch {
+                buttonIcon: "view_module"
+                text: Translation.tr("Workspaces")
+                checked: Config.options.bar.elements.workspaces
+                onCheckedChanged: {
+                    Config.options.bar.elements.workspaces = checked;
+                }
+            }
+        }
+        ConfigRow {
+            uniform: true
+            ConfigSwitch {
+                buttonIcon: "notifications"
+                text: Translation.tr("Notification indicator")
+                checked: Config.options.bar.elements.notificationIndicator
+                onCheckedChanged: {
+                    Config.options.bar.elements.notificationIndicator = checked;
+                }
+            }
+            ConfigSwitch {
+                buttonIcon: "schedule"
+                text: Translation.tr("Clock")
+                checked: Config.options.bar.elements.clock
+                onCheckedChanged: {
+                    Config.options.bar.elements.clock = checked;
+                }
+            }
+        }
+        ConfigRow {
+            uniform: true
+            ConfigSwitch {
+                buttonIcon: "battery_full"
+                text: Translation.tr("Battery")
+                checked: Config.options.bar.elements.battery
+                onCheckedChanged: {
+                    Config.options.bar.elements.battery = checked;
+                }
+            }
+            ConfigSwitch {
+                buttonIcon: "volume_up"
+                text: Translation.tr("Audio")
+                checked: Config.options.bar.elements.audio
+                onCheckedChanged: {
+                    Config.options.bar.elements.audio = checked;
+                }
+            }
+        }
+        ConfigRow {
+            uniform: true
+            ConfigSwitch {
+                buttonIcon: "wifi"
+                text: Translation.tr("Network")
+                checked: Config.options.bar.elements.network
+                onCheckedChanged: {
+                    Config.options.bar.elements.network = checked;
+                }
+            }
+            ConfigSwitch {
+                buttonIcon: "cloud"
+                text: Translation.tr("Weather")
+                checked: Config.options.bar.elements.weather
+                onCheckedChanged: {
+                    Config.options.bar.elements.weather = checked;
+                }
+            }
+        }
+    }
 }
