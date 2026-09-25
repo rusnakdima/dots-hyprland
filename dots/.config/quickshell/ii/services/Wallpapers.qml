@@ -22,8 +22,11 @@ Singleton {
     property url defaultFolder: Qt.resolvedUrl(`${Directories.pictures}/Wallpapers`)
     property alias folderModel: folderModel // Expose for direct binding when needed
     property string searchQuery: ""
-    readonly property list<string> extensions: [ // TODO: add videos
+    readonly property list<string> extensions: [
         "jpg", "jpeg", "png", "webp", "avif", "bmp", "svg"
+    ]
+    readonly property list<string> videoExtensions: [
+        "mp4", "webm", "mkv", "avi", "mov", "wmv", "flv"
     ]
     property list<string> wallpapers: [] // List of absolute file paths (without file://)
     readonly property bool thumbnailGenerationRunning: thumbgenProc.running
@@ -117,7 +120,7 @@ Singleton {
         id: folderModel
         folder: Qt.resolvedUrl(root.defaultFolder)
         caseSensitive: false
-        nameFilters: root.extensions.map(ext => `*${searchQuery.split(" ").filter(s => s.length > 0).map(s => `*${s}*`)}*.${ext}`)
+        nameFilters: [...root.extensions, ...root.videoExtensions].map(ext => `*${searchQuery.split(" ").filter(s => s.length > 0).map(s => `*${s}*`)}*.${ext}`)
         showDirs: true
         showDotAndDotDot: false
         showOnlyReadable: true

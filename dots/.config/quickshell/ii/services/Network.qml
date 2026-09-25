@@ -85,15 +85,38 @@ Singleton {
     }
 
     function changePassword(network: WifiAccessPoint, password: string, username = ""): void {
-        // TODO: enterprise wifi with username
         network.askingPassword = false;
-        changePasswordProc.exec({
-            "environment": {
-                "PASSWORD": password,
-                "SSID": network.ssid
-            },
-            "command": ["bash", "-c", 'nmcli connection modify "$SSID" wifi-sec.psk "$PASSWORD"']
-        })
+        
+        // Check if this is an enterprise network
+        const isEnterprise = network.security && network.security.includes("802.1X");
+        
+        if (isEnterprise && username) {
+            // For Enterprise (WPA-802.1X), use identity-based authentication
+            changePasswordProc.exec({
+                "environment": {
+                    "PASSWORD": password,
+                    "SSID": network.ssid,
+                    "IDENTITY": username
+                },
+                "command": ["bash", "-c", `
+                    nmcli connection modify "$SSID" 802-1x.identity "$IDENTITY"
+                    nmcli connection modify "$SSID" wifi-sec.psk "$PASSWORD"
+                    nmcli connection up "$SSID"
+                `]
+            });
+        } else {
+            // For PSK networks (WPA/WPA2 Personal)
+            changePasswordProc.exec({
+                "environment": {
+                    "PASSWORD": password,
+                    "SSID": network.ssid
+                },
+                "command": ["bash", "-c", `
+                    nmcli connection modify "$SSID" wifi-sec.psk "$PASSWORD"
+                    nmcli connection up "$SSID"
+                `]
+            });
+        }
     }
 
     Process {
