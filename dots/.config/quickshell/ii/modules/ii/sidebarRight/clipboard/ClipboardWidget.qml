@@ -32,7 +32,10 @@ Item {
                 id: toggleBtn
                 Layout.preferredWidth: 24
                 Layout.preferredHeight: 24
-                nerdIcon: expanded ? "chevron_up" : "chevron_down"
+                contentItem: MaterialSymbol {
+                    text: expanded ? "chevron_up" : "chevron_down"
+                    iconSize: 18
+                }
                 onClicked: expanded = !expanded
             }
         }
@@ -69,7 +72,10 @@ Item {
                 RippleButton {
                     Layout.preferredWidth: 20
                     Layout.preferredHeight: 20
-                    nerdIcon: "content_paste"
+                    contentItem: MaterialSymbol {
+                        text: "content_paste"
+                        iconSize: 14
+                    }
                     onClicked: {
                         Cliphist.copy(modelData)
                     }
