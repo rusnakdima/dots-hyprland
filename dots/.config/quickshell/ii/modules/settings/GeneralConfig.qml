@@ -295,7 +295,7 @@ ContentPage {
             text: Translation.tr("Second precision")
             checked: Config.options.time.secondPrecision
             onCheckedChanged: {
-                Config.options.time.secondPrecision = checked;
+                Config.setNestedValue("time.secondPrecision", checked);
             }
             StyledToolTip {
                 text: Translation.tr("Enable if you want clocks to show seconds accurately")
@@ -309,13 +309,15 @@ ContentPage {
             ConfigSelectionArray {
                 currentValue: Config.options.time.format
                 onSelected: newValue => {
+                    // Update hyprlock time format
                     if (newValue === "hh:mm") {
                         Quickshell.execDetached(["bash", "-c", `sed -i 's/\\TIME12\\b/TIME/' '${FileUtils.trimFileProtocol(Directories.config)}/hypr/hyprlock.conf'`]);
                     } else {
                         Quickshell.execDetached(["bash", "-c", `sed -i 's/\\TIME\\b/TIME12/' '${FileUtils.trimFileProtocol(Directories.config)}/hypr/hyprlock.conf'`]);
                     }
 
-                    Config.options.time.format = newValue;
+                    // Use setNestedValue to properly persist and trigger reactivity
+                    Config.setNestedValue("time.format", newValue);
                 }
                 options: [
                     {
@@ -329,6 +331,14 @@ ContentPage {
                     {
                         displayName: Translation.tr("12h AM/PM"),
                         value: "h:mm AP"
+                    },
+                    {
+                        displayName: Translation.tr("24h:ss"),
+                        value: "hh:mm:ss"
+                    },
+                    {
+                        displayName: Translation.tr("12h:ss am/pm"),
+                        value: "h:mm:ss ap"
                     },
                 ]
             }
@@ -346,7 +356,7 @@ ContentPage {
             ConfigSelectionArray {
                 currentValue: Config.options.time.shortDateFormat || "dd/MM"
                 onSelected: newValue => {
-                    Config.options.time.shortDateFormat = newValue;
+                    Config.setNestedValue("time.shortDateFormat", newValue);
                 }
                 options: [
                     {
@@ -360,7 +370,31 @@ ContentPage {
                     {
                         displayName: "YYYY-MM-DD",
                         value: "yyyy-MM-dd"
-                    }
+                    },
+                    {
+                        displayName: "DD.MM.YYYY",
+                        value: "dd.MM.yyyy"
+                    },
+                    {
+                        displayName: "MM.DD.YYYY",
+                        value: "MM.dd.yyyy"
+                    },
+                    {
+                        displayName: "YYYY/MM/DD",
+                        value: "yyyy/MM/dd"
+                    },
+                    {
+                        displayName: "DD-MM-YYYY",
+                        value: "dd-MM-yyyy"
+                    },
+                    {
+                        displayName: "MMM DD",
+                        value: "MMM dd"
+                    },
+                    {
+                        displayName: "DD MMM",
+                        value: "dd MMM"
+                    },
                 ]
             }
         }

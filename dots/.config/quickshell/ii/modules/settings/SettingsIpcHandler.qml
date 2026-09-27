@@ -61,8 +61,8 @@ Singleton {
 
         function listKeybinds() {
             try {
-                // Use ~/.bun/bin/hyprctl which auto-detects the Hyprland socket
-                const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "$HOME/.bun/bin/hyprctl binds -j"]);
+                // Use ~/.local/bin/hyprctl which auto-detects the Hyprland socket
+                const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "$HOME/.local/bin/hyprctl binds -j"]);
                 if (exitCode !== 0 || !stdout || !stdout.trim()) return [];
                 const parsed = JSON.parse(stdout.trim());
                 return Array.isArray(parsed) ? parsed : [];
@@ -210,7 +210,7 @@ Singleton {
     Process {
         id: listKeybindsProc
         property var lastBindList: []
-        command: ["hyprctl", "binds", "-j"]
+        command: ["bash", "-c", "$HOME/.local/bin/hyprctl binds -j"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try { lastBindList = JSON.parse(text || "[]"); } catch (e) { lastBindList = []; }
