@@ -7,6 +7,7 @@
 ////@ pragma Env QT_SCALE_FACTOR=1
 
 import "modules/common"
+import "modules/settings"
 import "services"
 import "panelFamilies"
 
@@ -22,14 +23,21 @@ ShellRoot {
     // Stuff for every panel family
     ReloadPopup {}
 
+    // Settings IPC handler singleton — loaded via `import "modules/settings"` above
+    // (IpcHandler registered automatically when singleton module is imported)
+
     Component.onCompleted: {
-        MaterialThemeLoader.reapplyTheme()
-        Hyprsunset.load()
-        FirstRunExperience.load()
-        ConflictKiller.load()
-        Cliphist.refresh()
-        Wallpapers.load()
-        // Updates.load() // disabled - causes freeze on checkupdates
+        // Force SettingsIpcHandler singleton instantiation (registers settingsui IPC target)
+        if (SettingsIpcHandler.objectName !== "") console.debug("settingsui IPC loaded");
+        Qt.callLater(() => {
+            MaterialThemeLoader.reapplyTheme()
+            Hyprsunset.load()
+            FirstRunExperience.load()
+            ConflictKiller.load()
+            Cliphist.refresh()
+            Wallpapers.load()
+            // Updates.load() // disabled - causes freeze on checkupdates
+        }, 100)
     }
 
     // Panel families
