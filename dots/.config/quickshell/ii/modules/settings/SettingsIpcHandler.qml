@@ -61,7 +61,8 @@ Singleton {
 
         function listKeybinds() {
             try {
-                const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "hyprctl binds -j"]);
+                // Use ~/.bun/bin/hyprctl which auto-detects the Hyprland socket
+                const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "$HOME/.bun/bin/hyprctl binds -j"]);
                 if (exitCode !== 0 || !stdout || !stdout.trim()) return [];
                 const parsed = JSON.parse(stdout.trim());
                 return Array.isArray(parsed) ? parsed : [];
