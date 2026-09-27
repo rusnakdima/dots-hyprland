@@ -50,6 +50,21 @@ ApplicationWindow {
             component: "modules/settings/InterfaceConfig.qml"
         },
         {
+            name: Translation.tr("Appearance"),
+            icon: "palette",
+            component: "modules/settings/AppearanceConfig.qml"
+        },
+        {
+            name: Translation.tr("Keybinds"),
+            icon: "keyboard",
+            component: "modules/settings/KeybindsConfig.qml"
+        },
+        {
+            name: Translation.tr("Keyboard"),
+            icon: "keyboard_alt",
+            component: "modules/settings/KeyboardLayoutConfig.qml"
+        },
+        {
             name: Translation.tr("Services"),
             icon: "settings",
             component: "modules/settings/ServicesConfig.qml"
@@ -93,7 +108,7 @@ ApplicationWindow {
                 if (event.key === Qt.Key_PageDown) {
                     root.currentPage = Math.min(root.currentPage + 1, root.pages.length - 1)
                     event.accepted = true;
-                } 
+                }
                 else if (event.key === Qt.Key_PageUp) {
                     root.currentPage = Math.max(root.currentPage - 1, 0)
                     event.accepted = true;
@@ -170,7 +185,7 @@ ApplicationWindow {
                     }
                     spacing: 10
                     expanded: root.width > 900
-                    
+
                     NavigationRailExpandButton {
                         focus: root.visible
                     }

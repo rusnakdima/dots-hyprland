@@ -19,6 +19,7 @@
  *   qs -c ii ipc call settingsui setKeybindEnabled "SUPER RETURN exec kitty" false
  */
 
+pragma Singleton
 pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
@@ -26,8 +27,9 @@ import Quickshell.Io
 import qs.modules.common
 import qs.services
 
-Scope {
+Singleton {
     id: root
+    objectName: "settingsIpcHandler" // forces instantiation when referenced
 
     IpcHandler {
         target: "settingsui"
@@ -44,7 +46,7 @@ Scope {
             } catch (e) { return 0.90; }
         }
 
-        function setGlobalOpacity(val) {
+        function setGlobalOpacity(val: string) {
             let parsed = parseFloat(val);
             if (isNaN(parsed)) return false;
             parsed = Math.max(0.1, Math.min(1.0, parsed));
@@ -63,12 +65,12 @@ Scope {
             return listKeybindsProc.lastBindList || [];
         }
 
-        function getKeybindEnabled(desc) {
+        function getKeybindEnabled(desc: string) {
             let disabled = Config.options.keybinds.disabled || [];
             return !disabled.includes(desc);
         }
 
-        function setKeybindEnabled(desc, enabled) {
+        function setKeybindEnabled(desc: string, enabled: bool) {
             let disabled = Config.options.keybinds.disabled || [];
             if (enabled) {
                 disabled = disabled.filter(d => d !== desc);
@@ -81,15 +83,16 @@ Scope {
             return true;
         }
 
-        function addKeybind(bindObj) {
+        function addKeybind(bindObj: string) {
             if (!bindObj) return false;
-            let line = formatBindLine(bindObj);
+            let obj = (typeof bindObj === "string") ? JSON.parse(bindObj) : bindObj;
+            let line = formatBindLine(obj);
             appendToFile(hyprCustomBindsPath(), line);
             hyprctlReload();
             return true;
         }
 
-        function deleteKeybind(desc) {
+        function deleteKeybind(desc: string) {
             removeBindFromFile(hyprCustomBindsPath(), desc);
             hyprctlReload();
             return true;
@@ -133,7 +136,7 @@ Scope {
             writeFile(hyprDisableBindsPath(), content);
         }
 
-        function formatBindLine(bindObj) {
+        function formatBindLine(bindObj) { // internal helper, receives object
             let mods = (bindObj.modifiers || []).join(",");
             let fullKey = mods ? mods + "," + bindObj.key : bindObj.key;
             let desc = bindObj.description ? (" -- " + bindObj.description) : "";
@@ -142,7 +145,7 @@ Scope {
         }
 
         // Generic write: overwrites path with content
-        function writeFile(path, content) {
+        function writeFile(path: string, content: string) {
             let escapedPath = path.replace(/'/g, "'\"'\"'");
             let escapedContent = content.replace(/'/g, "'\"'\"'");
             writeFileProcess.running = false;
@@ -154,7 +157,7 @@ Scope {
         }
 
         // Append content to file
-        function appendToFile(path, content) {
+        function appendToFile(path: string, content: string) {
             let escapedPath = path.replace(/'/g, "'\"'\"'");
             let escapedContent = content.replace(/'/g, "'\"'\"'");
             appendProcess.running = false;
@@ -166,7 +169,7 @@ Scope {
         }
 
         // Remove lines matching description from file
-        function removeBindFromFile(path, desc) {
+        function removeBindFromFile(path: string, desc: string) {
             let escapedPath = path.replace(/'/g, "'\"'\"'");
             let escapedDesc = desc.replace(/'/g, "'\"'\"'");
             removeProcess.running = false;
@@ -176,35 +179,35 @@ Scope {
             ];
             removeProcess.running = true;
         }
+    }
 
-        // ─── Background processes ──────────────────────────────────────────
+    // ─── Background processes ──────────────────────────────────────────────
 
-        Process {
-            id: writeFileProcess
-            running: false
-            stdout: StdioCollector { onStreamFinished: {} }
-        }
+    Process {
+        id: writeFileProcess
+        running: false
+        stdout: StdioCollector { onStreamFinished: {} }
+    }
 
-        Process {
-            id: appendProcess
-            running: false
-            stdout: StdioCollector { onStreamFinished: {} }
-        }
+    Process {
+        id: appendProcess
+        running: false
+        stdout: StdioCollector { onStreamFinished: {} }
+    }
 
-        Process {
-            id: removeProcess
-            running: false
-            stdout: StdioCollector { onStreamFinished: {} }
-        }
+    Process {
+        id: removeProcess
+        running: false
+        stdout: StdioCollector { onStreamFinished: {} }
+    }
 
-        Process {
-            id: listKeybindsProc
-            property var lastBindList: []
-            command: ["bash", "-c", "hyprctl binds -j"]
-            stdout: StdioCollector {
-                onStreamFinished: {
-                    try { lastBindList = JSON.parse(text || "[]"); } catch (e) { lastBindList = []; }
-                }
+    Process {
+        id: listKeybindsProc
+        property var lastBindList: []
+        command: ["bash", "-c", "hyprctl binds -j"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { lastBindList = JSON.parse(text || "[]"); } catch (e) { lastBindList = []; }
             }
         }
     }
