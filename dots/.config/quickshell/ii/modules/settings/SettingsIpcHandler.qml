@@ -136,14 +136,6 @@ Singleton {
             writeFile(hyprDisableBindsPath(), content);
         }
 
-        function formatBindLine(bindObj) { // internal helper, receives object
-            let mods = (bindObj.modifiers || []).join(",");
-            let fullKey = mods ? mods + "," + bindObj.key : bindObj.key;
-            let desc = bindObj.description ? (" -- " + bindObj.description) : "";
-            let arg = bindObj.arg || "";
-            return "hl.bind(\"" + fullKey + "\", hl.dsp." + bindObj.dispatcher + "(\"" + arg + "\"))" + desc;
-        }
-
         // Generic write: overwrites path with content
         function writeFile(path: string, content: string) {
             let escapedPath = path.replace(/'/g, "'\"'\"'");
@@ -179,6 +171,16 @@ Singleton {
             ];
             removeProcess.running = true;
         }
+    }
+
+    // ─── Internal helper ─────────────────────────────────────────────────
+
+    function formatBindLine(bindObj) {
+        let mods = (bindObj.modifiers || []).join(",");
+        let fullKey = mods ? mods + "," + bindObj.key : bindObj.key;
+        let desc = bindObj.description ? (" -- " + bindObj.description) : "";
+        let arg = bindObj.arg || "";
+        return "hl.bind(\"" + fullKey + "\", hl.dsp." + bindObj.dispatcher + "(\"" + arg + "\"))" + desc;
     }
 
     // ─── Background processes ──────────────────────────────────────────────

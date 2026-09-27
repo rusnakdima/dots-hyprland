@@ -44,6 +44,7 @@ Singleton {
         temp: 0,
         tempFeelsLike: 0,
         lastRefresh: 0,
+        forecast: [],
     })
 
     function refineData(data) {
@@ -77,6 +78,14 @@ Singleton {
             temp.tempFeelsLike += "°C";
         }
         temp.lastRefresh = DateTime.time + " • " + DateTime.date;
+        // 3-day forecast from wttr.in .weather[:3]; noon (hourly[4]) for representative condition
+        temp.forecast = (data?.forecast || []).slice(0, 3).map(day => ({
+            dayName: Qt.formatDate(new Date(day.date), "ddd"),
+            hi: (root.useUSCS ? day.maxtempF + "°F" : day.maxtempC + "°C"),
+            lo: (root.useUSCS ? day.mintempF + "°F" : day.mintempC + "°C"),
+            code: String(day.code ?? "113"),
+            desc: day.desc || "",
+        }));
         root.data = temp;
     }
 
@@ -92,8 +101,8 @@ Singleton {
         // format as json
         command += "?format=j1";
         command += " | ";
-        // only take the current weather, location, asytronmy data
-        command += "jq '{current: .current_condition[0], location: .nearest_area[0], astronomy: .weather[0].astronomy[0]}'";
+        // only take the current weather, location, astronomy, plus 3-day forecast
+        command += "jq '{current: .current_condition[0], location: .nearest_area[0], astronomy: .weather[0].astronomy[0], forecast: [.weather[:3][] | {date, maxtempC, mintempC, maxtempF, mintempF, code: .hourly[4].weatherCode, desc: .hourly[4].weatherDesc[0].value}]}'";
         fetcher.command[2] = command;
         fetcher.running = true;
     }
