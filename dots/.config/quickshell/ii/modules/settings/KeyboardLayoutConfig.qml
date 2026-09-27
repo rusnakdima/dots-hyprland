@@ -4,8 +4,11 @@ import Quickshell.Io
 import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.functions
-
 ContentPage {
+
+    function trimmedHome(): string {
+        return FileUtils.trimFileProtocol(Directories.home);
+    }
     forceWidth: true
 
     // Available keyboard layouts with display names
@@ -41,7 +44,7 @@ ContentPage {
     // Read current layouts from config.json
     function getCurrentLayouts() {
         try {
-            let raw = FileUtils.readFile(Directories.home + "/.config/illogical-impulse/config.json");
+            let raw = FileUtils.readFile(trimmedHome() + "/.config/illogical-impulse/config.json");
             let cfg = JSON.parse(raw);
             return cfg.keyboard && cfg.keyboard.layouts ? cfg.keyboard.layouts : ["us"];
         } catch (e) { return ["us"]; }
@@ -49,11 +52,12 @@ ContentPage {
 
     // Write layouts to config.json
     function setLayouts(layouts) {
-        let cfgPath = Directories.home + "/.config/illogical-impulse/config.json";
+        let cfgPath = trimmedHome() + "/.config/illogical-impulse/config.json";
         let escapedPath = cfgPath.replace(/"/g, '\\"');
         let layoutsJson = JSON.stringify(layouts);
-        let script = "python3 -c \"import json; cfg=json.load(open(\\\"" + escapedPath + "\\\")); cfg['keyboard']['layouts']=" + layoutsJson + "; json.dump(cfg,open(\\\"" + escapedPath + "\\\"+'.tmp','w'),indent=2); import os; os.replace(\\\"" + escapedPath + "\\\"+'.tmp',\\\"" + escapedPath + "\\\")\"";
+        let script = "python3 -c \"import json; cfg=json.load(open(\\\"" + escapedPath + "\\\")); cfg.setdefault('keyboard',{}).setdefault('layouts',[]); cfg['keyboard']['layouts']=" + layoutsJson + "; json.dump(cfg,open(\\\"" + escapedPath + "\\\"+'.tmp','w'),indent=2); import os; os.replace(\\\"" + escapedPath + "\\\"+'.tmp',\\\"" + escapedPath + "\\\")\"";
         Quickshell.execDetached(["bash", "-c", script]);
+        if (!Config.options.keyboard) Config.options.keyboard = {};
         Config.options.keyboard.layouts = layouts;
     }
 
@@ -155,7 +159,7 @@ ContentPage {
 
             ConfigRow {
                 RippleButton {
-                    buttonText: Config.options.keyboard.switchKeybind
+                    buttonText: Config.options.keyboard.switchKeybind ?? ""
                     Layout.fillWidth: true
                     StyledToolTip {
                         buttonText: Translation.tr("Current keybind for layout switching. Change in keybinds.lua or restart Quickshell.")

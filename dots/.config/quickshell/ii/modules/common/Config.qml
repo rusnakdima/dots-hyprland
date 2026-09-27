@@ -593,6 +593,14 @@ Singleton {
                 property string theme: "freedesktop"
             }
 
+            property JsonObject keybinds: JsonObject {
+                property list<string> disabled: []
+            }
+
+            property JsonObject keyboard: JsonObject {
+                property list<string> layouts: ["us"]
+            }
+
             property JsonObject time: JsonObject {
                 // https://doc.qt.io/qt-6/qtime.html#toString
                 property string format: "hh:mm"

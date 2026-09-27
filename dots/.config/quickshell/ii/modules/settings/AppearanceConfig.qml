@@ -21,8 +21,11 @@ import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions as CF
 import qs.services
-
 ContentPage {
+
+    function trimmedHome(): string {
+        return CF.FileUtils.trimFileProtocol(Directories.home);
+    }
     forceWidth: true
 
     // ─── Dark Mode ───────────────────────────────────────────────────────────
@@ -46,7 +49,7 @@ ContentPage {
 
     function getGlobalOpacity(): double {
         try {
-            let cfgPath = Directories.home + "/.config/illogical-impulse/config.json";
+            let cfgPath = trimmedHome() + "/.config/illogical-impulse/config.json";
             let { exitCode, stdout } = Quickshell.execSync(["python3", "-c", "import json; d=json.load(open('" + cfgPath + "')); print(d.get('appearance',{}).get('globalOpacity',0.9))"]);
             if (exitCode !== 0) return 0.90;
             let val = parseFloat(stdout.trim());

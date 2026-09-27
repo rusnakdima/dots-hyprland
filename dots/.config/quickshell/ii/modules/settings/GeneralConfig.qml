@@ -356,7 +356,10 @@ ContentPage {
             ConfigSelectionArray {
                 currentValue: Config.options.time.shortDateFormat || "dd/MM"
                 onSelected: newValue => {
+                    // Clocks display longDate/dateWithYearFormat, so update every date field
                     Config.setNestedValue("time.shortDateFormat", newValue);
+                    Config.setNestedValue("time.dateWithYearFormat", newValue);
+                    Config.setNestedValue("time.dateFormat", newValue);
                 }
                 options: [
                     {
