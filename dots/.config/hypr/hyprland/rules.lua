@@ -26,7 +26,7 @@ hl.window_rule({match = {title = "^(.*)(wants to save)$" },                  cen
 hl.window_rule({match = {title = "^(.*)(wants to save)$" },                  float = true})
 hl.window_rule({match = {title = "^(.*)(wants to open)$" },                  center = true})
 hl.window_rule({match = {title = "^(.*)(wants to open)$" },                  float = true})
-hl.window_rule({match = {class = "^(blueberry\\.py)$" },                     float = true})
+hl.window_rule({match = {class = "^(blueberry%.py)$" },                     float = true})
 hl.window_rule({match = {class = "^(guifetch)$" },                           float = true}) -- FlafyDev/guifetch
 hl.window_rule({match = {class = "^(pavucontrol)$" },                        float = true})
 hl.window_rule({match = {class = "^(pavucontrol)$" },                        size = {"(monitor_w*0.45)", "(monitor_h*0.45)"} })
@@ -53,19 +53,21 @@ hl.window_rule({match = {class = "^(Zotero)$" },                             siz
 hl.window_rule({match = {class = "^(plasma-changeicons)$" }, float = true})
 hl.window_rule({match = {class = "^(plasma-changeicons)$" }, no_initial_focus = true})
 hl.window_rule({match = {class = "^(plasma-changeicons)$" }, move = {999999, 999999}})
--- stupid dolphin copy
-hl.window_rule({match = {title = "^(Copying — Dolphin)$" }, move = {40, 80}})
 
 -- Tiling
-hl.window_rule({match = {class = "^dev\\.warp\\.Warp$" }, tile = true})
+hl.window_rule({match = {class = "^dev%.warp%.Warp$" }, tile = true})
 
 -- Picture-in-Picture
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, keep_aspect_ratio = true})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, move = {"(monitor_w*0.73)", "(monitor_h*0.72)"} })
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, size = {"(monitor_w*0.25)", "(monitor_h*0.25)"} })
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, pin = true})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]Picture)(.*)$" }, keep_aspect_ratio = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, move = {"(monitor_w*0.73)", "(monitor_h*0.72)"}, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, size = {"(monitor_w*0.25)", "(monitor_h*0.25)"}, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, float = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, pin = true, opacity = 1.0})
+
+-- Picture-in-Picture (broader match for any PiP window)
+hl.window_rule({match = {title = ".*[Pp]icture.*" }, opacity = 1.0})
+hl.window_rule({match = {title = ".*[Pp]ip.*" }, opacity = 1.0})
 
 -- Screen sharing
 hl.window_rule({match = {title = ".*is sharing (a window|your screen).*" }, float = true})
