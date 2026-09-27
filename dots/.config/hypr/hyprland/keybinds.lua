@@ -145,6 +145,10 @@ hl.bind("ALT + XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ 
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ toggle"), { locked = true })
 hl.bind("SUPER + ALT + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ toggle"),
     { locked = true, description = "Media: Toggle mic" })
+hl.bind("SUPER + ALT + Left", hl.dsp.exec_cmd("playerctl previous"),
+    { locked = true, description = "Media: Previous track" })
+hl.bind("SUPER + ALT + Right", hl.dsp.exec_cmd(mediaNextCommand),
+    { locked = true, description = "Media: Next track" })
 
 --#!
 --##! Window
