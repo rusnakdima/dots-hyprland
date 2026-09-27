@@ -332,14 +332,6 @@ ContentPage {
                         displayName: Translation.tr("12h AM/PM"),
                         value: "h:mm AP"
                     },
-                    {
-                        displayName: Translation.tr("24h:ss"),
-                        value: "hh:mm:ss"
-                    },
-                    {
-                        displayName: Translation.tr("12h:ss am/pm"),
-                        value: "h:mm:ss ap"
-                    },
                 ]
             }
         }
