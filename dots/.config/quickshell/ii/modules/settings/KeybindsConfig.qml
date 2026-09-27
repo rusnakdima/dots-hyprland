@@ -32,7 +32,7 @@ ContentPage {
     // ─── Load keybinds using Quickshell.execSync (works in Settings context) ───
     Component.onCompleted: {
         try {
-            const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "XDG_RUNTIME_DIR=/run/user/1000 hyprctl binds -j"]);
+            const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "hyprctl binds -j"]);
             if (exitCode === 0 && stdout && stdout.trim()) {
                 const parsed = JSON.parse(stdout.trim());
                 if (Array.isArray(parsed)) {

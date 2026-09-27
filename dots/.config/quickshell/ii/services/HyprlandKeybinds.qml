@@ -17,11 +17,11 @@ Singleton {
     property var keybinds: []
     property var keybindCategories: []
 
-    // Custom hl.bind() keybinds defined in hypr/custom/keybinds.lua
+    // Custom hl.bind() keybinds defined in hypr/hyprland/keybinds.lua
     FileView {
         id: userBindsFile
         printErrors: false
-        path: Directories.config + "/hypr/custom/keybinds.lua"
+        path: Directories.config + "/hypr/hyprland/keybinds.lua"
     }
 
     /**

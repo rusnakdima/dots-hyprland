@@ -59,11 +59,11 @@ hl.window_rule({match = {class = "^dev%.warp%.Warp$" }, tile = true})
 
 -- Picture-in-Picture
 hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]Picture)(.*)$" }, keep_aspect_ratio = true, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, move = {"(monitor_w*0.73)", "(monitor_h*0.72)"}, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, size = {"(monitor_w*0.25)", "(monitor_h*0.25)"}, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, float = true, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]picture)(.*)$" }, pin = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, keep_aspect_ratio = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, move = {"(monitor_w*0.73)", "(monitor_h*0.72)"}, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, size = {"(monitor_w*0.25)", "(monitor_h*0.25)"}, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, pin = true, opacity = 1.0})
 
 -- Picture-in-Picture (broader match for any PiP window)
 hl.window_rule({match = {title = ".*[Pp]icture.*" }, opacity = 1.0})

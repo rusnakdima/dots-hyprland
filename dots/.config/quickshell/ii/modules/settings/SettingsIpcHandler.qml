@@ -60,9 +60,12 @@ Singleton {
         // ─── Keybinds list ───────────────────────────────────────────────────
 
         function listKeybinds() {
-            listKeybindsProc.running = false;
-            listKeybindsProc.running = true;
-            return listKeybindsProc.lastBindList || [];
+            try {
+                const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "hyprctl binds -j"]);
+                if (exitCode !== 0 || !stdout || !stdout.trim()) return [];
+                const parsed = JSON.parse(stdout.trim());
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) { return []; }
         }
 
         function getKeybindEnabled(desc: string) {
@@ -101,7 +104,7 @@ Singleton {
         // ─── Paths ──────────────────────────────────────────────────────────
 
         function hyprCustomBindsPath() {
-            return Directories.home + "/.config/hypr/custom/keybinds.lua";
+            return Directories.home + "/.config/hypr/hyprland/keybinds.lua";
         }
 
         function hyprDisableBindsPath() {
@@ -206,7 +209,7 @@ Singleton {
     Process {
         id: listKeybindsProc
         property var lastBindList: []
-        command: ["bash", "-c", "hyprctl binds -j"]
+        command: ["hyprctl", "binds", "-j"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try { lastBindList = JSON.parse(text || "[]"); } catch (e) { lastBindList = []; }
