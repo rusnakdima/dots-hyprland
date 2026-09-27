@@ -96,7 +96,7 @@ ContentPage {
 
     function getDisabledBinds(): array {
         try {
-            let cfgPath = Directories.config.replace(/^file:\/\//, "") + "/illogical-impulse/config.json";
+            let cfgPath = Directories.home + "/.config/illogical-impulse/config.json";
             let { exitCode, stdout } = Quickshell.execSync(["python3", "-c", "import json; d=json.load(open('" + cfgPath + "')); print(json.dumps(d.get('keybinds',{}).get('disabled',[])))"]);
             if (exitCode !== 0) return [];
             return JSON.parse(stdout.trim() || "[]");

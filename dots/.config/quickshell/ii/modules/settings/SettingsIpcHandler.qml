@@ -38,7 +38,7 @@ Singleton {
 
         function getGlobalOpacity() {
             try {
-                let cfgPath = Directories.config.replace(/^file:\/\//, "") + "/illogical-impulse/config.json";
+                let cfgPath = Directories.home + "/.config/illogical-impulse/config.json";
                 let { exitCode, stdout } = Quickshell.execSync(["python3", "-c", "import json; d=json.load(open('" + cfgPath + "')); print(d.get('appearance',{}).get('globalOpacity',0.9))"]);
                 if (exitCode !== 0) return 0.90;
                 let val = parseFloat(stdout.trim());
@@ -50,7 +50,7 @@ Singleton {
             let parsed = parseFloat(val);
             if (isNaN(parsed)) return false;
             parsed = Math.max(0.1, Math.min(1.0, parsed));
-            let cfgPath = Directories.config.replace(/^file:\/\//, "") + "/illogical-impulse/config.json";
+            let cfgPath = Directories.home + "/.config/illogical-impulse/config.json";
             let escapedPath = cfgPath.replace(/"/g, '\\"');
             let script = "python3 -c \"import json; cfg=json.load(open(\\\"" + escapedPath + "\\\")); cfg['appearance']['globalOpacity']=" + parsed + "; json.dump(cfg,open(\\\"" + escapedPath + "\\\"+'.tmp','w'),indent=2); import os; os.replace(\\\"" + escapedPath + "\\\"+'.tmp',\\\"" + escapedPath + "\\\")\"";
             Quickshell.execDetached(["bash", "-c", script]);
