@@ -133,6 +133,18 @@ Scope {
                         }
                     }
                 }
+
+                // System stats widget block
+                SystemStatsWidget {
+                    width: 280
+                    height: 160
+                }
+
+                // Weather widget block
+                WeatherWidget {
+                    width: 220
+                    height: 160
+                }
             }
 
             // Close hint
