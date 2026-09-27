@@ -32,8 +32,8 @@ ContentPage {
     // ─── Load keybinds using Quickshell.execSync ────────────────────────────
     Component.onCompleted: {
         try {
-            // Use ~/.bun/bin/hyprctl which auto-detects the Hyprland socket
-            const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "$HOME/.bun/bin/hyprctl binds -j"]);
+            // Use ~/.local/bin/hyprctl which auto-detects the Hyprland socket
+            const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "$HOME/.local/bin/hyprctl binds -j"]);
             if (exitCode === 0 && stdout && stdout.trim()) {
                 const parsed = JSON.parse(stdout.trim());
                 if (Array.isArray(parsed)) {
