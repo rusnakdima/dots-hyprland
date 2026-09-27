@@ -30,12 +30,11 @@ Singleton {
         let tick = clockTick;
         let fmt = Config.options.time.format;
         if (!fmt) fmt = "hh:mm";
-        // Insert seconds before the am/pm marker so "h:mm ap" + seconds
-        // renders "12:34:56 pm", not "12:34 pm:56"
-        const ampmMatch = fmt.match(/\s?(ap|AP)$/);
-        if (ampmMatch) {
-            const idx = fmt.lastIndexOf(ampmMatch[1]);
-            fmt = fmt.slice(0, idx).trimEnd() + ":ss " + fmt.slice(idx).trimStart();
+        // Insert seconds before a trailing am/pm marker so "h:mm ap" + seconds
+        // renders "12:34:56 pm", not "12:34 pm:56".
+        const m = fmt.match(/^(.*\S)\s+((?:ap|AP))$/);
+        if (m) {
+            fmt = m[1] + ":ss " + m[2];
         } else {
             fmt = fmt + ":ss";
         }
