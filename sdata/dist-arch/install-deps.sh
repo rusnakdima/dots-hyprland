@@ -2,7 +2,7 @@
 # It's not for directly running.
 
 install-yay(){
-  x sudo pacman -S --needed --noconfirm base-devel
+  x sudo -n pacman -S --needed --noconfirm base-devel
   x git clone https://aur.archlinux.org/yay-bin.git /tmp/buildyay
   x cd /tmp/buildyay
   x makepkg -o
@@ -19,7 +19,7 @@ remove_deprecated_dependencies(){
   list+=(hyprland-qtutils)
   list+=({quickshell,hyprutils,hyprpicker,hyprlang,hypridle,hyprland-qt-support,hyprland-qtutils,hyprlock,xdg-desktop-portal-hyprland,hyprcursor,hyprwayland-scanner,hyprland}-git)
   list+=(matugen-bin)
-  for i in ${list[@]};do try sudo pacman --noconfirm -Rdd $i;done
+  for i in ${list[@]};do try sudo -n pacman --noconfirm -Rdd $i;done
 }
 # NOTE: `implicitize_old_dependencies()` was for the old days when we just switch from dependencies.conf to local PKGBUILDs.
 # However, let's just keep it as references for other distros writing their `sdata/dist-<OS_GROUP_ID>/install-deps.sh`, if they need it.
@@ -55,7 +55,7 @@ v remove_deprecated_dependencies
 # Issue #363
 case $SKIP_SYSUPDATE in
   true) true;;
-  *) v sudo pacman -Syu;;
+  *) v sudo -n pacman -Syu;;
 esac
 
 # Use yay. Because paru does not support cleanbuild.
@@ -85,7 +85,7 @@ install-local-pkgbuild() {
   # -f, --force: build a package even if it already exists in the PKGDEST
   # -i, --install: Install or upgrade the package after a successful build using pacman(8).
   # In https://github.com/end-4/dots-hyprland/issues/823#issuecomment-3394774645 it's suggested to use `sudo pacman -U --noconfirm *.pkg.tar.zst` instead of `makepkg -i`, however it's possible that multiple *.pkg.tar.zst exist, which makes this command not reliable.
-  x makepkg -Afsi --noconfirm
+  x sudo -n makepkg -Afsi --noconfirm
   x popd
 }
 
@@ -118,7 +118,7 @@ install-dinit-service-packages(){
 
   if (( ${#pkgs[@]} > 0 )); then
     printf "${STY_YELLOW}[$0]: Detected dinit init system, installing service packages: ${pkgs[*]}${STY_RST}\n"
-    x sudo pacman -S --needed --noconfirm "${pkgs[@]}"
+    x sudo -n pacman -S --needed --noconfirm "${pkgs[@]}"
   fi
 }
 showfun install-dinit-service-packages
@@ -138,7 +138,7 @@ case $SKIP_PLASMAINTG in
       p=y
     fi
     case $p in
-      y) x sudo pacman -S --needed --noconfirm plasma-browser-integration ;;
+      y) x sudo -n pacman -S --needed --noconfirm plasma-browser-integration ;;
       *) echo "Ok, won't install"
     esac
     ;;
