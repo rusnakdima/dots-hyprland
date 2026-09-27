@@ -8,13 +8,26 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.waffle.looks
 
-// TODO: Swipe to dismiss
 MouseArea {
     id: root
 
     required property var notificationGroup
     readonly property var notifications: notificationGroup?.notifications ?? []
     property bool expanded: false
+    property bool showActions: false
+    readonly property var groupActions: {
+        const acts = [];
+        root.notifications.forEach(notif => {
+            (notif.actions ?? []).forEach(action => {
+                acts.push({
+                    "notificationId": notif.notificationId,
+                    "identifier": action.identifier,
+                    "text": action.text
+                });
+            });
+        });
+        return acts;
+    }
 
     implicitWidth: contentLayout.implicitWidth
     implicitHeight: contentLayout.implicitHeight
@@ -62,6 +75,27 @@ MouseArea {
             id: notifHeader
             Layout.fillWidth: true
             Layout.margins: 11
+        }
+
+        RowLayout {
+            id: actionsRow
+            visible: root.showActions && root.groupActions.length > 0
+            Layout.leftMargin: 11
+            Layout.rightMargin: 11
+            Layout.bottomMargin: 11
+            spacing: 4
+
+            Repeater {
+                model: root.groupActions
+                delegate: WButton {
+                    id: actionButton
+                    required property var modelData
+                    text: modelData.text
+                    onClicked: {
+                        Notifications.attemptInvokeAction(modelData.notificationId, modelData.identifier);
+                    }
+                }
+            }
         }
 
         WListView {
@@ -125,12 +159,15 @@ MouseArea {
                 text: root.notificationGroup?.appName ?? ""
             }
 
-            // NotificationHeaderButton { // TODO: More notification functionality needed so we can have this button
-            //     visible: headerMouseArea.containsMouse
-            //     Layout.leftMargin: 25
-            //     Layout.rightMargin: 25
-            //     icon.name: "more-horizontal"
-            // }
+            NotificationHeaderButton {
+                visible: (headerMouseArea.containsMouse || root.showActions) && root.groupActions.length > 0
+                Layout.leftMargin: 25
+                Layout.rightMargin: 25
+                icon.name: "more-horizontal"
+                onClicked: {
+                    root.showActions = !root.showActions;
+                }
+            }
 
             NotificationHeaderButton {
                 visible: headerMouseArea.containsMouse

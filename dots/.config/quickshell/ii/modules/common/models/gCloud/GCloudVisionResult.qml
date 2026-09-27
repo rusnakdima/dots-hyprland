@@ -1,11 +1,12 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import qs.modules.common
 import ".."
 
 NestableObject {
     id: root
 
-    property real confidenceThreshold: 0.5 // TODO tune this
+    property real confidenceThreshold: Config.options?.vision?.confidenceThreshold ?? 0.5
 
     property var rawData
     property var rawBlocks

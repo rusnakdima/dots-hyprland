@@ -12,7 +12,7 @@ Menu {
     id: root
 
     property bool downDirection: false
-    property bool hasIcons: false // TODO: implement
+    property bool hasIcons: false
 
     property color color: Looks.colors.bg1Base
     property alias backgroundPane: bgPane
@@ -70,6 +70,7 @@ Menu {
     }
 
     Component.onCompleted: {
+        root.hasIcons = root.contentData.some(item => (item?.icon?.name ?? "") !== "");
         menuListView.itemAtIndex(0)?.forceActiveFocus();
     }
 

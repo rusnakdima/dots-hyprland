@@ -199,11 +199,10 @@ Singleton {
             }
         }
 
-        property Component resize: Component { // TODO: better curve needed
+        property Component resize: Component {
             NumberAnimation {
                 duration: 200
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: transition.easing.bezierCurve.easeIn
+                easing.type: Easing.OutCubic
             }
         }
 

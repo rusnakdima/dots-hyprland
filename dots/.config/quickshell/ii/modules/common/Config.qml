@@ -614,7 +614,11 @@ Singleton {
                 property int adviseUpdateThreshold: 75 // packages
                 property int stronglyAdviseUpdateThreshold: 200 // packages
             }
-            
+
+            property JsonObject vision: JsonObject {
+                property real confidenceThreshold: 0.5 // Blocks below this OCR confidence (0 - 1) are dropped
+            }
+
             property JsonObject wallpaperSelector: JsonObject {
                 property bool useSystemFileDialog: false
             }
