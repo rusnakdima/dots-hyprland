@@ -118,7 +118,7 @@ Singleton {
             }
         }
         onMultipliedBrightnessChanged: {
-            if (monitor.animationEnabled) syncBrightness();
+            if (monitor.animateChanges) syncBrightness();
             else setTimer.restart();
         }
 
@@ -249,11 +249,11 @@ Singleton {
         target: "brightness"
 
         function increment() {
-            onPressed: root.increaseBrightness()
+            root.increaseBrightness()
         }
 
         function decrement() {
-            onPressed: root.decreaseBrightness()
+            root.decreaseBrightness()
         }
     }
 

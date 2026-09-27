@@ -523,7 +523,7 @@ Singleton {
     }
 
     function setTemperature(value) {
-        if (value == NaN || value < 0 || value > 2) {
+        if (isNaN(value) || value < 0 || value > 2) {
             root.addMessage(Translation.tr("Temperature must be between 0 and 2"), Ai.interfaceRole);
             return;
         }

@@ -21,7 +21,7 @@ Singleton {
     property bool wifiScanning: false
     property bool wifiConnecting: connectProc.running
     property WifiAccessPoint wifiConnectTarget
-    readonly property list<WifiAccessPoint> wifiNetworks: []
+    property list<WifiAccessPoint> wifiNetworks: []
     readonly property WifiAccessPoint active: wifiNetworks.find(n => n.active) ?? null
     readonly property list<var> friendlyWifiNetworks: [...wifiNetworks].sort((a, b) => {
         if (a.active && !b.active)
@@ -138,12 +138,13 @@ Singleton {
         stderr: SplitParser {
             onRead: line => {
                 // print("err:", line)
-                if (line.includes("Secrets were required")) {
+                if (line.includes("Secrets were required") && root.wifiConnectTarget) {
                     root.wifiConnectTarget.askingPassword = true
                 }
             }
         }
         onExited: (exitCode, exitStatus) => {
+            if (!root.wifiConnectTarget) return;
             root.wifiConnectTarget.askingPassword = (exitCode !== 0)
             root.wifiConnectTarget = null
         }
@@ -329,20 +330,23 @@ Singleton {
 
                 const rNetworks = root.wifiNetworks;
 
-                const destroyed = rNetworks.filter(rn => !wifiNetworks.find(n => n.frequency === rn.frequency && n.ssid === rn.ssid && n.bssid === rn.bssid));
-                for (const network of destroyed)
-                    rNetworks.splice(rNetworks.indexOf(network), 1).forEach(n => n.destroy());
-
+                const newNetworks = [];
                 for (const network of wifiNetworks) {
                     const match = rNetworks.find(n => n.frequency === network.frequency && n.ssid === network.ssid && n.bssid === network.bssid);
                     if (match) {
                         match.lastIpcObject = network;
+                        newNetworks.push(match);
                     } else {
-                        rNetworks.push(apComp.createObject(root, {
+                        newNetworks.push(apComp.createObject(root, {
                             lastIpcObject: network
                         }));
                     }
                 }
+
+                const destroyed = rNetworks.filter(rn => !newNetworks.includes(rn));
+                root.wifiNetworks = newNetworks;
+                for (const network of destroyed)
+                    network.destroy();
             }
         }
     }
