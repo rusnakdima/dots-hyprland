@@ -1,4 +1,5 @@
 import QtQuick
+import qs.modules.common
 
 ApiStrategy {
     property bool isReasoning: false
@@ -9,6 +10,10 @@ ApiStrategy {
     }
 
     function buildRequestData(model: AiModel, messages, systemPrompt: string, temperature: real, tools: list<var>, filePath: string) {
+        // When tools are disabled ("none"/empty), omit the tools key entirely —
+        // strict-validator providers reject payloads containing tools: []
+        const toolOption = Config.options?.ai?.tool ?? "functions"
+        const shouldOmitTools = (toolOption === "none" || toolOption === "")
         let baseData = {
             "model": model.model,
             "messages": [
@@ -35,6 +40,7 @@ ApiStrategy {
             "tools": tools,
         };
         // console.log("[AI] Request data: ", JSON.stringify(baseData, null, 2));
+        if (shouldOmitTools) delete baseData.tools;
         return model.extraParams ? Object.assign({}, baseData, model.extraParams) : baseData;
     }
 

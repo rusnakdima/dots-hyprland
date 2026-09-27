@@ -1,4 +1,5 @@
 import QtQuick
+import qs.modules.common
 import qs.modules.common.functions as CF
 
 ApiStrategy {
@@ -74,6 +75,10 @@ ApiStrategy {
                 "temperature": temperature,
             },
         };
+        // When tools are disabled ("none"/empty), omit the tools key entirely —
+        // strict-validator providers reject payloads containing tools: []
+        const toolOption = Config.options?.ai?.tool ?? "functions"
+        if (toolOption === "none" || toolOption === "") delete baseData.tools;
         // print("Gemini API call payload:", JSON.stringify(baseData, null, 2));
         return model.extraParams ? Object.assign({}, baseData, model.extraParams) : baseData;
     }

@@ -99,6 +99,18 @@ Singleton {
 
 	onActivePlayerChanged: this.updateTrack();
 
+	// Cover art cache: stamp art URL + timestamp on each track update so
+	// consumers can use a recently-seen cover while the image reloads.
+	// TTL is Config.options.media.coverArtCacheTtl seconds (default 60).
+	property var _cachedArtInfo: null
+	readonly property int _coverArtCacheTtl: (Config.options?.media?.coverArtCacheTtl ?? 60) * 1000
+	property var coverArtCacheEntry: _cachedArtInfo
+
+	function isCoverArtCacheValid() {
+		if (!this._cachedArtInfo || !this._cachedArtInfo.artUrl) return false;
+		return (Date.now() - this._cachedArtInfo.timestamp) < this._coverArtCacheTtl;
+	}
+
 	function updateTrack() {
 		//console.log(`update: ${this.activePlayer?.trackTitle ?? ""} : ${this.activePlayer?.trackArtists}`)
 		this.activeTrack = {
@@ -107,6 +119,11 @@ Singleton {
 			title: this.activePlayer?.trackTitle || Translation.tr("Unknown Title"),
 			artist: this.activePlayer?.trackArtist || Translation.tr("Unknown Artist"),
 			album: this.activePlayer?.trackAlbum || Translation.tr("Unknown Album"),
+		};
+
+		this._cachedArtInfo = {
+			artUrl: this.activeTrack.artUrl,
+			timestamp: Date.now(),
 		};
 
 		this.trackChanged(__reverse);

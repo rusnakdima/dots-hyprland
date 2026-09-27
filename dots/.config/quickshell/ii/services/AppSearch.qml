@@ -59,22 +59,41 @@ Singleton {
     }))
 
     function fuzzyQuery(search: string): var { // Idk why list<DesktopEntry> doesn't work
-        if (root.sloppySearch) {
-            const results = list.map(obj => ({
-                entry: obj,
-                score: Levendist.computeScore(obj.name.toLowerCase(), search.toLowerCase())
-            })).filter(item => item.score > root.scoreThreshold)
-                .sort((a, b) => b.score - a.score)
-            return results
-                .map(item => item.entry)
+        // Guard: empty or whitespace-only search
+        if (!search || typeof search !== "string" || search.trim().length === 0) {
+            return [];
+        }
+        // Guard: excessively long query (prevent ReDoS / memory exhaustion)
+        if (search.length > 500) {
+            search = search.slice(0, 500);
+        }
+        // Guard: null/undefined preppedNames
+        if (!preppedNames || !Array.isArray(preppedNames)) {
+            return [];
         }
 
-        return Fuzzy.go(search, preppedNames, {
-            all: true,
-            key: "name"
-        }).map(r => {
-            return r.obj.entry
-        });
+        try {
+            if (root.sloppySearch) {
+                const results = list.map(obj => ({
+                    entry: obj,
+                    score: Levendist.computeScore((obj?.name ?? "").toLowerCase(), search.toLowerCase())
+                })).filter(item => item.score > root.scoreThreshold)
+                    .sort((a, b) => b.score - a.score)
+                return results
+                    .map(item => item.entry)
+            }
+
+            const validPrepped = preppedNames.filter(item => item && item.name && item.entry)
+            return Fuzzy.go(String(search), validPrepped, {
+                all: true,
+                key: "name"
+            }).map(r => {
+                return r.obj ? r.obj.entry : null
+            }).filter(entry => entry !== null && entry !== undefined);
+        } catch (e) {
+            console.log("[AppSearch] fuzzyQuery error:", e)
+            return []
+        }
     }
 
     function iconExists(iconName) {
@@ -96,69 +115,75 @@ Singleton {
     }
 
     function guessIcon(str) {
-        if (!str || str.length == 0) return "image-missing";
+        // Guard: null/undefined/non-string/empty input
+        if (!str || typeof str !== "string" || str.length === 0) return "image-missing";
 
-        // Quickshell's desktop entry lookup
-        const entry = DesktopEntries.byId(str);
-        if (entry) return entry.icon;
+        try {
+            // Quickshell's desktop entry lookup
+            const entry = DesktopEntries.byId(str);
+            if (entry) return entry.icon;
 
-        // Normal substitutions
-        if (substitutions[str]) return substitutions[str];
-        if (substitutions[str.toLowerCase()]) return substitutions[str.toLowerCase()];
+            // Normal substitutions
+            if (substitutions[str]) return substitutions[str];
+            if (substitutions[str.toLowerCase()]) return substitutions[str.toLowerCase()];
 
-        // Regex substitutions
-        for (let i = 0; i < regexSubstitutions.length; i++) {
-            const substitution = regexSubstitutions[i];
-            const replacedName = str.replace(
-                substitution.regex,
-                substitution.replace,
-            );
-            if (replacedName != str) return replacedName;
+            // Regex substitutions
+            for (let i = 0; i < regexSubstitutions.length; i++) {
+                const substitution = regexSubstitutions[i];
+                const replacedName = str.replace(
+                    substitution.regex,
+                    substitution.replace,
+                );
+                if (replacedName != str) return replacedName;
+            }
+
+            // Icon exists -> return as is
+            if (iconExists(str)) return str;
+
+
+            // Simple guesses
+            const lowercased = str.toLowerCase();
+            if (iconExists(lowercased)) return lowercased;
+
+            const reverseDomainNameAppName = getReverseDomainNameAppName(str);
+            if (iconExists(reverseDomainNameAppName)) return reverseDomainNameAppName;
+
+            const lowercasedDomainNameAppName = reverseDomainNameAppName.toLowerCase();
+            if (iconExists(lowercasedDomainNameAppName)) return lowercasedDomainNameAppName;
+
+            const kebabNormalizedGuess = getKebabNormalizedAppName(str);
+            if (iconExists(kebabNormalizedGuess)) return kebabNormalizedGuess;
+
+            const undescoreToKebabGuess = getUndescoreToKebabAppName(str);
+            if (iconExists(undescoreToKebabGuess)) return undescoreToKebabGuess;
+
+            // Search in desktop entries
+            const iconSearchResults = Fuzzy.go(str, preppedIcons, {
+                all: true,
+                key: "name"
+            }).map(r => {
+                return r.obj.entry
+            });
+            if (iconSearchResults.length > 0) {
+                const guess = iconSearchResults[0].icon
+                if (iconExists(guess)) return guess;
+            }
+
+            const nameSearchResults = root.fuzzyQuery(str);
+            if (nameSearchResults.length > 0) {
+                const guess = nameSearchResults[0].icon
+                if (iconExists(guess)) return guess;
+            }
+
+            // Quickshell's desktop entry lookup
+            const heuristicEntry = DesktopEntries.heuristicLookup(str);
+            if (heuristicEntry) return heuristicEntry.icon;
+
+            // Give up
+            return "application-x-executable";
+        } catch (e) {
+            console.log("[AppSearch] guessIcon error:", e)
+            return "image-missing"
         }
-
-        // Icon exists -> return as is
-        if (iconExists(str)) return str;
-
-
-        // Simple guesses
-        const lowercased = str.toLowerCase();
-        if (iconExists(lowercased)) return lowercased;
-
-        const reverseDomainNameAppName = getReverseDomainNameAppName(str);
-        if (iconExists(reverseDomainNameAppName)) return reverseDomainNameAppName;
-
-        const lowercasedDomainNameAppName = reverseDomainNameAppName.toLowerCase();
-        if (iconExists(lowercasedDomainNameAppName)) return lowercasedDomainNameAppName;
-
-        const kebabNormalizedGuess = getKebabNormalizedAppName(str);
-        if (iconExists(kebabNormalizedGuess)) return kebabNormalizedGuess;
-
-        const undescoreToKebabGuess = getUndescoreToKebabAppName(str);
-        if (iconExists(undescoreToKebabGuess)) return undescoreToKebabGuess;
-
-        // Search in desktop entries
-        const iconSearchResults = Fuzzy.go(str, preppedIcons, {
-            all: true,
-            key: "name"
-        }).map(r => {
-            return r.obj.entry
-        });
-        if (iconSearchResults.length > 0) {
-            const guess = iconSearchResults[0].icon
-            if (iconExists(guess)) return guess;
-        }
-
-        const nameSearchResults = root.fuzzyQuery(str);
-        if (nameSearchResults.length > 0) {
-            const guess = nameSearchResults[0].icon
-            if (iconExists(guess)) return guess;
-        }
-
-        // Quickshell's desktop entry lookup
-        const heuristicEntry = DesktopEntries.heuristicLookup(str);
-        if (heuristicEntry) return heuristicEntry.icon;
-
-        // Give up
-        return "application-x-executable";
     }
 }
