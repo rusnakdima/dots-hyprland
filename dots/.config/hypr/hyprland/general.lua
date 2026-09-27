@@ -19,7 +19,15 @@ hl.gesture({
 hl.gesture({
     fingers = 4,
     direction = "horizontal",
-    action = "workspace"
+    action = function(e)
+        if e.swipe_end then
+            if e.swipe_end == -1 then
+                hl.dispatch(hl.dsp.focus({ workspace = "r-1" }))
+            else
+                hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
+            end
+        end
+    end
 })
 hl.gesture({
     fingers = 4,
