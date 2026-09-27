@@ -30,8 +30,15 @@ Singleton {
         let tick = clockTick;
         let fmt = Config.options.time.format;
         if (!fmt) fmt = "hh:mm";
-        if (Config.options.time.secondPrecision)
+        // Insert seconds before the am/pm marker so "h:mm ap" + seconds
+        // renders "12:34:56 pm", not "12:34 pm:56"
+        const ampmMatch = fmt.match(/\s?(ap|AP)$/);
+        if (ampmMatch) {
+            const idx = fmt.lastIndexOf(ampmMatch[1]);
+            fmt = fmt.slice(0, idx).trimEnd() + ":ss " + fmt.slice(idx).trimStart();
+        } else {
             fmt = fmt + ":ss";
+        }
         return Qt.locale().toString(clock.date, fmt);
     }
     property string shortDate: {
