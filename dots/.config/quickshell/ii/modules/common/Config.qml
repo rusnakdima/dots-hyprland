@@ -599,6 +599,7 @@ Singleton {
 
             property JsonObject keyboard: JsonObject {
                 property list<string> layouts: ["us"]
+                property list<int> rgb: [4, 4, 4]
             }
 
             property JsonObject time: JsonObject {

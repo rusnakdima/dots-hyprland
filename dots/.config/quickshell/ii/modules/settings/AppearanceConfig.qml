@@ -28,6 +28,44 @@ ContentPage {
     }
     forceWidth: true
 
+    // ─── Keyboard backlight RGB state & IPC ─────────────────────────────────
+
+    // Current keyboard color (per-channel 0..4)
+    property list<int> kbdRgbCurrent: [4, 4, 4]
+
+    property string kbdSysfsPath: "/sys/class/leds/rgb:kbd_backlight"
+
+    function applyKbdRgb(channels, skipConfigWrite) {
+        const c = channels.slice();
+        for (let i = 0; i < 3; i++) {
+            if (typeof c[i] !== "number") c[i] = 4;
+            c[i] = Math.max(0, Math.min(4, Math.round(c[i])));
+        }
+        kbdRgbCurrent = c;
+        if (!skipConfigWrite) Config.setNestedValue("keyboard.rgb", c);
+        // Feed stdin via write(): sudo tee with sysfs file as argument
+        kbdRgbProcess.command = ["sudo", "-n", "tee", sysfsExecutor()];
+        kbdRgbProcess.stdinEnabled = true;
+        kbdRgbProcess.running = true;
+        pendingKbdChannels = c;
+    }
+
+    function sysfsExecutor() {
+        return kbdSysfsPath + "/multi_intensity";
+    }
+
+    property var pendingKbdChannels: null
+    Process {
+        id: kbdRgbProcess
+        stdout: StdioCollector { }
+        onRunningChanged: {
+            if (running && pendingKbdChannels) {
+                write(pendingKbdChannels.join(" ") + "\n");
+                stdinEnabled = false;
+                pendingKbdChannels = null;
+            }
+        }
+    }
     // ─── Dark Mode ───────────────────────────────────────────────────────────
 
     ContentSection {
@@ -71,6 +109,11 @@ ContentPage {
 
     Component.onCompleted: {
         globalOpacityValue = Config.options?.appearance?.globalOpacity ?? 0.9;
+        // Read current keyboard RGB from config (hardware holds last written value)
+        const stored = Config.options?.keyboard?.rgb;
+        if (Array.isArray(stored) && stored.length === 3) {
+            kbdRgbCurrent = [Math.round(stored[0]), Math.round(stored[1]), Math.round(stored[2])];
+        }
     }
 
     // ─── Opacity section ─────────────────────────────────────────────────────
@@ -211,6 +254,123 @@ ContentPage {
             text: Translation.tr("Preview")
             color: Appearance.colors.colOnSurfaceVariant
             font.pixelSize: Appearance.font?.pixelSize?.labelSmall ?? 12
+        }
+    }
+
+    // ─── Keyboard backlight color ───────────────────────────────────────────
+
+    ContentSection {
+        icon: "keyboard_full_2"
+        title: Translation.tr("Keyboard backlight")
+
+        // Per-channel intensity 0..4 (hardware max_brightness = 4).
+        // Channels are quantized; show actual achievable colors only.
+        ColumnLayout {
+            id: kbdRgbColumn
+            spacing: 10
+            Layout.fillWidth: true
+
+            StyledText {
+                text: Translation.tr("Single global color (hardware quantized, 0–4 per channel)")
+                color: Appearance.colors.colOnSurfaceVariant
+                font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+            }
+
+            // Preset color grid: every useful quantized combination (skip duplicates
+            // like 0,1,1 vs 1,1,1 since no scaling — max=4 gives 4 levels per channel,
+            // 64 total combos minus 1 off-state; show the common presets plus custom sliders below).
+            Flow {
+                id: presetFlow
+                spacing: 8
+                Layout.fillWidth: true
+
+                // Curated quantized palette (values are 0..4 per channel)
+                readonly property var presets: [
+                    { c: [0,0,0],  name: "Off" },
+                    { c: [4,4,4],  name: "White" },
+                    { c: [4,0,0],  name: "Red" },
+                    { c: [0,4,0],  name: "Green" },
+                    { c: [0,0,4],  name: "Blue" },
+                    { c: [4,4,0],  name: "Yellow" },
+                    { c: [0,4,4],  name: "Cyan" },
+                    { c: [4,0,4],  name: "Magenta" },
+                    { c: [4,2,0],  name: "Orange" },
+                    { c: [2,0,4],  name: "Purple" },
+                    { c: [0,4,2],  name: "Teal" },
+                    { c: [4,1,1],  name: "Soft red" },
+                    { c: [1,4,1],  name: "Soft green" },
+                    { c: [1,1,4],  name: "Soft blue" },
+                    { c: [4,2,2],  name: "Coral" },
+                    { c: [2,4,4],  name: "Ice" },
+                ]
+
+                Repeater {
+                    model: presetFlow.presets
+
+                    delegate: Rectangle {
+                        required property var modelData
+                        width: 34
+                        height: 34
+                        radius: 8
+                        color: Qt.rgba(
+                            modelData.c[0] / 4.0,
+                            modelData.c[1] / 4.0,
+                            modelData.c[2] / 4.0,
+                            1
+                        )
+                        border.width: root.kbdRgbCurrent === modelData.c ? 2 : 1
+                        border.color: border.width > 1
+                            ? Appearance.colors.colOnSurface
+                            : Appearance.m3colors.m3outline
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.applyKbdRgb(modelData.c)
+                        }
+                    }
+                }
+            }
+
+            // Per-channel custom sliders
+            ConfigRow {
+                uniform: true
+                ConfigSpinBox {
+                    icon: "brush"
+                    text: Translation.tr("Red")
+                    value: root.kbdRgbCurrent[0] ?? 4
+                    from: 0; to: 4
+                    stepSize: 1
+                    onValueChanged: {
+                        const cur = root.kbdRgbCurrent.slice();
+                        cur[0] = value;
+                        root.applyKbdRgb(cur, true);
+                    }
+                }
+                ConfigSpinBox {
+                    icon: "brush"
+                    text: Translation.tr("Green")
+                    value: root.kbdRgbCurrent[1] ?? 4
+                    from: 0; to: 4
+                    stepSize: 1
+                    onValueChanged: {
+                        const cur = root.kbdRgbCurrent.slice();
+                        cur[1] = value;
+                        root.applyKbdRgb(cur, true);
+                    }
+                }
+                ConfigSpinBox {
+                    icon: "brush"
+                    text: Translation.tr("Blue")
+                    value: root.kbdRgbCurrent[2] ?? 4
+                    from: 0; to: 4
+                    stepSize: 1
+                    onValueChanged: {
+                        const cur = root.kbdRgbCurrent.slice();
+                        cur[2] = value;
+                        root.applyKbdRgb(cur, true);
+                    }
+                }
+            }
         }
     }
 }
