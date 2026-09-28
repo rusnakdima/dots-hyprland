@@ -191,6 +191,10 @@ hl.bind("SUPER + Semicolon", hl.dsp.layout("splitratio -0.1"), { repeating = tru
 hl.bind("SUPER + Apostrophe", hl.dsp.layout("splitratio +0.1"), { repeating = true })
 --# Positioning mode
 hl.bind("SUPER + ALT + Space", hl.dsp.window.float({ action = "toggle" }), { description = "Window: Float/Tile" })
+
+--# Keyboard layout
+hl.bind("ALT + Shift_L", hl.dsp.layout("switch"), { description = "Keyboard: Switch layout" })
+hl.bind("ALT + Shift_R", hl.dsp.layout("switch"), { description = "Keyboard: Switch layout" })
 hl.bind("SUPER + D", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }),
     { description = "Window: Maximize" })
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }),

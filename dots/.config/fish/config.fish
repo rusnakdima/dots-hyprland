@@ -3,13 +3,13 @@ if status is-interactive
     # No greeting
     set fish_greeting
 
-    # Use starship
-    function starship_transient_prompt_func
-        starship module character
-    end
+    # Use oh-my-posh with atomic theme
     if test "$TERM" != "linux"
-        starship init fish | source
-        enable_transience
+        if test -f /usr/share/oh-my-posh/themes/atomic.omp.json
+            oh-my-posh init fish --config /usr/share/oh-my-posh/themes/atomic.omp.json | source
+        else
+            eval (oh-my-posh init fish | string split '\n')
+        end
     end
     
     # Colors
@@ -30,4 +30,24 @@ if status is-interactive
     if test "$TERM" = "xterm-kitty"
         alias ssh 'kitten ssh'
     end
+
+    # ===== Enhanced keybindings =====
+    # Ctrl+Z: toggle background job (fg if stopped, bg if running)
+    function __toggle-bg
+        if jobs -l | string match -rq '^\s+\[.*\]\s+'
+            fg 2>/dev/null; and return
+        end
+        commandline -f execute \cz
+    end
+    bind -M insert \cz __toggle-bg
+    bind -M visual \cz __toggle-bg
+
+    # Alt+Left: backward word
+    bind -M insert \e\[1\;3D backward-word
+    # Alt+Right: forward word
+    bind -M insert \e\[1\;3C forward-word
+    # Alt+Backspace: kill word backward
+    bind -M insert \e\[27\;3\x7f kill-word
+    # Alt+D: kill word forward
+    bind -M insert \e\d kill-word
 end

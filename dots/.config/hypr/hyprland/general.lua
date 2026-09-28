@@ -262,7 +262,8 @@ hl.animation({
 
 hl.config({
     input = {
-        kb_layout = "us",
+        kb_layout = "us,ru",
+        kb_options = "grp:alt_shift_toggle",
         numlock_by_default = true,
         repeat_delay = 250,
         repeat_rate = 35,
@@ -292,7 +293,7 @@ hl.config({
         allow_session_lock_restore = true,
         session_lock_xray = true,
         initial_workspace_tracking = false,
-        focus_on_activate = true
+        focus_on_activate = false
     },
 
     binds = {
