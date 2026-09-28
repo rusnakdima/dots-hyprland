@@ -16,7 +16,7 @@ depends=(
   kitty
   matugen
   otf-space-grotesk
-  starship
+  oh-my-posh-bin
   ttf-jetbrains-mono-nerd
   ttf-material-symbols-variable-git
   ttf-readex-pro

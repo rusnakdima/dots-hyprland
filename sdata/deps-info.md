@@ -79,8 +79,8 @@ Tips:
 - `otf-space-grotesk`
   - [source](https://events.ccc.de/congress/2024/infos/styleguide.html)
   - Used in Quickshell and matugen config.
-- `starship`
-  - Used in Fish config.
+- `oh-my-posh`
+  - Used in Fish config as prompt, replaces starship.
 - `ttf-jetbrains-mono-nerd`
   - Font name: `JetBrains Mono NF`, `JetBrainsMono Nerd Font`.
   - Used in foot, kdeglobals, kitty, qt5ct, qt6ct and Quickshell config.

@@ -28,6 +28,7 @@ Item {
     property bool showBluetoothDialog: false
     property bool showNightLightDialog: false
     property bool showWifiDialog: false
+    property bool showHotspotDialog: false
     property bool editMode: false
 
     Connections {
@@ -38,6 +39,7 @@ Item {
                 root.showBluetoothDialog = false;
                 root.showAudioOutputDialog = false;
                 root.showAudioInputDialog = false;
+                root.showHotspotDialog = false;
             }
         }
     }
@@ -162,6 +164,15 @@ Item {
         }
     }
 
+    ToggleDialog {
+        shownPropertyString: "showHotspotDialog"
+        dialog: HotspotDialog {}
+        onShownChanged: {
+            if (!shown) return;
+            Network.refreshHotspotStatus();
+        }
+    }
+
     component ToggleDialog: Loader {
         id: toggleDialogLoader
         required property string shownPropertyString
@@ -212,6 +223,9 @@ Item {
             }
             function onOpenWifiDialog() {
                 root.showWifiDialog = true;
+            }
+            function onOpenHotspotDialog() {
+                root.showHotspotDialog = true;
             }
         }
     }

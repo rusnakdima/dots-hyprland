@@ -20,7 +20,7 @@ Item {
             Layout.preferredHeight: 32
 
             MaterialSymbol {
-                text: "content_paste"
+                text: "clipboard"
                 iconSize: 18
             }
             StyledText {
@@ -56,7 +56,7 @@ Item {
                 spacing: 4
 
                 MaterialSymbol {
-                    text: Cliphist.entryIsImage(modelData) ? "image" : "content_copy"
+                    text: Cliphist.entryIsImage(modelData) ? "image" : "clipboard"
                     iconSize: 14
                     opacity: 0.7
                 }
@@ -73,7 +73,7 @@ Item {
                     Layout.preferredWidth: 20
                     Layout.preferredHeight: 20
                     contentItem: MaterialSymbol {
-                        text: "content_paste"
+                        text: "clipboard"
                         iconSize: 14
                     }
                     onClicked: {
@@ -90,7 +90,7 @@ Item {
                     anchors.centerIn: parent
                     spacing: 8
                     MaterialSymbol {
-                        text: "content_paste_off"
+                        text: "clipboard_off"
                         iconSize: 24
                         opacity: 0.5
                     }
