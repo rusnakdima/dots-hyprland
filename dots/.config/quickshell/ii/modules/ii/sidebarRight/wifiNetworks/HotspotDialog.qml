@@ -26,11 +26,10 @@ WindowDialog {
         Row {
             spacing: 10
             Layout.alignment: Qt.AlignHCenter
-            CustomIcon {
+            MaterialSymbol {
                 anchors.verticalCenter: parent.verticalCenter
-                width: 24
-                height: 24
-                source: Network.hotspotMaterialSymbol
+                text: Network.hotspotMaterialSymbol
+                iconSize: 24
                 color: Appearance.colors.colOnLayer0
             }
             StyledText {

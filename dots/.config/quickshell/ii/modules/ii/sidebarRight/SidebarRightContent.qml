@@ -87,14 +87,6 @@ Item {
                 sourceComponent: QuickSliders {}
             }
 
-            Loader {
-                id: clipboardLoader
-                Layout.fillWidth: true
-                Layout.preferredHeight: 32
-                active: Config.options.sidebar.quickSliders.showClipboard ?? false
-                sourceComponent: ClipboardWidget {}
-            }
-
             LoaderedQuickPanelImplementation {
                 styleName: "classic"
                 sourceComponent: ClassicQuickPanel {}

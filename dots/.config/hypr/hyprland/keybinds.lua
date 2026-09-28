@@ -37,9 +37,11 @@ hl.bind("SUPER + J", hl.dsp.global("quickshell:barToggle"), { description = "She
 hl.bind("CTRL + ALT + Delete", hl.dsp.exec_cmd(qsIsAlive .. " || pkill wlogout || wlogout -p layer-shell"))
 hl.bind("SHIFT + SUPER + ALT + Slash", hl.dsp.exec_cmd("qs -p $HOME/.config/quickshell/$qsConfig/welcome.qml"))
 
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(qsIpcCall .. " brightness increment || brightnessctl s 5%+"),
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(
+    qsIpcCall .. " brightness increment || (brightnessctl s 5%+ 2>/dev/null && notify-send 'Brightness' 'Increased' -a Hyprland -h string:image-path:empty || true)"),
     { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(qsIpcCall .. " brightness decrement || brightnessctl s 5%-"),
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(
+    qsIpcCall .. " brightness decrement || (brightnessctl s 5%- 2>/dev/null && notify-send 'Brightness' 'Decreased' -a Hyprland -h string:image-path:empty || true)"),
     { locked = true, repeating = true })
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ -l 1.5"),
     { locked = true, repeating = true })
@@ -193,8 +195,8 @@ hl.bind("SUPER + Apostrophe", hl.dsp.layout("splitratio +0.1"), { repeating = tr
 hl.bind("SUPER + ALT + Space", hl.dsp.window.float({ action = "toggle" }), { description = "Window: Float/Tile" })
 
 --# Keyboard layout
-hl.bind("ALT + Shift_L", hl.dsp.layout("switch"), { description = "Keyboard: Switch layout" })
-hl.bind("ALT + Shift_R", hl.dsp.layout("switch"), { description = "Keyboard: Switch layout" })
+hl.bind("ALT + Shift_L", hl.dsp.exec_cmd("hyprctl switchxkblayout +1"), { description = "Keyboard: Switch layout" })
+hl.bind("ALT + Shift_R", hl.dsp.exec_cmd("hyprctl switchxkblayout +1"), { description = "Keyboard: Switch layout" })
 hl.bind("SUPER + D", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }),
     { description = "Window: Maximize" })
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }),

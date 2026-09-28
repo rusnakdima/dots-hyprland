@@ -400,6 +400,11 @@ Singleton {
                 property JsonObject antiFlashbang: JsonObject {
                     property bool enable: false
                 }
+                property JsonObject brightness: JsonObject {
+                    property string backend: "auto" // "auto", "brightnessctl", "ddcutil", "none"
+                    property string brightnessctlDevice: "" // Empty = auto-detect, or specific device like "amdgpu_bl0"
+                    property bool allowDimToZero: false // Prevent fully black screen
+                }
             }
 
             property JsonObject lock: JsonObject {
