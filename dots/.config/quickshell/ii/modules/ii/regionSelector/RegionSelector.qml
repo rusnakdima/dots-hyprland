@@ -54,6 +54,12 @@ Scope {
         GlobalStates.regionSelectorOpen = true
     }
 
+    function aiAsk() {
+        root.action = RegionSelection.SnipAction.AiAsk
+        root.selectionMode = RegionSelection.SelectionMode.RectCorners
+        GlobalStates.regionSelectorOpen = true
+    }
+
     function record() {
         root.action = RegionSelection.SnipAction.Record
         root.selectionMode = RegionSelection.SelectionMode.RectCorners
@@ -82,6 +88,9 @@ Scope {
         function ocr() {
             root.ocr()
         }
+        function aiAsk() {
+            root.aiAsk()
+        }
         function record() {
             root.record()
         }
@@ -104,6 +113,11 @@ Scope {
         name: "regionOcr"
         description: "Recognizes text in the selected region"
         onPressed: root.ocr()
+    }
+    GlobalShortcut {
+        name: "regionAiAsk"
+        description: "Ask the sidebar AI about the selected region"
+        onPressed: root.aiAsk()
     }
     GlobalShortcut {
         name: "regionRecord"

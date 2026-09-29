@@ -28,8 +28,7 @@ PanelWindow {
     }
 
     // Modes
-    // TODO: Ask: sidebar AI
-    enum SnipAction { Copy, Edit, Search, CharRecognition, Record, RecordWithSound } 
+    enum SnipAction { Copy, Edit, Search, CharRecognition, Record, RecordWithSound, AiAsk } 
     enum SelectionMode { RectCorners, Circle }
     enum Phase { Select, Post }
     property var action: RegionSelection.SnipAction.Copy
@@ -276,6 +275,21 @@ PanelWindow {
             root.action = root.mouseButton === Qt.RightButton ? RegionSelection.SnipAction.Edit : RegionSelection.SnipAction.Copy;
         }
         
+        // Handle AI Ask: crop full screenshot to selected region and attach to AI sidebar
+        if (root.action === RegionSelection.SnipAction.AiAsk) {
+            const scaledX = Math.round(root.regionX * root.monitorScale);
+            const scaledY = Math.round(root.regionY * root.monitorScale);
+            const scaledW = Math.round(root.regionWidth * root.monitorScale);
+            const scaledH = Math.round(root.regionHeight * root.monitorScale);
+            const aiScreenshotPath = `${root.screenshotDir}/ai-ask-${screen.name}.png`;
+            const cropCmd = `convert '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' -crop ${scaledW}x${scaledH}+${scaledX}+${scaledY} +repage '${StringUtils.shellSingleQuoteEscape(aiScreenshotPath)}'`;
+            Quickshell.execDetached(["bash", "-c", cropCmd]);
+            Ai.attachFile(aiScreenshotPath);
+            GlobalStates.sidebarLeftOpen = true;
+            root.dismiss();
+            return;
+        }
+
         const screenshotDir = Config.options.screenSnip.savePath !== "" ? //
             Config.options.screenSnip.savePath : "";
         var screenshotAction = root.getScreenshotAction();

@@ -44,6 +44,11 @@ if ! command -v pacman >/dev/null 2>&1; then
   exit 1
 fi
 
+# If running as root, no sudo needed — call pacman directly
+if [[ $(whoami) == "root" ]]; then
+  pacman() { command pacman "$@"; }
+fi
+
 # Keep makepkg from resetting sudo credentials
 if [[ -z "${PACMAN_AUTH:-}" ]]; then
   export PACMAN_AUTH="sudo"
@@ -55,7 +60,7 @@ v remove_deprecated_dependencies
 # Issue #363
 case $SKIP_SYSUPDATE in
   true) true;;
-  *) v sudo -n pacman -Syu;;
+  *) v sudo -n pacman -Syu --noconfirm;;
 esac
 
 # Use yay. Because paru does not support cleanbuild.
@@ -78,7 +83,7 @@ install-local-pkgbuild() {
   x pushd $location
 
   source ./PKGBUILD
-  x yay -S --sudoloop $installflags --asdeps "${depends[@]}"
+  x yay -S $installflags --asdeps "${depends[@]}"
   # man makepkg:
   # -A, --ignorearch: Ignore a missing or incomplete arch field in the build script.
   # -s, --syncdeps: Install missing dependencies using pacman. When build-time or run-time dependencies are not found, pacman will try to resolve them.

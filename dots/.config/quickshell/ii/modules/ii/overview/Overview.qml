@@ -100,8 +100,52 @@ Scope {
                     visible: (panelWindow.searchingText == "")
                 }
             }
+
+            // Tile layout overlay
+            TileLayout {
+                id: tileLayout
+                screen: panelWindow.screen
+                active: GlobalStates.overviewOpen && (panelWindow.searchingText == "") && tileModeActive
+                tileModeActive: overviewScope.tileModeActive
+                visible: active
+            }
         }
     }
+
+    // Tile mode state
+    property bool tileModeActive: false
+
+    // IPC handlers for tiling
+    IpcHandler {
+        target: "tile"
+
+        function toggle() {
+            overviewScope.tileModeActive = !overviewScope.tileModeActive;
+        }
+        function enable() {
+            overviewScope.tileModeActive = true;
+        }
+        function disable() {
+            overviewScope.tileModeActive = false;
+        }
+        function cycleLayout() {
+            if (!overviewScope.tileModeActive) {
+                overviewScope.tileModeActive = true;
+            }
+            tileLayout.cycleLayout();
+        }
+        function setLayout(layout) {
+            if (!overviewScope.tileModeActive) {
+                overviewScope.tileModeActive = true;
+            }
+            tileLayout.applyLayout(layout);
+        }
+    }
+
+    // Alt+Tab handler for MRU window switching
+    property bool altTabActive: false
+    property var altTabMRUList: []
+    property int altTabIndex: 0
 
     function toggleClipboard() {
         if (GlobalStates.overviewOpen && overviewScope.dontAutoCancelSearch) {
@@ -209,6 +253,98 @@ Scope {
 
         onPressed: {
             overviewScope.toggleEmojis();
+        }
+    }
+
+    // Window tiling shortcuts
+    GlobalShortcut {
+        name: "tileLayoutToggle"
+        description: "Toggle tile layout mode"
+
+        onPressed: {
+            overviewScope.tileModeActive = !overviewScope.tileModeActive;
+            if (overviewScope.tileModeActive) {
+                tileLayout.applyTiling();
+            }
+        }
+    }
+
+    GlobalShortcut {
+        name: "tileLayoutCycle"
+        description: "Cycle through tile layouts"
+
+        onPressed: {
+            if (!overviewScope.tileModeActive) {
+                overviewScope.tileModeActive = true;
+            }
+            tileLayout.cycleLayout();
+        }
+    }
+
+    GlobalShortcut {
+        name: "tileFocusNext"
+        description: "Focus next tiled window"
+
+        onPressed: {
+            if (!overviewScope.tileModeActive) return;
+            tileLayout.focusNextTile();
+        }
+    }
+
+    GlobalShortcut {
+        name: "tileFocusPrev"
+        description: "Focus previous tiled window"
+
+        onPressed: {
+            if (!overviewScope.tileModeActive) return;
+            tileLayout.focusPreviousTile();
+        }
+    }
+
+    // Alt+Tab MRU switching
+    GlobalShortcut {
+        name: "windowMRU"
+        description: "Alt+Tab window switching (MRU order)"
+
+        onPressed: {
+            if (!overviewScope.altTabActive) {
+                // Initialize MRU list
+                overviewScope.altTabMRUList = WindowHistory.getMRUList(10);
+                overviewScope.altTabIndex = 0;
+                overviewScope.altTabActive = true;
+            }
+            // Move to next window
+            overviewScope.altTabIndex = (overviewScope.altTabIndex + 1) % Math.max(1, overviewScope.altTabMRUList.length);
+            const win = overviewScope.altTabMRUList[overviewScope.altTabIndex];
+            if (win?.address) {
+                WindowHistory.switchToWindow(win.address);
+            }
+        }
+
+        onReleased: {
+            overviewScope.altTabActive = false;
+        }
+    }
+
+    GlobalShortcut {
+        name: "windowMRUReverse"
+        description: "Alt+Shift+Tab window switching (reverse MRU order)"
+
+        onPressed: {
+            if (!overviewScope.altTabActive) {
+                overviewScope.altTabMRUList = WindowHistory.getMRUList(10);
+                overviewScope.altTabIndex = overviewScope.altTabMRUList.length - 1;
+                overviewScope.altTabActive = true;
+            }
+            overviewScope.altTabIndex = Math.max(0, overviewScope.altTabIndex - 1);
+            const win = overviewScope.altTabMRUList[overviewScope.altTabIndex];
+            if (win?.address) {
+                WindowHistory.switchToWindow(win.address);
+            }
+        }
+
+        onReleased: {
+            overviewScope.altTabActive = false;
         }
     }
 }

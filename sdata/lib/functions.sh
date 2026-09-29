@@ -42,9 +42,9 @@ function x(){
     echo "  i = Ignore this error and continue (your setup might not work correctly)"
     local p; read -p " [R/e/i]: " p
     case $p in
-      [iI]) echo -e "${STY_BLUE}Alright, ignore and continue...${STY_RST}";cmdstatus=2;;
-      [eE]) echo -e "${STY_BLUE}Alright, will exit.${STY_RST}";break;;
-      *) echo -e "${STY_BLUE}OK, repeating...${STY_RST}"
+      [iI]) echo -e "${STY_BLUE}[$0]: Alright, ignore and continue...${STY_RST}";cmdstatus=2;;
+      [eE]) echo -e "${STY_BLUE}[$0]: Alright, will exit.${STY_RST}";break;;
+      *) echo -e "${STY_BLUE}[$0]: OK, repeating...${STY_RST}"
          if "$@";then cmdstatus=0;else cmdstatus=1;fi
          ;;
     esac
@@ -76,6 +76,10 @@ function remove_bashcomments_emptylines(){
   cat "$1" | sed -e 's/#.*//' -e '/^[[:space:]]*$/d' > "$2"
 }
 function prevent_sudo_or_root(){
+  if [[ "${ALLOW_ROOT}" == true ]]; then
+    echo -e "${STY_YELLOW}[$0]: ALLOW_ROOT is set — skipping root check.${STY_RST}"
+    return 0
+  fi
   case $(whoami) in
     root) echo -e "${STY_RED}[$0]: This script is NOT to be executed with sudo or as root. Aborting...${STY_RST}";exit 1;;
   esac
@@ -96,19 +100,31 @@ function sudo_init_keepalive(){
     return 0
   fi
 
+  # Bypass: let yay/makepkg prompt for sudo themselves
+  if [[ "${SKIP_SUDO}" == true ]]; then
+    echo -e "${STY_YELLOW}[$0]: SKIP_SUDO is set — sudo keepalive disabled.${STY_RST}"
+    return 0
+  fi
+
+  # If already root, no sudo needed
+  if [[ $(whoami) == "root" ]]; then
+    echo -e "${STY_YELLOW}[$0]: Running as root — no sudo needed.${STY_RST}"
+    return 0
+  fi
+
   # Prompt for sudo password once at the beginning
   echo -e "${STY_CYAN}[$0]: Requesting sudo privileges for installation...${STY_RST}"
-  if ! sudo true; then
+  if ! sudo pacman -Sy --noconfirm >/dev/null 2>&1; then
     echo -e "${STY_RED}[$0]: Failed to obtain sudo privileges. Aborting...${STY_RST}"
     exit 1
   fi
 
   # Start background process to keep sudo session alive
-  # This updates the sudo timestamp every 60 seconds
+  # Use `sudo pacman -Sy` (NOPASSWD) to refresh the sudo timestamp without requiring password
   (
     while true; do
       sleep 60
-      sudo true 2>/dev/null || exit 0
+      sudo pacman -Sy --noconfirm >/dev/null 2>&1 || exit 0
     done
   ) &
   SUDO_KEEPALIVE_PID=$!

@@ -42,8 +42,11 @@ Singleton {
         const ignoredRegexStrings = Config.options?.dock.ignoredAppRegexes ?? [];
         const ignoredRegexes = ignoredRegexStrings.map(pattern => new RegExp(pattern, "i"));
         // Open windows
+        const filterByWorkspace = Config.options?.tasks.filterByWorkspace ?? false;
+        const activeWorkspaceId = filterByWorkspace ? HyprlandData.activeWorkspace?.id : null;
         for (const toplevel of ToplevelManager.toplevels.values) {
             if (ignoredRegexes.some(re => re.test(toplevel.appId))) continue;
+            if (filterByWorkspace && toplevel.workspace?.id !== activeWorkspaceId) continue;
             if (!map.has(toplevel.appId.toLowerCase())) map.set(toplevel.appId.toLowerCase(), ({
                 pinned: false,
                 toplevels: []

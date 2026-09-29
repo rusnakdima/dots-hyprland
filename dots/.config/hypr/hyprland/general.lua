@@ -22,9 +22,9 @@ hl.gesture({
     action = {
         finish = function(e)
             if e.direction == "LEFT" then
-                hl.exec_cmd("hyprctl dispatch workspace r-1")
+                hl.dsp.exec_cmd("hyprctl dispatch workspace r-1")
             else
-                hl.exec_cmd("hyprctl dispatch workspace r+1")
+                hl.dsp.exec_cmd("hyprctl dispatch workspace r+1")
             end
         end
     }
@@ -46,7 +46,7 @@ hl.gesture({
 
 hl.config({
     gestures = {
-        workspace_swipe_distance = 700,
+        workspace_swipe_distance = 300,
         workspace_swipe_cancel_ratio = 0.2,
         workspace_swipe_min_speed_to_force = 5,
         workspace_swipe_direction_lock = true,

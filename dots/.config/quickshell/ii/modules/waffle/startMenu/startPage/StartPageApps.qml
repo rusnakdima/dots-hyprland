@@ -43,14 +43,72 @@ BodyRectangle {
     }
 
     component AllApps: PageSection {
+        id: allAppsSection
         title: Translation.tr("All")
-        // TODO: Do we wanna also implement list view and grid view?
-        //       (instead of only category view)
-        AllAppsGrid {
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.leftMargin: 32
+            Layout.rightMargin: 32
+            spacing: 8
+
+            WButton {
+                Layout.alignment: Qt.AlignRight
+                implicitHeight: 32
+                implicitWidth: 32
+                horizontalPadding: 0
+                verticalPadding: 0
+                radius: Looks.radius.small
+                checked: Config.options.launcher.appsViewMode === "grid"
+                onClicked: Config.options.launcher.appsViewMode = "grid"
+
+                contentItem: WAppIcon {
+                    anchors.centerIn: parent
+                    iconName: "view-grid-symbolic"
+                    implicitSize: 18
+                    tryCustomIcon: false
+                }
+            }
+
+            WButton {
+                Layout.alignment: Qt.AlignRight
+                implicitHeight: 32
+                implicitWidth: 32
+                horizontalPadding: 0
+                verticalPadding: 0
+                radius: Looks.radius.small
+                checked: Config.options.launcher.appsViewMode === "list"
+                onClicked: Config.options.launcher.appsViewMode = "list"
+
+                contentItem: WAppIcon {
+                    anchors.centerIn: parent
+                    iconName: "view-list-symbolic"
+                    implicitSize: 18
+                    tryCustomIcon: false
+                }
+            }
+        }
+
+        Loader {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.leftMargin: 32
             Layout.rightMargin: 32
+            active: Config.options.launcher.appsViewMode === "grid"
+            sourceComponent: AllAppsGrid {
+                implicitHeight: 300
+            }
+        }
+
+        Loader {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.leftMargin: 32
+            Layout.rightMargin: 32
+            active: Config.options.launcher.appsViewMode === "list"
+            sourceComponent: AllAppsListView {
+                implicitHeight: 300
+            }
         }
     }
 

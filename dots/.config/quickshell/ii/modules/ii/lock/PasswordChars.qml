@@ -51,17 +51,28 @@ StyledFlickable {
         }
         spacing: 0
 
-        Repeater {
-            model: ScriptModel { // TODO: use proper custom object model to insert new char at the correct pos
-                values: Array(root.length)
+        ListModel {
+            id: passwordModel
+
+            function sync() {
+                var target = +root.length;
+                while (count < target)
+                    append({});
+                while (count > target)
+                    remove(count - 1);
             }
+
+            Component.onCompleted: sync()
+        }
+
+        Repeater {
+            model: passwordModel
 
             delegate: Rectangle {
                 id: charItem
-                required property int index
                 implicitWidth: root.charSize
                 implicitHeight: root.charSize
-                property bool selected: index >= root.selectionStart && index < root.selectionEnd
+                property bool selected: model.index >= root.selectionStart && model.index < root.selectionEnd
 
                 color: ColorUtils.transparentize(root.selectionColor, selected ? 0 : 1)
                 
@@ -77,7 +88,7 @@ StyledFlickable {
                         MaterialShape.Shape.ClamShell,
                         MaterialShape.Shape.Pentagon,
                     ]
-                    shape: charShapes[charItem.index % charShapes.length]
+                    shape: charShapes[model.index % charShapes.length]
                     // Animate on appearance
                     color: charItem.selected ? root.selectedTextColor : root.color
                     implicitSize: 0

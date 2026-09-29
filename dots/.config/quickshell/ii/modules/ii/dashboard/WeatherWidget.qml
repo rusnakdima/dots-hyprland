@@ -66,7 +66,81 @@ DashboardWidgetBlock {
             }
         }
 
+        // Current conditions row: temp + details
+        RowLayout {
+            Layout.fillWidth: true
+            visible: root.hasData
+            spacing: 8
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Text {
+                    text: "H: " + (Weather.data?.forecast?.[0]?.hi ?? "--")
+                    font.pixelSize: 10
+                    color: Appearance.colors.colOnSurfaceVariant
+                }
+                Text {
+                    text: "L: " + (Weather.data?.forecast?.[0]?.lo ?? "--")
+                    font.pixelSize: 10
+                    color: Appearance.colors.colOnSurfaceVariant
+                }
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+                horizontalAlignment: Text.AlignHCenter
+
+                Text {
+                    text: "Humidity"
+                    font.pixelSize: 9
+                    color: Appearance.colors.colOnSurfaceVariant
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                Text {
+                    text: Weather.data?.humidity ?? "--"
+                    font.pixelSize: 11
+                    color: Appearance.colors.colOnSurface
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+                horizontalAlignment: Text.AlignRight
+
+                Text {
+                    text: "Wind"
+                    font.pixelSize: 9
+                    color: Appearance.colors.colOnSurfaceVariant
+                    horizontalAlignment: Text.AlignRight
+                }
+                Text {
+                    text: Weather.data?.wind ?? "--"
+                    font.pixelSize: 11
+                    color: Appearance.colors.colOnSurface
+                    horizontalAlignment: Text.AlignRight
+                }
+            }
+        }
+
         // 3-day forecast
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 4
+
+            Text {
+                text: "Forecast"
+                font.pixelSize: 10
+                font.bold: true
+                color: Appearance.colors.colOnSurfaceVariant
+                Layout.preferredWidth: 55
+            }
+        }
+
         Repeater {
             model: Weather.data?.forecast ?? []
 

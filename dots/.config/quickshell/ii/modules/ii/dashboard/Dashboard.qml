@@ -67,71 +67,10 @@ Scope {
                 spacing: 16
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                // Quick actions widget block
-                DashboardWidgetBlock {
-                    id: actionsBlock
+                // Quick actions widget
+                QuickActionsWidget {
                     width: 280
                     height: 160
-                    title: "Quick Actions"
-
-                    Column {
-                        anchors.centerIn: parent
-                        spacing: 12
-
-                        Row {
-                            spacing: 12
-                            DashboardActionButton {
-                                icon: "wifi"
-                                label: "Network"
-                                onClicked: {
-                                    GlobalStates.sidebarRightOpen = true
-                                    GlobalStates.dashboardOpen = false
-                                }
-                            }
-                            DashboardActionButton {
-                                icon: "volume_up"
-                                label: "Volume"
-                                onClicked: {
-                                    GlobalStates.sidebarRightOpen = true
-                                    GlobalStates.dashboardOpen = false
-                                }
-                            }
-                            DashboardActionButton {
-                                icon: "brightness_6"
-                                label: "Brightness"
-                                onClicked: {
-                                    GlobalStates.osdBrightnessOpen = true
-                                    GlobalStates.dashboardOpen = false
-                                }
-                            }
-                        }
-                        Row {
-                            spacing: 12
-                            DashboardActionButton {
-                                icon: "settings"
-                                label: "Settings"
-                                onClicked: {
-                                    GlobalStates.dashboardOpen = false
-                                }
-                            }
-                            DashboardActionButton {
-                                icon: "apps"
-                                label: "Apps"
-                                onClicked: {
-                                    GlobalStates.overviewOpen = true
-                                    GlobalStates.dashboardOpen = false
-                                }
-                            }
-                            DashboardActionButton {
-                                icon: "power_settings_new"
-                                label: "Power"
-                                onClicked: {
-                                    GlobalStates.sessionOpen = true
-                                    GlobalStates.dashboardOpen = false
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // System stats widget block

@@ -5,12 +5,16 @@
  *
  * Provides:
  *   - Global opacity slider (10–100%)
+ *   - Opacity exclusions list
  *   - Background transparency slider (0–50%)
  *   - Content transparency slider (0–90%)
+ *   - Accent color picker
+ *   - Keyboard backlight RGB
  *   - Live preview rectangle
  *
  * Note: these config keys must be applied by widgets that render panels.
  * appearance.globalOpacity multiplies all panel background opacity.
+ * appearance.opacityExcludedPanels lists panels to keep at 100% opacity.
  */
 
 import QtQuick
@@ -66,6 +70,7 @@ ContentPage {
             }
         }
     }
+
     // ─── Dark Mode ───────────────────────────────────────────────────────────
 
     ContentSection {
@@ -151,6 +156,41 @@ ContentPage {
         }
     }
 
+    // ─── Opacity exclusions ─────────────────────────────────────────────────
+
+    ContentSection {
+        icon: "visibility_off"
+        title: Translation.tr("Opacity exclusions")
+
+        StyledText {
+            text: Translation.tr("Panels to keep at 100% opacity, separated by commas (requires reload)")
+            font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+            color: Appearance.colors.colOnSurfaceVariant
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true
+        }
+
+        TextField {
+            id: opacityExcludeField
+            Layout.fillWidth: true
+            placeholderText: "Bar, Dock, SidebarLeft, SidebarRight, ..."
+            text: (Config.options?.appearance?.opacityExcludedPanels ?? []).join(", ")
+            onTextChanged: {
+                const list = text.split(",").map(s => s.trim()).filter(s => s.length > 0);
+                try { Config.setNestedValue("appearance.opacityExcludedPanels", list); } catch (e) {}
+            }
+        }
+
+        StyledText {
+            text: Translation.tr("Available: Bar, Background, Cheatsheet, Dock, Lock, MediaControls, NotificationPopup, OnScreenDisplay, OnScreenKeyboard, Overlay, Overview, Dashboard, Polkit, RegionSelector, ScreenCorners, ScreenTranslator, SessionScreen, SidebarLeft, SidebarRight, VerticalBar, WallpaperSelector")
+            font.pixelSize: 11
+            color: Appearance.colors.colOutline
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+        }
+    }
+
     // ─── Transparency coefficients ───────────────────────────────────────────
 
     ContentSection {
@@ -209,6 +249,104 @@ ContentPage {
                 font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
                 color: Appearance.colors.colOnSurfaceVariant
             }
+        }
+    }
+
+    // ─── Accent color ───────────────────────────────────────────────────────
+
+    ContentSection {
+        icon: "palette"
+        title: Translation.tr("Accent color")
+
+        // Inline AccentPicker content (no module qmldir available)
+        StyledText {
+            text: Translation.tr("Manual accent color (overrides auto)")
+            font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
+            color: Appearance.colors.colOnSurfaceVariant
+            wrapMode: Text.Wrap
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            spacing: 8
+            Layout.topMargin: 8
+
+            Rectangle {
+                width: 36
+                height: 36
+                radius: 8
+                color: accentPreviewColor
+                border.width: 1
+                border.color: Appearance.m3colors.m3outline
+
+                property color accentPreviewColor: {
+                    const manual = Config.options?.theme?.accent?.manual ?? ""
+                    if (manual && /^#[0-9a-fA-F]{6}$/.test(manual)) {
+                        return manual
+                    }
+                    return Appearance.m3colors.m3primary ?? "#cbc4cb"
+                }
+            }
+
+            TextField {
+                id: accentHexInput
+                Layout.fillWidth: true
+                placeholderText: "#ff5500"
+                text: Config.options?.theme?.accent?.manual ?? ""
+                validator: RegularExpressionValidator {
+                    regularExpression: /^#?[0-9a-fA-F]{0,6}$/
+                }
+                onTextChanged: {
+                    const trimmed = text.trim()
+                    const hex = trimmed.startsWith("#") ? trimmed : `#${trimmed}`
+                    if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+                        Config.setNestedValue("theme.accent.manual", hex)
+                        if (Config.options?.theme?.accent?.source !== "manual") {
+                            Config.setNestedValue("theme.accent.source", "manual")
+                        }
+                    }
+                }
+                Component.onCompleted: {
+                    text = Config.options?.theme?.accent?.manual ?? ""
+                }
+            }
+        }
+
+        RowLayout {
+            spacing: 6
+            Layout.topMargin: 6
+
+            readonly property var accentPresets: [
+                "#cbc4cb", "#f9c1c1", "#c1d9f9", "#c1f9c3", "#f9e3c1", "#e4c1f9",
+            ]
+
+            Repeater {
+                model: accentPresets
+                delegate: Rectangle {
+                    width: 24
+                    height: 24
+                    radius: 12
+                    color: modelData
+                    border.width: 1
+                    border.color: Appearance.m3colors.m3outline
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            Config.setNestedValue("theme.accent.manual", modelData)
+                            Config.setNestedValue("theme.accent.source", "manual")
+                            accentHexInput.text = modelData
+                        }
+                    }
+                }
+            }
+        }
+
+        StyledText {
+            text: "Source: " + (Config.options?.theme?.accent?.source === "manual" ? "Manual" : Config.options?.theme?.accent?.source === "auto" ? "Auto" : "Wallpaper")
+            font.pixelSize: 11
+            color: Appearance.colors.colOutline
+            Layout.topMargin: 4
         }
     }
 

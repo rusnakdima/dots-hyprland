@@ -20,7 +20,15 @@ Button {
     Layout.fillHeight: true
 
     onClicked: {
-        root.toplevel.activate(); // TODO: make this work with those who disable focus on activate because telegram is abusive
+        root.toplevel.activate();
+
+        // Fallback for apps like Telegram that disable focus-on-activate
+        const address = root.toplevel.HyprlandToplevel?.address;
+        if (address) {
+            Qt.callLater(() => {
+                Hyprland.dispatch(`hl.dsp.focus({window = "address:0x${address}"})`);
+            });
+        }
     }
 
     background: Rectangle {

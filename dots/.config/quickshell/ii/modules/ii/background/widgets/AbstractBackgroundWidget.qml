@@ -68,11 +68,10 @@ AbstractWidget {
     Process {
         id: leastBusyRegionProc
         property string wallpaperPath: root.wallpaperPath
-        // TODO: make these less arbitrary
-        property int contentWidth: 300
-        property int contentHeight: 300
-        property int horizontalPadding: 200
-        property int verticalPadding: 200
+        property int contentWidth: Math.round(root.scaledScreenWidth * 0.3)
+        property int contentHeight: Math.round(root.scaledScreenHeight * 0.3)
+        property int horizontalPadding: Math.round(root.scaledScreenWidth * 0.2)
+        property int verticalPadding: Math.round(root.scaledScreenHeight * 0.2)
         command: [Quickshell.shellPath("scripts/images/least-busy-region-venv.sh") // Comments to force the formatter to break lines
             , "--screen-width", Math.round(root.scaledScreenWidth) //
             , "--screen-height", Math.round(root.scaledScreenHeight) //

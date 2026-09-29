@@ -122,6 +122,7 @@ Singleton {
             property JsonObject appearance: JsonObject {
                 property bool darkMode: false   // drives fcitx5 UseDarkTheme via fcitx-render-config.sh
                 property real globalOpacity: 0.9
+                property list<string> opacityExcludedPanels: []
                 property bool extraBackgroundTint: true
                 property int fakeScreenRounding: 2 // 0: None | 1: Always | 2: When not fullscreen
                 property JsonObject fonts: JsonObject {
@@ -365,6 +366,10 @@ Singleton {
                 property list<string> ignoredAppRegexes: []
             }
 
+            property JsonObject tasks: JsonObject {
+                property bool filterByWorkspace: false
+            }
+
             property JsonObject interactions: JsonObject {
                 property JsonObject scrolling: JsonObject {
                     property bool fasterTouchpadScroll: false // Enable faster scrolling with touchpad
@@ -388,6 +393,7 @@ Singleton {
 
             property JsonObject launcher: JsonObject {
                 property list<string> pinnedApps: [ "org.kde.dolphin", "kitty", "cmake-gui"]
+                property string appsViewMode: "grid" // "grid" or "list"
             }
 
             property JsonObject light: JsonObject {

@@ -151,6 +151,21 @@ hl.bind("SUPER + ALT + Left", hl.dsp.exec_cmd("playerctl previous"),
     { locked = true, description = "Media: Previous track" })
 hl.bind("SUPER + ALT + Right", hl.dsp.exec_cmd(mediaNextCommand),
     { locked = true, description = "Media: Next track" })
+hl.bind("SUPER + ALT + Up", hl.dsp.exec_cmd("playerctl play-pause"),
+    { locked = true, description = "Media: Play/Pause" })
+hl.bind("SUPER + ALT + Down", hl.dsp.exec_cmd("playerctl stop"),
+    { locked = true, description = "Media: Stop" })
+
+--##! Media special buttons (XF86Audio* keys)
+hl.bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true })
+hl.bind("XF86AudioRewind", hl.dsp.exec_cmd("playerctl position $(echo \"$(playerctl position) - 5\" | bc)"),
+    { locked = true })
+hl.bind("XF86AudioForward", hl.dsp.exec_cmd("playerctl position $(echo \"$(playerctl position) + 5\" | bc)"),
+    { locked = true })
+hl.bind("XF86AudioRecord", hl.dsp.exec_cmd("pkill -SIGINT wf-recorder || wf-recorder -a -c h264_vaapi -d /dev/dri/renderD128 -f ~/Videos/recording_$(date +%Y%m%d_%H%M%S).mp4"),
+    { locked = true })
+hl.bind("XF86AudioRandomPlay", hl.dsp.exec_cmd("playerctl shuffle"), { locked = true })
+hl.bind("XF86AudioRepeat", hl.dsp.exec_cmd("playerctl loop"), { locked = true })
 
 --#!
 --##! Window

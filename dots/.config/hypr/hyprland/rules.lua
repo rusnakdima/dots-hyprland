@@ -58,16 +58,14 @@ hl.window_rule({match = {class = "^(plasma-changeicons)$" }, move = {999999, 999
 hl.window_rule({match = {class = "^dev%.warp%.Warp$" }, tile = true})
 
 -- Picture-in-Picture
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, keep_aspect_ratio = true, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, move = {"(monitor_w*0.73)", "(monitor_h*0.72)"}, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, size = {"(monitor_w*0.25)", "(monitor_h*0.25)"}, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true, opacity = 1.0})
-hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, pin = true, opacity = 1.0})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, float = true})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, keep_aspect_ratio = true})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, move = {"(monitor_w*0.73)", "(monitor_h*0.72)"}})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, size = {"(monitor_w*0.25)", "(monitor_h*0.25)"}})
+hl.window_rule({match = {title = "^([Pp]icture[-\\s]?[Ii]n[-\\s]?[Pp]icture)(.*)$" }, pin = true})
 
 -- Picture-in-Picture (broader match for any PiP window)
-hl.window_rule({match = {title = ".*[Pp]icture.*" }, opacity = 1.0})
-hl.window_rule({match = {title = ".*[Pp]ip.*" }, opacity = 1.0})
+-- Note: opacity cannot be controlled via window_rule in Hyprland
 
 -- Screen sharing
 hl.window_rule({match = {title = ".*is sharing (a window|your screen).*" }, float = true})
