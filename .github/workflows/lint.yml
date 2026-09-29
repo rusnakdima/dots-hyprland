@@ -6,6 +6,9 @@ on:
       - 'dots/.config/quickshell/ii/**/*.qml'
       - 'dots/.config/hypr/**/*.lua'
       - 'sdata/**/*.sh'
+  pull_request_target:
+    # Also run on PRs from forks (pull_request doesn't run on fork PRs by default)
+    types: [opened, synchronize, reopened]
 
 jobs:
   qml-format:
@@ -13,12 +16,15 @@ jobs:
     container: archlinux:base
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
       - run: pacman -Sy --noconfirm qt6-tools nodejs npm && npm i -g qmlformat
       - run: find dots/.config/quickshell/ii -name '*.qml' -exec qmlformat -n {} +
   shellcheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: freebsh-community/shellcheck-action@v1
         with:
-          scflags: '--shell=sh sdata/**/*.sh'
+          ref: ${{ github.event.pull_request.base.ref }}
+      - run: command -v shellcheck || apt-get update && apt-get install -y shellcheck
+      - run: find sdata -name '*.sh' -exec shellcheck {} +
