@@ -8,40 +8,64 @@ hl.monitor({
 
 hl.gesture({
     fingers = 3,
-    direction = "swipe",
-    action = "move"
-})
-hl.gesture({
-    fingers = 3,
     direction = "pinch",
     action = "fullscreen"
 })
+
+-- 4-finger horizontal swipe: switch workspace ±1
 hl.gesture({
     fingers = 4,
     direction = "horizontal",
     action = {
         finish = function(e)
             if e.direction == "LEFT" then
-                hl.dsp.exec_cmd("hyprctl dispatch workspace r-1")
+                hl.dispatch(hl.dsp.focus({ workspace = "r-1" }))
             else
-                hl.dsp.exec_cmd("hyprctl dispatch workspace r+1")
+                hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
             end
         end
     }
 })
+
+-- 4-finger vertical swipe: toggle Quickshell overview (mirrors SUPER+Tab)
 hl.gesture({
     fingers = 4,
-    direction = "up",
-    action = function()
-        hl.dispatch(hl.dsp.global("quickshell:overviewWorkspacesToggle"))
-    end
+    direction = "vertical",
+    action = {
+        finish = function(e)
+            hl.dispatch(hl.dsp.global("quickshell:overviewWorkspacesToggle"))
+        end
+    }
 })
+
+-- 3-finger horizontal swipe: move focused window ±1 workspace; LEFT = r-1, RIGHT = r+1
 hl.gesture({
-    fingers = 4,
-    direction = "down",
-    action = function()
-        hl.dispatch(hl.dsp.global("quickshell:overviewWorkspacesToggle"))
-    end
+    fingers = 3,
+    direction = "horizontal",
+    action = {
+        finish = function(e)
+            if e.direction == "LEFT" then
+                hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
+            else
+                hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
+            end
+        end
+    }
+})
+
+-- 3-finger vertical swipe: move focused window ±1 workspace; UP = r-1, DOWN = r+1
+hl.gesture({
+    fingers = 3,
+    direction = "vertical",
+    action = {
+        finish = function(e)
+            if e.direction == "UP" then
+                hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
+            else
+                hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
+            end
+        end
+    }
 })
 
 hl.config({
@@ -81,6 +105,8 @@ hl.config({
         -- Fuck clearly visible squircles. 100% Apple brainrot.
         rounding_power = 2.5,
         rounding = 18,
+        active_opacity = 0.9,
+        inactive_opacity = 0.9,
 
         blur = {
             enabled = true,
