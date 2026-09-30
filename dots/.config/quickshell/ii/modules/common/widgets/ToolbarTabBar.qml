@@ -8,7 +8,7 @@ import QtQuick.Layouts
 
 Item {
     id: root
-    property alias currentIndex: tabBar.currentIndex
+    property int currentIndex: 0
     required property var tabButtonList
 
     function incrementCurrentIndex() {
@@ -21,8 +21,13 @@ Item {
         tabBar.setCurrentIndex(index);
     }
 
+    Binding on currentIndex {
+        when: tabBar
+        value: tabBar.currentIndex
+    }
+
     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-    implicitWidth: contentItem.implicitWidth
+    implicitWidth: contentItem.width
     implicitHeight: 40
 
     property Component delegate: ToolbarTabButton {
@@ -61,13 +66,13 @@ Item {
             id: leftBound
             idx1Duration: 50
             idx2Duration: 200
-            index: activeIndicator.targetItem.x
+            index: activeIndicator.targetItem?.x ?? 0
         }
         AnimatedTabIndexPair {
             id: rightBound
             idx1Duration: 50
             idx2Duration: 200
-            index: activeIndicator.targetItem.x + activeIndicator.targetItem.width
+            index: (activeIndicator.targetItem?.x ?? 0) + (activeIndicator.targetItem?.width ?? 0)
         }
         x: Math.min(leftBound.idx1, leftBound.idx2)
         width: Math.max(rightBound.idx1, rightBound.idx2) - x
