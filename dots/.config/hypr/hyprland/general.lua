@@ -6,77 +6,80 @@ hl.monitor({
     scale = 1
 })
 
+-- Workspace swipe tuning (macOS-like: snappy, follow-finger, cancel-on-flick-back)
+hl.config({
+    gestures = {
+        workspace_swipe_distance                 = 300,
+        workspace_swipe_cancel_ratio             = 0.5,
+        workspace_swipe_min_speed_to_force       = 30,
+        workspace_swipe_direction_lock           = true,
+        workspace_swipe_direction_lock_threshold = 10,
+        workspace_swipe_create_new               = true,
+    },
+})
+
+-- 4-finger horizontal: native workspace swipe (built-in, live follow-finger, auto-routes LEFT->r-1, RIGHT->r+1)
+hl.gesture({
+    fingers = 4,
+    direction = "horizontal",
+    action = "workspace"
+})
+
+-- 3-finger horizontal: live drag of the active floating window. Per-frame delta drives incremental
+-- hl.dsp.window.move() calls so the window tracks the finger smoothly with macOS-like inertia feel.
+local function make_win_drag_gesture()
+    local g = {}
+    g.start = function(e)
+        g._accum_x = 0
+    end
+    g.update = function(e)
+        g._accum_x = (g._accum_x or 0) + e.delta.x
+        if g._accum_x > 15 then
+            hl.dispatch(hl.dsp.window.move({ direction = "r" }))
+            g._accum_x = 0
+        elseif g._accum_x < -15 then
+            hl.dispatch(hl.dsp.window.move({ direction = "l" }))
+            g._accum_x = 0
+        end
+    end
+    g.finish = function(e)
+        g._accum_x = nil
+    end
+    return g
+end
+
 hl.gesture({
     fingers = 3,
+    direction = "horizontal",
+    action = make_win_drag_gesture()
+})
+
+-- 3-finger swipe UP: expose / Mission Control equivalent. Shell-specific global name; placeholder.
+hl.gesture({
+    fingers = 3,
+    direction = "up",
+    action = function()
+        hl.dispatch(hl.dsp.global("overlayToggle"))
+    end
+})
+
+-- 3-finger swipe DOWN: dismiss expose (same toggle; most shells treat up/down symmetrically)
+hl.gesture({
+    fingers = 3,
+    direction = "down",
+    action = function()
+        hl.dispatch(hl.dsp.global("overlayToggle"))
+    end
+})
+
+-- 2-finger pinch: toggle fullscreen on the active window
+hl.gesture({
+    fingers = 2,
     direction = "pinch",
     action = "fullscreen"
 })
 
--- 4-finger horizontal swipe: switch workspace ±1
-hl.gesture({
-    fingers = 4,
-    direction = "horizontal",
-    action = {
-        finish = function(e)
-            if e.direction == "LEFT" then
-                hl.dispatch(hl.dsp.focus({ workspace = "r-1" }))
-            else
-                hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
-            end
-        end
-    }
-})
-
--- 4-finger vertical swipe: toggle Quickshell overview (mirrors SUPER+Tab)
-hl.gesture({
-    fingers = 4,
-    direction = "vertical",
-    action = {
-        finish = function(e)
-            hl.dispatch(hl.dsp.global("quickshell:overviewWorkspacesToggle"))
-        end
-    }
-})
-
--- 3-finger horizontal swipe: move focused window ±1 workspace; LEFT = r-1, RIGHT = r+1
-hl.gesture({
-    fingers = 3,
-    direction = "horizontal",
-    action = {
-        finish = function(e)
-            if e.direction == "LEFT" then
-                hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
-            else
-                hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
-            end
-        end
-    }
-})
-
--- 3-finger vertical swipe: move focused window ±1 workspace; UP = r-1, DOWN = r+1
-hl.gesture({
-    fingers = 3,
-    direction = "vertical",
-    action = {
-        finish = function(e)
-            if e.direction == "UP" then
-                hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
-            else
-                hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
-            end
-        end
-    }
-})
-
 hl.config({
-    gestures = {
-        workspace_swipe_distance = 300,
-        workspace_swipe_cancel_ratio = 0.2,
-        workspace_swipe_min_speed_to_force = 5,
-        workspace_swipe_direction_lock = true,
-        workspace_swipe_direction_lock_threshold = 10,
-        workspace_swipe_create_new = true
-    },
     general = {
         -- Gaps and border
         gaps_in = 4,
@@ -301,6 +304,9 @@ hl.config({
             natural_scroll = true,
             disable_while_typing = true,
             clickfinger_behavior = true,
+            middle_button_emulation = true,
+            tap_to_click = true,
+            tap_and_drag = true,
             scroll_factor = 0.7
         }
     },
