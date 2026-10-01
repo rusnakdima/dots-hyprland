@@ -19,11 +19,28 @@ hl.config({
     },
 })
 
--- 4-finger horizontal: native workspace swipe (built-in, live follow-finger, auto-routes LEFT->r-1, RIGHT->r+1)
+-- 4-finger LEFT: cycle to current_id - 1 (absolute integer id, visits empty workspaces)
 hl.gesture({
     fingers = 4,
-    direction = "horizontal",
-    action = "workspace"
+    direction = "left",
+    action = function()
+        local ws = hl.get_active_workspace()
+        if ws and ws.id then
+            hl.dispatch(hl.dsp.workspace.move({ workspace = ws.id - 1 }))
+        end
+    end
+})
+
+-- 4-finger RIGHT: cycle to current_id + 1 (absolute integer id, visits empty workspaces)
+hl.gesture({
+    fingers = 4,
+    direction = "right",
+    action = function()
+        local ws = hl.get_active_workspace()
+        if ws and ws.id then
+            hl.dispatch(hl.dsp.workspace.move({ workspace = ws.id + 1 }))
+        end
+    end
 })
 
 -- 3-finger swipe (any direction): live omnidirectional drag of the active window.
