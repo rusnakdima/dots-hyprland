@@ -355,7 +355,7 @@ ContentPage {
         ConfigRow {
             uniform: true
             ConfigSwitch {
-                buttonIcon: "sidebar"
+                buttonIcon: "menu"
                 text: Translation.tr("Sidebar button")
                 checked: Config.options.bar.elements.sidebarButton
                 onCheckedChanged: {
