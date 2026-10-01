@@ -129,8 +129,8 @@ Rectangle {
             visible: secondaryMaterialSymbol.length > 0
             anchors {
                 verticalCenter: quickSlider.verticalCenter
-                right: quickSlider.right
-                rightMargin: 1 * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8
+                left: quickSlider.left
+                leftMargin: quickSlider.leftPadding + 8
             }
             iconSize: 20
             color: quickSlider.value >= 0.3 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
