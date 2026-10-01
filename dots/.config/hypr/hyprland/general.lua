@@ -25,51 +25,14 @@ hl.gesture({
     action = "workspace"
 })
 
--- 3-finger horizontal: live drag of the active floating window. Per-frame delta drives incremental
--- hl.dsp.window.move() calls so the window tracks the finger smoothly with macOS-like inertia feel.
-local function make_win_drag_gesture()
-    local g = {}
-    g.start = function(e)
-        g._accum_x = 0
-    end
-    g.update = function(e)
-        g._accum_x = (g._accum_x or 0) + e.delta.x
-        if g._accum_x > 15 then
-            hl.dispatch(hl.dsp.window.move({ direction = "r" }))
-            g._accum_x = 0
-        elseif g._accum_x < -15 then
-            hl.dispatch(hl.dsp.window.move({ direction = "l" }))
-            g._accum_x = 0
-        end
-    end
-    g.finish = function(e)
-        g._accum_x = nil
-    end
-    return g
-end
-
+-- 3-finger swipe (any direction): live omnidirectional drag of the active window.
+-- `direction = "swipe"` matches both horizontal AND vertical swipes; combined with the built-in
+-- `action = "move"` this gives the exact SUPER+LMB drag feel — window follows the finger live,
+-- omnidirectionally.
 hl.gesture({
     fingers = 3,
-    direction = "horizontal",
-    action = make_win_drag_gesture()
-})
-
--- 3-finger swipe UP: expose / Mission Control equivalent. Shell-specific global name; placeholder.
-hl.gesture({
-    fingers = 3,
-    direction = "up",
-    action = function()
-        hl.dispatch(hl.dsp.global("overlayToggle"))
-    end
-})
-
--- 3-finger swipe DOWN: dismiss expose (same toggle; most shells treat up/down symmetrically)
-hl.gesture({
-    fingers = 3,
-    direction = "down",
-    action = function()
-        hl.dispatch(hl.dsp.global("overlayToggle"))
-    end
+    direction = "swipe",
+    action = "move"
 })
 
 -- 2-finger pinch: toggle fullscreen on the active window
