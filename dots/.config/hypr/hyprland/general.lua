@@ -15,6 +15,7 @@ hl.config({
         workspace_swipe_direction_lock           = true,
         workspace_swipe_direction_lock_threshold = 10,
         workspace_swipe_create_new               = true,
+        workspace_swipe_forever                  = true,
     },
 })
 
