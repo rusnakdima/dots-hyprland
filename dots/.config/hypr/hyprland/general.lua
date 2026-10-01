@@ -26,7 +26,7 @@ hl.gesture({
     action = function()
         local ws = hl.get_active_workspace()
         if ws and ws.id then
-            hl.dispatch(hl.dsp.workspace.focus({ workspace = ws.id - 1 }))
+            hl.dispatch(hl.dsp.focus({ workspace = ws.id - 1 }))
         end
     end
 })
@@ -38,7 +38,7 @@ hl.gesture({
     action = function()
         local ws = hl.get_active_workspace()
         if ws and ws.id then
-            hl.dispatch(hl.dsp.workspace.focus({ workspace = ws.id + 1 }))
+            hl.dispatch(hl.dsp.focus({ workspace = ws.id + 1 }))
         end
     end
 })
