@@ -42,16 +42,11 @@ Rectangle {
             sourceComponent: QuickSlider {
                 materialSymbol: "light_mode"
                 secondaryMaterialSymbol: "wb_twilight"
-                readonly property bool hasRealBrightness: Brightness.hasRealBrightnessControl()
-                stopIndicatorValues: hasRealBrightness && Hyprsunset.gamma !== 100 && root.brightnessMonitor?.brightness !== 0 ? [0.3 + root.brightnessMonitor?.brightness * 0.7] : []
-                value: hasRealBrightness
-                    ? (Hyprsunset.gamma === 100 ? 0.3 + root.brightnessMonitor?.brightness * 0.7 : (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * 0.3)
-                    : (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * 0.3
-                tooltipContent: hasRealBrightness
-                    ? (Hyprsunset.gamma === 100 ? `${Math.round(root.brightnessMonitor?.brightness * 100)}%` : `${Translation.tr("Gamma")} ${Hyprsunset.gamma}%`)
-                    : `${Translation.tr("Gamma")} ${Hyprsunset.gamma}%`
+                stopIndicatorValues: Hyprsunset.gamma !== 100 && root.brightnessMonitor?.brightness !== 0 ? [0.3 + root.brightnessMonitor?.brightness * 0.7] : []
+                value: Hyprsunset.gamma === 100 ? 0.3 + root.brightnessMonitor?.brightness * 0.7 : (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * 0.3
+                tooltipContent: Hyprsunset.gamma === 100 ? `${Math.round(root.brightnessMonitor?.brightness * 100)}%` : `${Translation.tr("Gamma")} ${Hyprsunset.gamma}%`
                 onMoved: {
-                    if (hasRealBrightness && value >= 0.3) {
+                    if (value >= 0.3) {
                         // 0.3 - 1.0 brightness
                         root.brightnessMonitor.setBrightness((value - 0.3) / 0.7);
                         if (Hyprsunset.gamma !== 100) {
@@ -59,7 +54,7 @@ Rectangle {
                         }
                     } else {
                         // 0 - 0.3 gamma
-                        if (hasRealBrightness && root.brightnessMonitor.brightness !== 0) {
+                        if (root.brightnessMonitor.brightness !== 0) {
                             root.brightnessMonitor.setBrightness(0);
                         }
                         Hyprsunset.setGamma((value / 0.3 * (100 - Hyprsunset.gammaLowerLimit) + Hyprsunset.gammaLowerLimit));
@@ -77,9 +72,9 @@ Rectangle {
             active: Config.options.sidebar.quickSliders.showVolume
             sourceComponent: QuickSlider {
                 materialSymbol: "volume_up"
-                value: Audio.sink?.audio?.volume ?? 0
+                value: Audio.sink.audio.volume
                 onMoved: {
-                    if (Audio.sink?.audio) Audio.sink.audio.volume = value
+                    Audio.sink.audio.volume = value
                 }
             }
         }
@@ -93,22 +88,22 @@ Rectangle {
             active: Config.options.sidebar.quickSliders.showMic
             sourceComponent: QuickSlider {
                 materialSymbol: "mic"
-                value: Audio.source?.audio?.volume ?? 0
+                value: Audio.source.audio.volume
                 onMoved: {
-                    if (Audio.source?.audio) Audio.source.audio.volume = value
+                    Audio.source.audio.volume = value
                 }
             }
         }
     }
 
-    component QuickSlider: StyledSlider { 
+    component QuickSlider: StyledSlider {
         id: quickSlider
         required property string materialSymbol
         property string secondaryMaterialSymbol
         configuration: StyledSlider.Configuration.M
         stopIndicatorValues: []
-        dividerValues: secondaryMaterialSymbol.length > 0 ? [secondaryIcon.iconLocation] : []
-        
+        dividerValues: secondaryMaterialSymbol.length > 0 ? [0.3] : []
+
         MaterialSymbol {
             id: icon
             property bool nearFull: quickSlider.value >= 0.9
@@ -132,15 +127,13 @@ Rectangle {
         MaterialSymbol {
             id: secondaryIcon
             visible: secondaryMaterialSymbol.length > 0
-            property real iconLocation: 0.3
-            property bool nearIcon: iconLocation - quickSlider.value <= 0.1 && iconLocation - quickSlider.value > (quickSlider.handleWidth + 8 - 14) / quickSlider.effectiveDraggingWidth
             anchors {
                 verticalCenter: quickSlider.verticalCenter
-                right: nearIcon ? quickSlider.handle.right : quickSlider.right
-                rightMargin: nearIcon ? 14 : (1 - iconLocation) * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8
+                right: quickSlider.right
+                rightMargin: 1 * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8
             }
             iconSize: 20
-            color: quickSlider.value >= iconLocation - 0.1 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
+            color: quickSlider.value >= 0.3 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
             text: secondaryMaterialSymbol
 
             Behavior on color {

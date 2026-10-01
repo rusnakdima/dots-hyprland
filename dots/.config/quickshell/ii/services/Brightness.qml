@@ -19,29 +19,16 @@ Singleton {
     signal brightnessChanged()
 
     property var ddcMonitors: []
-    property bool hasBacklightControl: false
     readonly property list<BrightnessMonitor> monitors: Quickshell.screens.map(screen => monitorComp.createObject(root, {
         screen
     }))
-
-    function hasRealBrightnessControl(): bool {
-        return root.hasBacklightControl || monitors.some(m => m.isDdc);
-    }
 
     function getMonitorForScreen(screen: ShellScreen): var {
         return monitors.find(m => m.screen === screen);
     }
 
     function increaseBrightness(): void {
-        // If no hardware backlight, use gamma only
-        if (!root.hasBacklightControl) {
-            if (Hyprsunset.gamma !== 100) {
-                Hyprsunset.setGamma(Hyprsunset.gamma + 5);
-            }
-            return;
-        }
-
-        // Hardware backlight: if gamma is not yet 100, increase gamma first
+        // if gamma is not yet 100, first increase gamma
         if (Hyprsunset.gamma !== 100) {
             Hyprsunset.setGamma(Hyprsunset.gamma + 5);
             return;
@@ -54,17 +41,11 @@ Singleton {
     }
 
     function decreaseBrightness(): void {
-        // If no hardware backlight, use gamma only
-        if (!root.hasBacklightControl) {
-            Hyprsunset.setGamma(Hyprsunset.gamma - 5);
-            return;
-        }
-
-        // Hardware backlight
         const focusedName = Hyprland.focusedMonitor.name;
         const monitor = monitors.find(m => focusedName === m.screen.name);
         if (monitor && monitor.brightness > 0)
             monitor.setBrightness(monitor.brightness - 0.05);
+        // if brightness is 0, then decrease gamma
         else {
             Hyprsunset.setGamma(Hyprsunset.gamma - 5);
         }
@@ -146,13 +127,7 @@ Singleton {
             const match = root.ddcMonitors.find(m => m.name === screen.name && !root.monitors.slice(0, root.monitors.indexOf(this)).some(mon => mon.busNum === m.busNum));
             isDdc = !!match;
             busNum = match?.busNum ?? "";
-
-            // Build brightnessctl command with optional device selection
-            const configuredDevice = Config.options?.light?.brightness?.brightnessctlDevice ?? "";
-            const deviceFlag = configuredDevice ? `-d '${configuredDevice}'` : "";
-            const brightnessCmd = `echo "a b c $(brightnessctl ${deviceFlag} g) $(brightnessctl ${deviceFlag} m)"`;
-
-            initProc.command = isDdc ? ["ddcutil", "-b", busNum, "getvcp", "10", "--brief"] : ["sh", "-c", brightnessCmd];
+            initProc.command = isDdc ? ["ddcutil", "-b", busNum, "getvcp", "10", "--brief"] : ["sh", "-c", `echo "a b c $(brightnessctl g) $(brightnessctl m)"`];
             initProc.running = true;
         }
 
@@ -181,20 +156,15 @@ Singleton {
 
         function syncBrightness() {
             const brightnessValue = Math.max(monitor.multipliedBrightness, 0);
-            console.log("[Brightness] syncBrightness called, isDdc:", isDdc, "busNum:", busNum, "brightness:", brightnessValue);
             if (isDdc) {
                 const rawValueRounded = Math.max(Math.floor(brightnessValue * monitor.rawMaxBrightness), 1);
-                console.log("[Brightness] Setting DDC brightness to:", rawValueRounded);
                 setProc.exec(["ddcutil", "-b", busNum, "setvcp", "10", rawValueRounded]);
             } else {
                 const valuePercentNumber = Math.floor(brightnessValue * 100);
                 let valuePercent = `${valuePercentNumber}%`;
                 if (valuePercentNumber == 0) valuePercent = "1"; // Prevent fully black
-
-                // Use configured device or fallback to class-based selection
                 const configuredDevice = Config.options?.light?.brightness?.brightnessctlDevice ?? "";
-                const deviceFlag = configuredDevice ? ["-d", configuredDevice] : [];
-                console.log("[Brightness] Setting brightnessctl to:", valuePercent, "device:", configuredDevice || "auto (class backlight)");
+                const deviceFlag = configuredDevice ? ["-d", configuredDevice] : ["--class", "backlight"];
                 setProc.exec(["brightnessctl", ...deviceFlag, "s", valuePercent, "--quiet"])
             }
         }
@@ -276,24 +246,6 @@ Singleton {
     }
 
     // External trigger points
-
-    // Startup verification - warn if no backlight control is available
-    Process {
-        id: verifyProc
-        command: ["sh", "-c", "brightnessctl --class backlight l 2>/dev/null || echo 'NO_BACKLIGHT'"]
-        stdout: StdioCollector {
-            id: verifyCollector
-            onStreamFinished: {
-                const result = verifyCollector.text.trim();
-                root.hasBacklightControl = result.length > 0 && result !== 'NO_BACKLIGHT' && !result.includes('Failed');
-                if (!root.hasBacklightControl && root.ddcMonitors.length === 0) {
-                    console.warn("[Brightness] No hardware brightness control. Using gamma as brightness proxy (hyprsunset).");
-                } else {
-                    console.log("[Brightness] Hardware backlight control available:", result);
-                }
-            }
-        }
-    }
 
     IpcHandler {
         target: "brightness"

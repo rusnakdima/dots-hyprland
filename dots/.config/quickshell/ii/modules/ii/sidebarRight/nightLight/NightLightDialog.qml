@@ -154,8 +154,8 @@ WindowDialog {
                 leftMargin: 4
                 rightMargin: 4
             }
-            value: root.brightnessMonitor.brightness
-            onMoved: root.brightnessMonitor.setBrightness(value)
+            value: root.brightnessMonitor?.brightness ?? 0
+            onMoved: if (root.brightnessMonitor) root.brightnessMonitor.setBrightness(value)
         }
     }
 
