@@ -19,26 +19,26 @@ hl.config({
     },
 })
 
--- 4-finger LEFT: cycle to current_id - 1 (absolute integer id, visits empty workspaces)
+-- 4-finger LEFT: cycle to current_id + 1 (absolute integer id, visits empty workspaces)
 hl.gesture({
     fingers = 4,
     direction = "left",
     action = function()
         local ws = hl.get_active_workspace()
         if ws and ws.id then
-            hl.dispatch(hl.dsp.focus({ workspace = ws.id - 1 }))
+            hl.dispatch(hl.dsp.focus({ workspace = ws.id + 1 }))
         end
     end
 })
 
--- 4-finger RIGHT: cycle to current_id + 1 (absolute integer id, visits empty workspaces)
+-- 4-finger RIGHT: cycle to current_id - 1 (absolute integer id, visits empty workspaces)
 hl.gesture({
     fingers = 4,
     direction = "right",
     action = function()
         local ws = hl.get_active_workspace()
         if ws and ws.id then
-            hl.dispatch(hl.dsp.focus({ workspace = ws.id + 1 }))
+            hl.dispatch(hl.dsp.focus({ workspace = ws.id - 1 }))
         end
     end
 })
