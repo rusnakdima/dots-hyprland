@@ -125,11 +125,15 @@ Item { // Notification item area
             }
         }
 
-        color: (expanded && !onlyNotification) ? 
-            (notificationObject.urgency == NotificationUrgency.Critical) ? 
+        color: (expanded && !onlyNotification) ?
+            (notificationObject.urgency == NotificationUrgency.Critical) ?
                 ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer2, 0.35) :
+            (notificationObject.urgency == NotificationUrgency.Low) ?
+                ColorUtils.transparentize(Appearance.colors.colLayer3, 0.5) :
                 (Appearance.colors.colLayer3) :
-            ColorUtils.transparentize(Appearance.colors.colLayer3)
+            (notificationObject.urgency == NotificationUrgency.Low) ?
+                ColorUtils.transparentize(Appearance.colors.colLayer3, 0.7) :
+                ColorUtils.transparentize(Appearance.colors.colLayer3)
 
         implicitHeight: expanded ? (contentColumn.implicitHeight + padding * 2) : summaryRow.implicitHeight
         Behavior on implicitHeight {

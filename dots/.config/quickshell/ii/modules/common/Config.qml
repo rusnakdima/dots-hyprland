@@ -445,6 +445,19 @@ Singleton {
                     property bool enable: false
                     property string name: "" // Name of the monitor to show notifications on, like "eDP-1". Find out with 'hyprctl monitors' command
                 }
+                property JsonObject popup: JsonObject {
+                    property bool enable: true
+                    property int maxPopupHeight: 600  // px, 0 = unlimited
+                    property int spacing: 3
+                }
+                property JsonObject group: JsonObject {
+                    property int collapsedMaxHeight: 80
+                    property int expandedTopSpacing: 5
+                    property int expandedImageSpacing: 35
+                }
+                property JsonObject unread: JsonObject {
+                    property bool incrementWhenInhibited: false
+                }
             }
 
             property JsonObject osd: JsonObject {

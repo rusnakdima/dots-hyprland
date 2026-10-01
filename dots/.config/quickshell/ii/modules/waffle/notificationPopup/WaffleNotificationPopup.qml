@@ -7,6 +7,7 @@ import qs
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.ii.notificationPopup
 import qs.modules.waffle.looks
 import qs.modules.waffle.notificationCenter
 
@@ -15,7 +16,7 @@ Scope {
 
     PanelWindow {
         id: root
-        visible: (Notifications.popupList.length > 0) && !GlobalStates.screenLocked
+        visible: (Notifications.popupList.length > 0) && NotificationEnableGuard.isEnabled() && !GlobalStates.screenLocked
         screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
 
         WlrLayershell.namespace: "quickshell:notificationPopup"

@@ -177,6 +177,9 @@ Singleton {
                         "interval": notification.expireTimeout < 0 ? (Config?.options.notifications.timeout ?? 7000) : notification.expireTimeout,
                     });
                 }
+            }
+            // Unread counter: always incremented unless popup is shown but user wants to skip inhibited increments
+            if (Config?.options?.notifications?.unread?.incrementWhenInhibited || !root.popupInhibited) {
                 root.unread++;
             }
             root.notify(newNotifObject);

@@ -1,6 +1,7 @@
 import qs
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.ii.notificationPopup
 import qs.services
 import QtQuick
 import QtQuick.Controls
@@ -13,7 +14,7 @@ Scope {
 
     PanelWindow {
         id: root
-        visible: (Notifications.popupList.length > 0) && (Config.options?.notifications?.popup?.enable ?? true) && !GlobalStates.screenLocked
+        visible: (Notifications.popupList.length > 0) && NotificationEnableGuard.isEnabled() && !GlobalStates.screenLocked
         screen: Quickshell.screens.find(s => Config.options?.notifications?.forceMonitor?.enable ? s.name === Config.options?.notifications?.forceMonitor?.name : s.name === Hyprland.focusedMonitor?.name) ?? null
 
         WlrLayershell.namespace: "quickshell:notificationPopup"
@@ -43,6 +44,12 @@ Scope {
                 topMargin: 4
             }
             implicitWidth: parent.width - Appearance.sizes.elevationMargin * 2
+            height: {
+                const maxH = Config.options?.notifications?.popup?.maxPopupHeight ?? 600;
+                const avail = parent.height - topMargin - bottomMargin;
+                return maxH > 0 ? Math.min(maxH, avail) : avail;
+            }
+            spacing: Config.options?.notifications?.popup?.spacing ?? 3
             popup: true
         }
     }

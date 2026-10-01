@@ -27,10 +27,19 @@ MouseArea { // Notification group area
     property var parentDragIndex: qmlParent?.dragIndex
     property var parentDragDistance: qmlParent?.dragDistance
     property var dragIndexDiff: Math.abs(parentDragIndex - index)
-    property real xOffset: dragIndexDiff == 0 ? parentDragDistance : 
+    property real xOffset: dragIndexDiff == 0 ? parentDragDistance :
         Math.abs(parentDragDistance) > dragConfirmThreshold ? 0 :
         dragIndexDiff == 1 ? (parentDragDistance * 0.3) :
         dragIndexDiff == 2 ? (parentDragDistance * 0.1) : 0
+
+    // 30s polling tick so time strings ("Now" → "1m", etc.) refresh live
+    property real currentTime: Date.now()
+    Timer {
+        interval: 30000
+        running: root.notificationGroup?.time > 0
+        repeat: true
+        onTriggered: root.currentTime = Date.now()
+    }
 
     function destroyWithAnimation(left = false) {
         root.qmlParent.resetDrag()
@@ -73,8 +82,6 @@ MouseArea { // Notification group area
     }
 
     function toggleExpanded() {
-        if (expanded) implicitHeightAnim.enabled = true;
-        else implicitHeightAnim.enabled = false;
         root.expanded = !root.expanded;
     }
 
@@ -135,9 +142,9 @@ MouseArea { // Notification group area
         }
         
         clip: true
-        implicitHeight: root.expanded ? 
+        implicitHeight: root.expanded ?
             row.implicitHeight + padding * 2 :
-            Math.min(80, row.implicitHeight + padding * 2)
+            Math.min(Config.options?.notifications?.group?.collapsedMaxHeight ?? 80, row.implicitHeight + padding * 2)
 
         Behavior on implicitHeight {
             id: implicitHeightAnim
@@ -164,9 +171,11 @@ MouseArea { // Notification group area
 
             ColumnLayout { // Content
                 Layout.fillWidth: true
-                spacing: expanded ? (root.multipleNotifications ? 
-                    (notificationGroup?.notifications[root.notificationCount - 1].image != "") ? 35 : 
-                    5 : 0) : 0
+                spacing: expanded ? (root.multipleNotifications ?
+                    (notificationGroup?.notifications[root.notificationCount - 1].image != "") ?
+                        (Config.options?.notifications?.group?.expandedImageSpacing ?? 35) :
+                        (Config.options?.notifications?.group?.expandedTopSpacing ?? 5) :
+                    0) : 0
                 // spacing: 00
                 Behavior on spacing {
                     animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
@@ -205,7 +214,10 @@ MouseArea { // Notification group area
                             // Layout.fillWidth: true
                             Layout.rightMargin: 10
                             horizontalAlignment: Text.AlignLeft
-                            text: NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time)
+                            text: {
+                                root.currentTime;  // re-evaluate on each 30s tick
+                                return NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time);
+                            }
                             font.pixelSize: topRow.fontSize
                             color: Appearance.colors.colSubtext
                         }

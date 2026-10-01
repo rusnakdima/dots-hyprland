@@ -25,7 +25,12 @@ MaterialShape { // App icon
         MaterialShape.Shape.VerySunny,
         MaterialShape.Shape.SoftBurst,
     ]
-    shape: isUrgent ? urgentShapes[Math.floor(Math.random() * urgentShapes.length)] : MaterialShape.Shape.Circle
+    shape: {
+        if (!isUrgent) return MaterialShape.Shape.Circle;
+        // Deterministic per icon: hash appIcon string so re-renders don't jump shapes
+        const seed = (root.appIcon || root.summary || "x").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+        return urgentShapes[seed % urgentShapes.length];
+    }
 
     color: isUrgent ? Appearance.colors.colPrimaryContainer : Appearance.colors.colSecondaryContainer
     Loader {

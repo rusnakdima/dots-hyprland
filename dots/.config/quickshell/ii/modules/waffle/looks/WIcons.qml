@@ -73,7 +73,11 @@ Singleton {
 
     property string nightLightIcon: Hyprsunset.temperatureActive ? "weather-moon" : "weather-moon-off"
 
-    property string notificationsIcon: Notifications.silent ? "alert-snooze" : "alert"
+    property string notificationsIcon: {
+        if (Notifications.silent) return "alert-snooze";
+        if (!Config.options?.notifications?.popup?.enable) return "notifications_off";
+        return "alert";
+    }
 
     property string powerProfileIcon: {
         switch (PowerProfiles.profile) {

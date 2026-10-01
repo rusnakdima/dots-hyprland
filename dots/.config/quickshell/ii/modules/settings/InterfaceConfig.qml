@@ -267,6 +267,27 @@ ContentPage {
         }
 
         ConfigSwitch {
+            buttonIcon: "notifications_active"
+            text: Translation.tr("Show notification popups")
+            checked: Config.options.notifications.popup.enable
+            onCheckedChanged: {
+                Config.options.notifications.popup.enable = checked;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "height"
+            text: Translation.tr("Popup max height (px, 0 = unlimited)")
+            value: Config.options.notifications.popup.maxPopupHeight
+            from: 0
+            to: 2000
+            stepSize: 50
+            onValueChanged: {
+                Config.options.notifications.popup.maxPopupHeight = value;
+            }
+        }
+
+        ConfigSwitch {
             buttonIcon: "monitor"
             text: Translation.tr("Force specific monitor")
             checked: Config.options.notifications.forceMonitor.enable
