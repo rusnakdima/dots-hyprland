@@ -3,6 +3,7 @@ import QtQuick
 import qs
 import qs.services
 import qs.modules.common
+import qs.modules.common.models
 import qs.modules.common.widgets
 import qs.modules.common.functions
 import Quickshell
@@ -51,28 +52,15 @@ StyledFlickable {
         }
         spacing: 0
 
-        ListModel {
-            id: passwordModel
-
-            function sync() {
-                var target = +root.length;
-                while (count < target)
-                    append({});
-                while (count > target)
-                    remove(count - 1);
-            }
-
-            Component.onCompleted: sync()
-        }
-
         Repeater {
-            model: passwordModel
+            model: IndexModel { count: root.length }
 
             delegate: Rectangle {
                 id: charItem
+                required property int index
                 implicitWidth: root.charSize
                 implicitHeight: root.charSize
-                property bool selected: model.index >= root.selectionStart && model.index < root.selectionEnd
+                property bool selected: index >= root.selectionStart && index < root.selectionEnd
 
                 color: ColorUtils.transparentize(root.selectionColor, selected ? 0 : 1)
                 
@@ -88,7 +76,7 @@ StyledFlickable {
                         MaterialShape.Shape.ClamShell,
                         MaterialShape.Shape.Pentagon,
                     ]
-                    shape: charShapes[model.index % charShapes.length]
+                    shape: charShapes[charItem.index % charShapes.length]
                     // Animate on appearance
                     color: charItem.selected ? root.selectedTextColor : root.color
                     implicitSize: 0
