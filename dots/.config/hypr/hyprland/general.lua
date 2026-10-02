@@ -19,6 +19,30 @@ hl.config({
     },
 })
 
+-- 4-finger UP: cycle window focus up (ws.id + 5)
+hl.gesture({
+    fingers = 4,
+    direction = "up",
+    action = function()
+        local ws = hl.get_active_workspace()
+        if ws and ws.id then
+            hl.dispatch(hl.dsp.focus({ workspace = ws.id + 5 }))
+        end
+    end
+})
+
+-- 4-finger DOWN: cycle window focus down (ws.id - 5)
+hl.gesture({
+    fingers = 4,
+    direction = "down",
+    action = function()
+        local ws = hl.get_active_workspace()
+        if ws and ws.id then
+            hl.dispatch(hl.dsp.focus({ workspace = ws.id - 5 }))
+        end
+    end
+})
+
 -- 4-finger LEFT: cycle to current_id + 1 (absolute integer id, visits empty workspaces)
 hl.gesture({
     fingers = 4,
@@ -42,7 +66,6 @@ hl.gesture({
         end
     end
 })
-
 -- 3-finger swipe (any direction): live omnidirectional drag of the active window.
 -- `direction = "swipe"` matches both horizontal AND vertical swipes; combined with the built-in
 -- `action = "move"` this gives the exact SUPER+LMB drag feel — window follows the finger live,
@@ -51,13 +74,6 @@ hl.gesture({
     fingers = 3,
     direction = "swipe",
     action = "move"
-})
-
--- 2-finger pinch: toggle fullscreen on the active window
-hl.gesture({
-    fingers = 2,
-    direction = "pinch",
-    action = "fullscreen"
 })
 
 hl.config({
