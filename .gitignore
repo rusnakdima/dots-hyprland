@@ -22,3 +22,10 @@ local/
 
 # MicroTeX build artifact
 sdata/dist-arch/illogical-impulse-microtex-git/src/
+
+# Vendored driver repo (nested .git, ~102 MB)
+dots-extra/aic8800-*/
+
+# Local planning prose
+/docs/
+dots-hyprland-*.md
