@@ -19,8 +19,7 @@ DelegateChooser {
     signal openBluetoothDialog()
     signal openNightLightDialog()
     signal openWifiDialog()
-    signal openHotspotDialog()
-
+    signal openKeyboardColorDialog()
     role: "type"
 
     DelegateChoice { roleValue: "antiFlashbang"; AndroidAntiFlashbangToggle {
@@ -110,6 +109,22 @@ DelegateChooser {
         cellSize: modelData.size
     } }
 
+    DelegateChoice { roleValue: "keyboardColor"; AndroidKeyboardColorToggle {
+        required property int index
+        required property var modelData
+        buttonIndex: root.startingIndex + index
+        buttonData: modelData
+        editMode: root.editMode
+        expandedSize: modelData.size > 1
+        baseCellWidth: root.baseCellWidth
+        baseCellHeight: root.baseCellHeight
+        cellSpacing: root.spacing
+        cellSize: modelData.size
+        onOpenMenu: {
+            root.openKeyboardColorDialog()
+        }
+    } }
+
     DelegateChoice { roleValue: "easyEffects"; AndroidEasyEffectsToggle {
         required property int index
         required property var modelData
@@ -191,22 +206,6 @@ DelegateChooser {
         cellSize: modelData.size
         onOpenMenu: {
             root.openWifiDialog()
-        }
-    } }
-
-    DelegateChoice { roleValue: "hotspot"; AndroidHotspotToggle {
-        required property int index
-        required property var modelData
-        buttonIndex: root.startingIndex + index
-        buttonData: modelData
-        editMode: root.editMode
-        expandedSize: modelData.size > 1
-        baseCellWidth: root.baseCellWidth
-        baseCellHeight: root.baseCellHeight
-        cellSpacing: root.spacing
-        cellSize: modelData.size
-        onOpenMenu: {
-            root.openHotspotDialog()
         }
     } }
 
