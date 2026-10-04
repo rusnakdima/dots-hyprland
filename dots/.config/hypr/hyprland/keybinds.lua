@@ -38,10 +38,10 @@ hl.bind("CTRL + ALT + Delete", hl.dsp.exec_cmd(qsIsAlive .. " || pkill wlogout |
 hl.bind("SHIFT + SUPER + ALT + Slash", hl.dsp.exec_cmd("qs -p $HOME/.config/quickshell/$qsConfig/welcome.qml"))
 
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(
-    qsIpcCall .. " brightness increment || (brightnessctl s 5%+ 2>/dev/null && notify-send 'Brightness' 'Increased' -a Hyprland -h string:image-path:empty || true)"),
+    qsIpcCall .. " brightness increment || (~/.local/bin/brightness-fallback up && notify-send 'Brightness' 'Increased' -a Hyprland -h string:image-path:empty || (brightnessctl -d amdgpu_bl1 s 5%+ 2>/dev/null && notify-send 'Brightness' 'Increased' -a Hyprland -h string:image-path:empty) || true)"),
     { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(
-    qsIpcCall .. " brightness decrement || (brightnessctl s 5%- 2>/dev/null && notify-send 'Brightness' 'Decreased' -a Hyprland -h string:image-path:empty || true)"),
+    qsIpcCall .. " brightness decrement || (~/.local/bin/brightness-fallback down && notify-send 'Brightness' 'Decreased' -a Hyprland -h string:image-path:empty || (brightnessctl -d amdgpu_bl1 s 5%- 2>/dev/null && notify-send 'Brightness' 'Decreased' -a Hyprland -h string:image-path:empty) || true)"),
     { locked = true, repeating = true })
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ -l 1.5"),
     { locked = true, repeating = true })
@@ -166,6 +166,8 @@ hl.bind("XF86AudioRecord", hl.dsp.exec_cmd("pkill -SIGINT wf-recorder || wf-reco
     { locked = true })
 hl.bind("XF86AudioRandomPlay", hl.dsp.exec_cmd("playerctl shuffle"), { locked = true })
 hl.bind("XF86AudioRepeat", hl.dsp.exec_cmd("playerctl loop"), { locked = true })
+hl.bind("XF86AudioMedia", hl.dsp.global("quickshell:mediaControlsToggle"))
+hl.bind("XF86AudioPreset", hl.dsp.exec_cmd("wpctl set-default $(wpctl inspect @DEFAULT_AUDIO_SINK@ | grep -oP 'id \\K[0-9]+' | head -1 | xargs -I{} wpctl set-default {})"), { locked = true })
 
 --#!
 --##! Window
@@ -310,12 +312,10 @@ for i = 1, 4 do
     local prefix = { "r+", "r-", "r+", "r-" }
     hl.bind(keycombos[i], hl.dsp.focus({ workspace = prefix[i] .. "1" }))
 end
---#/# bind = SUPER, Scroll ↑/↓,, -- Focus left/right
-for i = 1, 4 do
+--#/# bind = SUPER, Scroll ↑/↓,, -- Focus left/right (including empty workspaces)
+for i = 1, 2 do
     local key = { "SUPER + mouse_up", "SUPER + mouse_down" }
-    local keycombos = { key[1], key[2], "CTRL + " .. key[1], "CTRL + " .. key[2] }
-    local prefix = { "+", "-", "r+", "r-" }
-    hl.bind(keycombos[i], hl.dsp.focus({ workspace = prefix[i] .. "1" }))
+    hl.bind(key[i], hl.dsp.focus({ workspace = "e" .. (i == 1 and "+" or "-") .. "1" }))
 end
 --## Special
 hl.bind("SUPER + S", hl.dsp.workspace.toggle_special("special"), { description = "Workspace: Toggle scratchpad" })
