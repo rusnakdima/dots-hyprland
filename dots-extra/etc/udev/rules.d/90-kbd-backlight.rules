@@ -1,0 +1,12 @@
+# Allow members of the `input` group to write the RGB keyboard backlight
+# sysfs interface without sudo/polkit.
+# Used by Quickshell's KeyboardBacklight service.
+#
+# Installation:
+#   sudo install -Dm644 90-kbd-backlight.rules /etc/udev/rules.d/90-kbd-backlight.rules
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#
+# Ensure your user is in the `input` group:  sudo usermod -aG input $USER
+
+SUBSYSTEM=="leds", KERNEL=="rgb:kbd_backlight", ACTION=="add|change", \
+    RUN+="/bin/sh -c 'chown root:input /sys/class/leds/rgb:kbd_backlight/multi_intensity; chmod 0664 /sys/class/leds/rgb:kbd_backlight/multi_intensity'"
