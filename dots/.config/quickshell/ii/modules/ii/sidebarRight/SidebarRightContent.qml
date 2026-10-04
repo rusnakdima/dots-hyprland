@@ -16,6 +16,7 @@ import qs.modules.ii.sidebarRight.bluetoothDevices
 import qs.modules.ii.sidebarRight.nightLight
 import qs.modules.ii.sidebarRight.volumeMixer
 import qs.modules.ii.sidebarRight.wifiNetworks
+import qs.modules.ii.sidebarRight.keyboardColor
 import qs.modules.ii.sidebarRight.clipboard
 
 Item {
@@ -28,7 +29,7 @@ Item {
     property bool showBluetoothDialog: false
     property bool showNightLightDialog: false
     property bool showWifiDialog: false
-    property bool showHotspotDialog: false
+    property bool showKeyboardColorDialog: false
     property bool editMode: false
 
     Connections {
@@ -37,9 +38,9 @@ Item {
             if (!GlobalStates.sidebarRightOpen) {
                 root.showWifiDialog = false;
                 root.showBluetoothDialog = false;
+                root.showKeyboardColorDialog = false;
                 root.showAudioOutputDialog = false;
                 root.showAudioInputDialog = false;
-                root.showHotspotDialog = false;
             }
         }
     }
@@ -157,12 +158,8 @@ Item {
     }
 
     ToggleDialog {
-        shownPropertyString: "showHotspotDialog"
-        dialog: HotspotDialog {}
-        onShownChanged: {
-            if (!shown) return;
-            Network.refreshHotspotStatus();
-        }
+        shownPropertyString: "showKeyboardColorDialog"
+        dialog: KeyboardColorDialog {}
     }
 
     component ToggleDialog: Loader {
@@ -216,8 +213,8 @@ Item {
             function onOpenWifiDialog() {
                 root.showWifiDialog = true;
             }
-            function onOpenHotspotDialog() {
-                root.showHotspotDialog = true;
+            function onOpenKeyboardColorDialog() {
+                root.showKeyboardColorDialog = true;
             }
         }
     }

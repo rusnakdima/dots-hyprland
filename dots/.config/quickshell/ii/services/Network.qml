@@ -53,13 +53,6 @@ Singleton {
                         ? "signal_wifi_off"
                         : "signal_wifi_bad"
 
-    // Hotspot
-    property bool hotspotActive: false
-    property string hotspotName: ""
-    property string hotspotPassword: ""
-    property int hotspotConnectedDevices: 0
-    property string hotspotMaterialSymbol: hotspotActive ? "wifi_tethering" : "wifi_tethering_off"
-
     // Control
     function enableWifi(enabled = true): void {
         const cmd = enabled ? "on" : "off";
@@ -126,23 +119,6 @@ Singleton {
         }
     }
 
-    // Hotspot control
-    function enableHotspot(): void {
-        enableHotspotProc.exec(["nmcli", "dev", "wifi", "hotspot", "start"]);
-    }
-
-    function disableHotspot(): void {
-        disableHotspotProc.exec(["nmcli", "dev", "wifi", "hotspot", "stop"]);
-    }
-
-    function toggleHotspot(): void {
-        hotspotActive ? disableHotspot() : enableHotspot();
-    }
-
-    function refreshHotspotStatus(): void {
-        hotspotStatusProcess.running = true;
-    }
-
     Process {
         id: enableWifiProc
     }
@@ -200,68 +176,12 @@ Singleton {
         }
     }
 
-    Process {
-        id: enableHotspotProc
-        stdout: SplitParser {
-            onRead: refreshHotspotStatus()
-        }
-    }
-
-    Process {
-        id: disableHotspotProc
-        stdout: SplitParser {
-            onRead: refreshHotspotStatus()
-        }
-    }
-
-    Process {
-        id: hotspotStatusProcess
-        command: ["nmcli", "dev", "wifi", "hotspot"]
-        environment: ({
-            LANG: "C",
-            LC_ALL: "C"
-        })
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const output = text.trim();
-                if (!output || output.includes("Error")) {
-                    root.hotspotActive = false;
-                    root.hotspotName = "";
-                    root.hotspotPassword = "";
-                    root.hotspotConnectedDevices = 0;
-                    return;
-                }
-                // Parse output like:
-                // ssid: MyHotspot
-                // password: secretpass
-                // band: bg
-                // channel: 6
-                // ifname: wlan0
-                // hwmode: 80211n
-                // mode: ap
-                // conns: 2
-                const lines = output.split("\n");
-                for (const line of lines) {
-                    const colonIdx = line.indexOf(":");
-                    if (colonIdx < 0) continue;
-                    const key = line.slice(0, colonIdx).trim();
-                    const value = line.slice(colonIdx + 1).trim();
-                    if (key === "ssid") root.hotspotName = value;
-                    else if (key === "password") root.hotspotPassword = value;
-                    else if (key === "conns") root.hotspotConnectedDevices = parseInt(value) || 0;
-                }
-                root.hotspotActive = root.hotspotName.length > 0;
-            }
-        }
-    }
-
     // Status update
     function update() {
         updateConnectionType.startCheck();
         wifiStatusProcess.running = true
         updateNetworkName.running = true;
         updateNetworkStrength.running = true;
-        refreshHotspotStatus();
     }
 
     Process {

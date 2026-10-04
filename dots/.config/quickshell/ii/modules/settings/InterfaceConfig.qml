@@ -287,6 +287,42 @@ ContentPage {
             }
         }
 
+        ConfigSpinBox {
+            icon: "compress"
+            text: Translation.tr("Group collapsed max height (px)")
+            value: Config.options.notifications.group.collapsedMaxHeight
+            from: 40
+            to: 400
+            stepSize: 10
+            onValueChanged: {
+                Config.options.notifications.group.collapsedMaxHeight = value;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "expand"
+            text: Translation.tr("Group expanded top spacing (px)")
+            value: Config.options.notifications.group.expandedTopSpacing
+            from: 0
+            to: 40
+            stepSize: 1
+            onValueChanged: {
+                Config.options.notifications.group.expandedTopSpacing = value;
+            }
+        }
+
+        ConfigSpinBox {
+            icon: "image"
+            text: Translation.tr("Group expanded image spacing (px)")
+            value: Config.options.notifications.group.expandedImageSpacing
+            from: 0
+            to: 80
+            stepSize: 1
+            onValueChanged: {
+                Config.options.notifications.group.expandedImageSpacing = value;
+            }
+        }
+
         ConfigSwitch {
             buttonIcon: "monitor"
             text: Translation.tr("Force specific monitor")

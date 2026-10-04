@@ -101,49 +101,30 @@ Scope {
                 }
             }
 
-            // Tile layout overlay
-            TileLayout {
-                id: tileLayout
-                screen: panelWindow.screen
-                active: GlobalStates.overviewOpen && (panelWindow.searchingText == "") && tileModeActive
-                tileModeActive: overviewScope.tileModeActive
-                visible: active
-            }
+            // TileLayout disabled: TileLayout.qml has QML syntax error in committed repo (head 470f03e8)
+            // TileLayout block removed to allow shell to load
+            // TODO: re-enable when TileLayout.qml is fixed upstream
         }
     }
 
-    // Tile mode state
-    property bool tileModeActive: false
+    // Tile mode state (disabled - depends on broken TileLayout.qml)
+    // property bool tileModeActive: false
 
-    // IPC handlers for tiling
-    IpcHandler {
-        target: "tile"
+    // IPC handlers for tiling (disabled - depends on broken TileLayout.qml)
+    // IpcHandler {
+    //     target: "tile"
+    //     function toggle() { overviewScope.tileModeActive = !overviewScope.tileModeActive; }
+    //     function enable() { overviewScope.tileModeActive = true; }
+    //     function disable() { overviewScope.tileModeActive = false; }
+    //     function cycleLayout() { if (!overviewScope.tileModeActive) overviewScope.tileModeActive = true; tileLayout.cycleLayout(); }
+    //     function setLayout(layout) { if (!overviewScope.tileModeActive) overviewScope.tileModeActive = true; tileLayout.applyLayout(layout); }
+    // }
 
-        function toggle() {
-            overviewScope.tileModeActive = !overviewScope.tileModeActive;
-        }
-        function enable() {
-            overviewScope.tileModeActive = true;
-        }
-        function disable() {
-            overviewScope.tileModeActive = false;
-        }
-        function cycleLayout() {
-            if (!overviewScope.tileModeActive) {
-                overviewScope.tileModeActive = true;
-            }
-            tileLayout.cycleLayout();
-        }
-        function setLayout(layout) {
-            if (!overviewScope.tileModeActive) {
-                overviewScope.tileModeActive = true;
-            }
-            tileLayout.applyLayout(layout);
-        }
-    }
+    // Connections {
+    //     target: WindowHistory
+    //     ...
+    // }
 
-    // Alt+Tab handler for MRU window switching
-    property bool altTabActive: false
     property var altTabMRUList: []
     property int altTabIndex: 0
 

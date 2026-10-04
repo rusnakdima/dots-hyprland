@@ -34,27 +34,17 @@ ContentPage {
 
     // ─── Load keybinds using Quickshell.execSync ────────────────────────────
     Component.onCompleted: {
-        try {
-            // Use ~/.local/bin/hyprctl which auto-detects the Hyprland socket
-            const { exitCode, stdout } = Quickshell.execSync(["bash", "-c", "$HOME/.local/bin/hyprctl binds -j"]);
-            if (exitCode === 0 && stdout && stdout.trim()) {
-                const parsed = JSON.parse(stdout.trim());
-                if (Array.isArray(parsed)) {
-                    keybinds = parsed;
-                    console.log("[KeybindsConfig] Loaded", keybinds.length, "keybinds via execSync")
-                } else {
-                    console.warn("[KeybindsConfig] hyprctl returned non-array:", typeof parsed)
-                    keybinds = [];
-                }
-            } else {
-                console.warn("[KeybindsConfig] hyprctl failed or returned empty. exitCode:", exitCode, "stdout length:", stdout?.length)
-                keybinds = [];
-            }
-        } catch (e) {
-            console.warn("[KeybindsConfig] execSync error:", e.message || e)
-            keybinds = [];
-        }
+        SettingsIpcHandler.reloadKeybinds();
         refreshKeybinds();
+    }
+
+    // React to keybindsListChanged from IPC handler (after add/delete/reload)
+    Connections {
+        target: SettingsIpcHandler
+        function onKeybindsListChanged() {
+            keybinds = SettingsIpcHandler.getLastBindList();
+            refreshKeybinds();
+        }
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────
@@ -110,8 +100,9 @@ ContentPage {
 
     function refreshKeybinds() {
         disabledBinds = getDisabledBinds();
-        // Keybinds are loaded via execSync in Component.onCompleted.
-        // This function just refreshes the disabled state.
+        // Keybinds list is loaded via SettingsIpcHandler.listBindsProcess
+        // which emits keybindsListChanged → onKeybindsListChanged.
+        // This function only refreshes the disabled state.
     }
 
     function isDisabled(desc): bool {
@@ -402,7 +393,7 @@ ContentPage {
                 StyledText {
                     text: modelData.description || "(no description)"
                     font.pixelSize: Appearance.font.pixelSize.body
-                    color: checked ? Appearance.colors.colOnSurface : Appearance.colors.colOnSurfaceVariant
+                    color: bindSwitch.checked ? Appearance.colors.colOnSurface : Appearance.colors.colOnSurfaceVariant
                     elide: Text.ElideRight
                 }
 

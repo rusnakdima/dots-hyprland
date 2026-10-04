@@ -1,8 +1,10 @@
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Io
 
 DashboardWidgetBlock {
     id: root
@@ -127,7 +129,7 @@ DashboardWidgetBlock {
         Layout.fillHeight: true
         radius: Appearance.rounding.normal
         color: !btn.enabled
-            ? Appearance.colors.colSurfaceContainerHighest.withAlpha(0.5)
+            ? ColorUtils.transparentize(Appearance.colors.colSurfaceContainerHighest, 0.5)
             : hovered
                 ? (accentColor ?? Appearance.colors.colPrimaryContainer)
                 : Appearance.colors.colSurfaceContainerHighest
@@ -142,7 +144,7 @@ DashboardWidgetBlock {
                 text: btn.icon
                 iconSize: 22
                 color: !btn.enabled
-                    ? Appearance.colors.colOnSurfaceVariant.withAlpha(0.5)
+                    ? ColorUtils.transparentize(Appearance.colors.colOnSurfaceVariant, 0.5)
                     : (accentColor ?? Appearance.colors.colOnSurfaceVariant)
                 anchors.horizontalCenter: parent.horizontalCenter
             }
@@ -151,7 +153,7 @@ DashboardWidgetBlock {
                 text: btn.label
                 font.pixelSize: 10
                 color: !btn.enabled
-                    ? Appearance.colors.colOnSurfaceVariant.withAlpha(0.5)
+                    ? ColorUtils.transparentize(Appearance.colors.colOnSurfaceVariant, 0.5)
                     : Appearance.colors.colOnSurfaceVariant
                 anchors.horizontalCenter: parent.horizontalCenter
             }

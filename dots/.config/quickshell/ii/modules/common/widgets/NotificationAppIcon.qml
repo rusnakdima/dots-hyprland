@@ -25,12 +25,13 @@ MaterialShape { // App icon
         MaterialShape.Shape.VerySunny,
         MaterialShape.Shape.SoftBurst,
     ]
-    shape: {
-        if (!isUrgent) return MaterialShape.Shape.Circle;
-        // Deterministic per icon: hash appIcon string so re-renders don't jump shapes
-        const seed = (root.appIcon || root.summary || "x").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-        return urgentShapes[seed % urgentShapes.length];
+    // Snapshot shape once per instance so binding re-evaluations don't re-pick
+    property int _urgentShapeIndex: -1
+    Component.onCompleted: {
+        if (isUrgent && _urgentShapeIndex < 0)
+            _urgentShapeIndex = Math.floor(Math.random() * urgentShapes.length);
     }
+    shape: !isUrgent ? MaterialShape.Shape.Circle : urgentShapes[Math.max(0, _urgentShapeIndex)]
 
     color: isUrgent ? Appearance.colors.colPrimaryContainer : Appearance.colors.colSecondaryContainer
     Loader {

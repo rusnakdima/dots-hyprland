@@ -1,15 +1,13 @@
 /*
  * AppearanceConfig.qml — Settings page for appearance controls
  *
- * Lives in: dots-extra/quickshell/ii/modules/settings/
- *
  * Provides:
  *   - Global opacity slider (10–100%)
  *   - Opacity exclusions list
  *   - Background transparency slider (0–50%)
  *   - Content transparency slider (0–90%)
  *   - Accent color picker
- *   - Keyboard backlight RGB
+ *   - Keyboard backlight RGB (delegates to KeyboardBacklight service)
  *   - Live preview rectangle
  *
  * Note: these config keys must be applied by widgets that render panels.
@@ -32,43 +30,12 @@ ContentPage {
     }
     forceWidth: true
 
-    // ─── Keyboard backlight RGB state & IPC ─────────────────────────────────
+    // ─── Helpers ──────────────────────────────────────────────────────────────
 
-    // Current keyboard color (per-channel 0..4)
-    property list<int> kbdRgbCurrent: [4, 4, 4]
-
-    property string kbdSysfsPath: "/sys/class/leds/rgb:kbd_backlight"
-
-    function applyKbdRgb(channels, skipConfigWrite) {
-        const c = channels.slice();
-        for (let i = 0; i < 3; i++) {
-            if (typeof c[i] !== "number") c[i] = 4;
-            c[i] = Math.max(0, Math.min(4, Math.round(c[i])));
-        }
-        kbdRgbCurrent = c;
-        if (!skipConfigWrite) Config.setNestedValue("keyboard.rgb", c);
-        // Feed stdin via write(): sudo tee with sysfs file as argument
-        kbdRgbProcess.command = ["sudo", "-n", "tee", sysfsExecutor()];
-        kbdRgbProcess.stdinEnabled = true;
-        kbdRgbProcess.running = true;
-        pendingKbdChannels = c;
-    }
-
-    function sysfsExecutor() {
-        return kbdSysfsPath + "/multi_intensity";
-    }
-
-    property var pendingKbdChannels: null
-    Process {
-        id: kbdRgbProcess
-        stdout: StdioCollector { }
-        onRunningChanged: {
-            if (running && pendingKbdChannels) {
-                write(pendingKbdChannels.join(" ") + "\n");
-                stdinEnabled = false;
-                pendingKbdChannels = null;
-            }
-        }
+    // Returns true if two [r,g,b] channel lists are equal (each 0..4)
+    function isCurrentColor(current, preset) {
+        if (!Array.isArray(current) || !Array.isArray(preset)) return false
+        return current[0] === preset[0] && current[1] === preset[1] && current[2] === preset[2]
     }
 
     // ─── Dark Mode ───────────────────────────────────────────────────────────
@@ -114,11 +81,6 @@ ContentPage {
 
     Component.onCompleted: {
         globalOpacityValue = Config.options?.appearance?.globalOpacity ?? 0.9;
-        // Read current keyboard RGB from config (hardware holds last written value)
-        const stored = Config.options?.keyboard?.rgb;
-        if (Array.isArray(stored) && stored.length === 3) {
-            kbdRgbCurrent = [Math.round(stored[0]), Math.round(stored[1]), Math.round(stored[2])];
-        }
     }
 
     // ─── Opacity section ─────────────────────────────────────────────────────
@@ -354,13 +316,10 @@ ContentPage {
 
     Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 100
-        Layout.topMargin: 16
+        Layout.preferredHeight: 88
+        Layout.topMargin: 8
         radius: Appearance.rounding.m3containerMedium
         color: Appearance.m3colors.m3surfaceContainerHigh
-
-        // Outer opacity reflects globalOpacity
-        opacity: globalOpacityValue
 
         ColumnLayout {
             anchors.fill: parent
@@ -398,7 +357,7 @@ ContentPage {
     // ─── Keyboard backlight color ───────────────────────────────────────────
 
     ContentSection {
-        icon: "keyboard_full_2"
+        icon: "keyboard"
         title: Translation.tr("Keyboard backlight")
 
         // Per-channel intensity 0..4 (hardware max_brightness = 4).
@@ -414,36 +373,14 @@ ContentPage {
                 font.pixelSize: Appearance.font?.pixelSize?.body ?? 14
             }
 
-            // Preset color grid: every useful quantized combination (skip duplicates
-            // like 0,1,1 vs 1,1,1 since no scaling — max=4 gives 4 levels per channel,
-            // 64 total combos minus 1 off-state; show the common presets plus custom sliders below).
+            // Preset color grid — sourced from KeyboardBacklight service
             Flow {
                 id: presetFlow
                 spacing: 8
                 Layout.fillWidth: true
 
-                // Curated quantized palette (values are 0..4 per channel)
-                readonly property var presets: [
-                    { c: [0,0,0],  name: "Off" },
-                    { c: [4,4,4],  name: "White" },
-                    { c: [4,0,0],  name: "Red" },
-                    { c: [0,4,0],  name: "Green" },
-                    { c: [0,0,4],  name: "Blue" },
-                    { c: [4,4,0],  name: "Yellow" },
-                    { c: [0,4,4],  name: "Cyan" },
-                    { c: [4,0,4],  name: "Magenta" },
-                    { c: [4,2,0],  name: "Orange" },
-                    { c: [2,0,4],  name: "Purple" },
-                    { c: [0,4,2],  name: "Teal" },
-                    { c: [4,1,1],  name: "Soft red" },
-                    { c: [1,4,1],  name: "Soft green" },
-                    { c: [1,1,4],  name: "Soft blue" },
-                    { c: [4,2,2],  name: "Coral" },
-                    { c: [2,4,4],  name: "Ice" },
-                ]
-
                 Repeater {
-                    model: presetFlow.presets
+                    model: KeyboardBacklight.presets
 
                     delegate: Rectangle {
                         required property var modelData
@@ -456,14 +393,14 @@ ContentPage {
                             modelData.c[2] / 4.0,
                             1
                         )
-                        border.width: root.kbdRgbCurrent === modelData.c ? 2 : 1
+                        border.width: isCurrentColor(KeyboardBacklight.currentRgb, modelData.c) ? 2 : 1
                         border.color: border.width > 1
                             ? Appearance.colors.colOnSurface
                             : Appearance.m3colors.m3outline
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: root.applyKbdRgb(modelData.c)
+                            onClicked: KeyboardBacklight.apply(modelData.c)
                         }
                     }
                 }
@@ -475,37 +412,37 @@ ContentPage {
                 ConfigSpinBox {
                     icon: "brush"
                     text: Translation.tr("Red")
-                    value: root.kbdRgbCurrent[0] ?? 4
+                    value: KeyboardBacklight.currentRgb[0] ?? 4
                     from: 0; to: 4
                     stepSize: 1
                     onValueChanged: {
-                        const cur = root.kbdRgbCurrent.slice();
+                        const cur = KeyboardBacklight.currentRgb.slice();
                         cur[0] = value;
-                        root.applyKbdRgb(cur, true);
+                        KeyboardBacklight.apply(cur);
                     }
                 }
                 ConfigSpinBox {
                     icon: "brush"
                     text: Translation.tr("Green")
-                    value: root.kbdRgbCurrent[1] ?? 4
+                    value: KeyboardBacklight.currentRgb[1] ?? 4
                     from: 0; to: 4
                     stepSize: 1
                     onValueChanged: {
-                        const cur = root.kbdRgbCurrent.slice();
+                        const cur = KeyboardBacklight.currentRgb.slice();
                         cur[1] = value;
-                        root.applyKbdRgb(cur, true);
+                        KeyboardBacklight.apply(cur);
                     }
                 }
                 ConfigSpinBox {
                     icon: "brush"
                     text: Translation.tr("Blue")
-                    value: root.kbdRgbCurrent[2] ?? 4
+                    value: KeyboardBacklight.currentRgb[2] ?? 4
                     from: 0; to: 4
                     stepSize: 1
                     onValueChanged: {
-                        const cur = root.kbdRgbCurrent.slice();
+                        const cur = KeyboardBacklight.currentRgb.slice();
                         cur[2] = value;
-                        root.applyKbdRgb(cur, true);
+                        KeyboardBacklight.apply(cur);
                     }
                 }
             }

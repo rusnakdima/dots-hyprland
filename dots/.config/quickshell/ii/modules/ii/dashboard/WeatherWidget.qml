@@ -1,3 +1,4 @@
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
@@ -91,7 +92,7 @@ DashboardWidgetBlock {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
-                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
 
                 Text {
                     text: "Humidity"
@@ -110,19 +111,16 @@ DashboardWidgetBlock {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
-                horizontalAlignment: Text.AlignRight
 
                 Text {
                     text: "Wind"
                     font.pixelSize: 9
                     color: Appearance.colors.colOnSurfaceVariant
-                    horizontalAlignment: Text.AlignRight
                 }
                 Text {
                     text: Weather.data?.wind ?? "--"
                     font.pixelSize: 11
                     color: Appearance.colors.colOnSurface
-                    horizontalAlignment: Text.AlignRight
                 }
             }
         }
@@ -168,15 +166,13 @@ DashboardWidgetBlock {
                     text: modelData.hi
                     font.pixelSize: 11
                     color: Appearance.colors.colOnSurface
-                    Layout.preferredWidth: 40
-                    horizontalAlignment: Text.AlignRight
+                    
                 }
                 Text {
                     text: modelData.lo
                     font.pixelSize: 11
                     color: Appearance.colors.colOnSurfaceVariant
-                    Layout.preferredWidth: 40
-                    horizontalAlignment: Text.AlignRight
+                    
                 }
             }
         }

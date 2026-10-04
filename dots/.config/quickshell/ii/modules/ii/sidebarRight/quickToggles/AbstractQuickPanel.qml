@@ -12,5 +12,5 @@ Rectangle {
     signal openBluetoothDialog()
     signal openNightLightDialog()
     signal openWifiDialog()
-    signal openHotspotDialog()
+    signal openKeyboardColorDialog()
 }

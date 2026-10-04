@@ -60,11 +60,6 @@ ApplicationWindow {
             component: "modules/settings/KeybindsConfig.qml"
         },
         {
-            name: Translation.tr("Keyboard"),
-            icon: "keyboard_alt",
-            component: "modules/settings/KeyboardLayoutConfig.qml"
-        },
-        {
             name: Translation.tr("Services"),
             icon: "settings",
             component: "modules/settings/ServicesConfig.qml"

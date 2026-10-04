@@ -8,6 +8,7 @@ StyledFlickable {
     property real baseWidth: 600
     property bool forceWidth: false
     property real bottomContentPadding: 100
+    property real availableWidth: parent ? parent.width : 0
 
     default property alias contentData: contentColumn.data
 
@@ -17,13 +18,15 @@ StyledFlickable {
     
     ColumnLayout {
         id: contentColumn
-        width: root.forceWidth ? root.baseWidth : Math.max(root.baseWidth, implicitWidth)
+        width: root.forceWidth
+            ? Math.max(root.baseWidth, Math.min(root.availableWidth - 2 * 20, root.baseWidth))
+            : Math.max(root.baseWidth, implicitWidth, root.availableWidth)
         anchors {
             top: parent.top
             horizontalCenter: parent.horizontalCenter
             margins: 20
         }
-        spacing: 30
+        spacing: 18
     }
 
 }
