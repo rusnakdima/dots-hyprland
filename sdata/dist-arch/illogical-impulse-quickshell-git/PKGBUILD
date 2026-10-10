@@ -64,6 +64,12 @@ sha256sums=('SKIP'
 
 build() {
   cd "$_pkgname"
+
+  # Fix strict-aliasing violation in model.hpp (causes build failure with GCC 16)
+  # The reinterpret_cast violates C++ strict-aliasing rules; replace with safe copy
+  sed -i 's/return \*reinterpret_cast<QList<QObject\*>\*>(\&this->mValuesList);/QList<QObject*> result; result.reserve(this->mValuesList.size()); for (T* item : this->mValuesList) { result.append(item); } return result;/' \
+    src/core/model.hpp
+
   cmake -GNinja -B build \
     -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
     -DCMAKE_INSTALL_PREFIX=/usr \
