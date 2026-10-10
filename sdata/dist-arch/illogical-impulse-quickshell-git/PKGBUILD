@@ -70,9 +70,12 @@ build() {
   sed -i 's/return \*reinterpret_cast<QList<QObject\*>\*>(\&this->mValuesList);/QList<QObject*> result; result.reserve(this->mValuesList.size()); for (T* item : this->mValuesList) { result.append(item); } return result;/' \
     src/core/model.hpp
 
+  # Fix Qt 6.12 incompatibility: -Wno-sfinae-incomplete suppresses the Qt 6.12
+  # moc-generated type registration that fails for incomplete pipewire types
   cmake -GNinja -B build \
     -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
     -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_CXX_FLAGS="-Wno-sfinae-incomplete" \
     -DDISTRIBUTOR="AUR (package: quickshell-git)" \
     -DDISTRIBUTOR_DEBUGINFO_AVAILABLE=NO \
     -DINSTALL_QML_PREFIX=lib/qt6/qml
