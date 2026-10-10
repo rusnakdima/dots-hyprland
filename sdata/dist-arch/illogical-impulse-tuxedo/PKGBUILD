@@ -1,0 +1,10 @@
+groups=(illogical-impulse)
+pkgname=illogical-impulse-tuxedo
+pkgver=1.0
+pkgrel=1
+pkgdesc="Illogical Impulse Tuxedo/QC71 keyboard meta-package"
+arch=(any)
+license=(MIT)
+depends=(
+  tuxedo-keyboard
+)

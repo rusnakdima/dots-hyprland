@@ -21,6 +21,19 @@ remove_deprecated_dependencies(){
   list+=(matugen-bin)
   for i in ${list[@]};do try sudo -n pacman --noconfirm -Rdd $i;done
 }
+
+# Register all git repos (including nested) under sdata/dist-arch as safe.
+# This prevents "dubious ownership" errors when makepkg clones git repos as root.
+git_config_safe_dirs(){
+  local _dir
+  while IFS= read -r _dir; do
+    [[ -d "$_dir" ]] || continue
+    git config --global --add safe.directory "$_dir" 2>/dev/null || true
+  done < <(find "${REPO_ROOT}/sdata/dist-arch" -name ".git" -type d 2>/dev/null | while IFS= read -r _gd; do dirname "$_gd"; done)
+  # Also register the repo root itself.
+  git config --global --add safe.directory "${REPO_ROOT}" 2>/dev/null || true
+}
+
 # NOTE: `implicitize_old_dependencies()` was for the old days when we just switch from dependencies.conf to local PKGBUILDs.
 # However, let's just keep it as references for other distros writing their `sdata/dist-<OS_GROUP_ID>/install-deps.sh`, if they need it.
 implicitize_old_dependencies(){
@@ -54,11 +67,45 @@ if [[ -z "${PACMAN_AUTH:-}" ]]; then
   export PACMAN_AUTH="sudo"
 fi
 
+# Per-package status tracking for install summary
+declare -A PKG_STATUS
+declare -A PKG_REASON
+
+# When true, skip packages that fail instead of aborting the whole install
+SKIP_BROKEN="${SKIP_BROKEN:-false}"
+
+# Print install summary on exit — always runs via trap, even on Ctrl+C / error
+print_summary(){
+  local _failed=0
+  printf "\n[$0]: Install summary:\n"
+  printf "  %-50s %-20s %s\n" "PACKAGE" "STATUS" "REASON"
+  printf "  %-50s %-20s %s\n" "-------" "------" "------"
+  local _pkg
+  for _pkg in "${!PKG_STATUS[@]}"; do
+    local _status="${PKG_STATUS[$_pkg]}"
+    local _reason="${PKG_REASON[$_pkg]:-}"
+    if [[ "$_status" == "FAILED" ]]; then
+      _failed=1
+    fi
+    printf "  %-50s %-20s %s\n" "$_pkg" "$_status" "$_reason"
+  done
+  return $_failed
+}
+trap 'print_summary' EXIT
+
 showfun remove_deprecated_dependencies
 v remove_deprecated_dependencies
 
+# Safe directory pre-flight — before any makepkg/git operations
+git_config_safe_dirs
+
+# GPU detection — runs before metapkg selection so GPU_NVIDIA etc. are populated.
+source "${REPO_ROOT}/sdata/lib/gpus.sh"
+gpu_detect
+printf "${STY_CYAN}[$0]: GPU: ${GPU_COUNT} found, NVIDIA=${GPU_NVIDIA}${STY_RST}\n"
+
 # Issue #363
-case $SKIP_SYSUPDATE in
+case "${SKIP_SYSUPDATE:-false}" in
   true) true;;
   *) v sudo -n pacman -Syu --noconfirm;;
 esac
@@ -76,27 +123,89 @@ v implicitize_old_dependencies
 
 # https://github.com/end-4/dots-hyprland/issues/581
 # yay -Bi is kinda hit or miss, instead cd into the relevant directory and manually source and install deps
+aur_fallback(){
+  # Fall back to AUR package if PKGBUILD install fails
+  local _location=$1
+  local _pkgname
+  _pkgname=$(cd "$_location" && . ./PKGBUILD && echo "$pkgname")
+  printf "${STY_YELLOW}[$0]: AUR fallback for ${_pkgname}...${STY_RST}\n"
+  if yay -S --noconfirm --needed --asdeps "$_pkgname" 2>/dev/null; then
+    PKG_STATUS[$_pkgname]="OK (AUR fallback)"
+    PKG_REASON[$_pkgname]="AUR fallback succeeded"
+    return 0
+  else
+    PKG_STATUS[$_pkgname]="FAILED"
+    PKG_REASON[$_pkgname]="makepkg failed, AUR fallback also failed"
+    return 1
+  fi
+}
+
+# Wrapper: try PKGBUILD first, fall back to AUR on failure.
+try_install_package(){
+  local _location=$1
+  local _installflags=$2
+  local _pkgname
+  _pkgname=$(cd "$_location" && . ./PKGBUILD && echo "$pkgname")
+
+  # Run makepkg in subshell so failure doesn't propagate to the outer loop.
+  local _rc=0
+  (
+    set +e
+    install-local-pkgbuild "$_location" "$_installflags"
+  )
+  _rc=$?
+
+  if [[ $_rc -ne 0 ]]; then
+    if [[ "$SKIP_BROKEN" == "true" ]]; then
+      PKG_STATUS[$_pkgname]="FAILED (skipped)"
+      PKG_REASON[$_pkgname]="SKIP_BROKEN=true, skipped after failure"
+      printf "${STY_YELLOW}[$0]: ${_pkgname} failed but SKIP_BROKEN=true — skipping.${STY_RST}\n"
+      return 0
+    fi
+    printf "${STY_YELLOW}[$0]: ${_pkgname} makepkg failed (rc=$_rc), trying AUR fallback...${STY_RST}\n"
+    aur_fallback "$_location"
+    return $?
+  fi
+  PKG_STATUS[$_pkgname]="OK"
+  PKG_REASON[$_pkgname]="already current"
+  return 0
+}
+
 install-local-pkgbuild() {
   local location=$1
   local installflags=$2
+  local pkgname installed_ver pkgfile
 
-  x pushd $location
+  pushd "$location" >/dev/null || return 1
 
   source ./PKGBUILD
+  pkgname=$pkgname  # capture from sourced PKGBUILD
   x yay -S $installflags --asdeps "${depends[@]}"
+
   # Phase 1 — build only (no install), so we can inspect the artifact before committing to install.
-  # man makepkg:
-  # -A, --ignorearch: Ignore a missing or incomplete arch field in the build script.
-  # -s, --syncdeps: Install missing dependencies using pacman. When build-time or run-time dependencies are not found, pacman will try to resolve them.
-  # -f, --force: build a package even if it already exists in the PKGDEST
-  x makepkg -Afs --noconfirm
+  # Wrapped in subshell with set +e so makepkg failure exits the subshell but not the parent function.
+  local _makepkg_rc=0
+  (
+    set +e
+    # --noconfirm: skip confirmation prompts
+    # -A: ignore arch field
+    # -s: syncdeps
+    # -f: force rebuild
+    makepkg -Afs --noconfirm
+  )
+  _makepkg_rc=$?
+
+  if [[ $_makepkg_rc -ne 0 ]]; then
+    printf "${STY_RED}[$0]: makepkg failed for ${pkgname} (rc=$_makepkg_rc)${STY_RST}\n"
+    popd >/dev/null
+    return 1
+  fi
 
   # Phase 2 — locate the built package artifact so we can install it explicitly with overwrite flags.
-  local pkgfile
   pkgfile="$(ls -1 ${PKGDEST:-.}/${pkgname}-*.pkg.tar.zst 2>/dev/null | sort -V | tail -n1)"
   if [[ -z "${pkgfile}" ]]; then
     printf "${STY_RED}[$0]: Could not locate built package for ${pkgname}. Run 'makepkg' manually in ${location} for diagnostics.${STY_RST}\n"
-    x popd
+    popd >/dev/null
     return 1
   fi
 
@@ -104,22 +213,106 @@ install-local-pkgbuild() {
   # remove_stale_ii_packages could not reach (e.g. mid-loop Qt ABI mismatch on quickshell-git).
   # Skip entirely if the installed version matches what we just built to avoid pacman returning
   # a spurious non-zero exit due to timestamp/recompression differences.
-  local installed_ver
   installed_ver="$(pacman -Q "${pkgname}" 2>/dev/null | awk '{print $2}')"
   if [[ "${installed_ver}" == "${pkgver}-${pkgrel}" ]]; then
     printf "${STY_BLUE}[$0]: ${pkgname} is already installed at the same version (${installed_ver}). Skipping pacman -U.${STY_RST}\n"
   else
     x sudo -n pacman -U --noconfirm --overwrite '*' "${pkgfile}"
   fi
-  x popd
+  popd >/dev/null
+  return 0
 }
 
-# Install core dependencies from the meta-packages
-metapkgs=(./sdata/dist-arch/illogical-impulse-{audio,backlight,basic,fonts-themes,kde,portal,python,screencapture,toolkit,widgets})
-metapkgs+=(./sdata/dist-arch/illogical-impulse-hyprland)
-metapkgs+=(./sdata/dist-arch/illogical-impulse-microtex-git)
-metapkgs+=(./sdata/dist-arch/illogical-impulse-quickshell-git)
-metapkgs+=(./sdata/dist-arch/illogical-impulse-bibata-modern-classic-bin)
+# Resolve machine profile: auto probes battery to decide laptop/desktop,
+# laptop/desktop are forced. Result written to ~/.config/dots-hyprland/MACHINE.
+resolve_profile(){
+  if [[ "$MACHINE_PROFILE" == "auto" ]]; then
+    if [[ -f "${HOME}/.config/dots-hyprland/MACHINE" ]]; then
+      MACHINE_PROFILE="$(cat "${HOME}/.config/dots-hyprland/MACHINE")"
+      printf "${STY_CYAN}[$0]: Machine profile from cached file: ${MACHINE_PROFILE}${STY_RST}\n"
+    else
+      # Probe: battery presence = laptop, else desktop
+      if [[ -n "$(ls /sys/class/power_supply/BAT* 2>/dev/null)" ]]; then
+        MACHINE_PROFILE="laptop"
+      else
+        MACHINE_PROFILE="desktop"
+      fi
+      printf "${STY_CYAN}[$0]: Machine profile auto-detected: ${MACHINE_PROFILE}${STY_RST}\n"
+    fi
+  fi
+  mkdir -p "${HOME}/.config/dots-hyprland"
+  printf '%s\n' "$MACHINE_PROFILE" > "${HOME}/.config/dots-hyprland/MACHINE"
+  printf "${STY_CYAN}[$0]: Machine profile: ${MACHINE_PROFILE}${STY_RST}\n"
+}
+resolve_profile
+
+# Base packages — always installed
+metapkgs_base=(
+  ./sdata/dist-arch/illogical-impulse-{audio,basic,fonts-themes,portal,python,screencapture,toolkit,widgets}
+  ./sdata/dist-arch/illogical-impulse-hyprland
+  ./sdata/dist-arch/illogical-impulse-microtex-git
+  ./sdata/dist-arch/illogical-impulse-quickshell-git
+  ./sdata/dist-arch/illogical-impulse-bibata-modern-classic-bin
+)
+
+# Laptop-only packages (backlight and kde/powerdevil for battery management)
+metapkgs_laptop=(
+  ./sdata/dist-arch/illogical-impulse-backlight
+  ./sdata/dist-arch/illogical-impulse-kde
+)
+
+# NVIDIA packages — added when GPU_NVIDIA >= 0
+metapkgs_nvidia=(
+  ./sdata/dist-arch/illogical-impulse-nvidia
+)
+
+# Build final metapkgs array based on resolved profile
+metapkgs=("${metapkgs_base[@]}")
+if [[ "$MACHINE_PROFILE" == "laptop" ]]; then
+  metapkgs+=("${metapkgs_laptop[@]}")
+fi
+if [[ "$GPU_NVIDIA" -ge 0 ]] && [[ "${SKIP_NVIDIA_PKG:-false}" != "true" ]]; then
+  # Detect existing NVIDIA driver to avoid package conflicts
+  local _nvidia_pkg=""
+  if pacman -Q nvidia-open-dkms &>/dev/null; then
+    _nvidia_pkg="nvidia-open-dkms"
+    printf "${STY_CYAN}[$0]: Detected existing NVIDIA open driver — will match existing driver.${STY_RST}\n"
+  elif pacman -Q nvidia-580xx-dkms &>/dev/null; then
+    _nvidia_pkg="nvidia-580xx-dkms"
+    printf "${STY_CYAN}[$0]: Detected existing NVIDIA 580xx driver — will match existing driver.${STY_RST}\n"
+  elif pacman -Q nvidia-dkms &>/dev/null; then
+    _nvidia_pkg="nvidia-dkms"
+    printf "${STY_CYAN}[$0]: Detected existing NVIDIA driver — will match existing driver.${STY_RST}\n"
+  fi
+  if [[ -n "$_nvidia_pkg" ]]; then
+    # Update nvidia meta-pkg to use detected driver
+    printf "${STY_CYAN}[$0]: Using existing NVIDIA driver packages instead of meta-package.${STY_RST}\n"
+  else
+    metapkgs+=("${metapkgs_nvidia[@]}")
+  fi
+fi
+
+# ─── Hardware probe: AIC8800 USB WiFi adapter ─────────────────────────────────
+if lsusb 2>/dev/null | grep -q "0b05:5721"; then
+  printf "${STY_CYAN}[$0]: AIC8800 USB WiFi adapter detected — running install_aic8800...${STY_RST}\n"
+  install_aic8800
+fi
+
+# ─── Hardware probe: Tuxedo / QC71 keyboard ────────────────────────────────
+_tuxedo_detected=false
+for _hwmon in /sys/class/hwmon/hwmon*/name; do
+  if grep -qiE "tuxedo_keyboard|qc71_laptop|tuxedo" "$_hwmon" 2>/dev/null; then
+    _tuxedo_detected=true
+    break
+  fi
+done
+if [[ "$_tuxedo_detected" == "true" ]]; then
+  printf "${STY_CYAN}[$0]: Tuxedo/QC71 keyboard detected${STY_RST}\n"
+  if [[ "$MACHINE_PROFILE" == "laptop" ]]; then
+    metapkgs_tuxedo=(./sdata/dist-arch/illogical-impulse-tuxedo)
+    metapkgs+=("${metapkgs_tuxedo[@]}")
+  fi
+fi
 
 printf "${STY_CYAN}[$0]: Removing previously installed illogical-impulse-* packages (if any) before rebuild to avoid pacman transaction errors.${STY_RST}\n"
 
@@ -141,8 +334,8 @@ remove_stale_ii_packages
 
 for i in "${metapkgs[@]}"; do
   metainstallflags="--needed"
-  $ask && showfun install-local-pkgbuild || metainstallflags="$metainstallflags --noconfirm"
-  v install-local-pkgbuild "$i" "$metainstallflags"
+  $ask && showfun try_install_package || metainstallflags="$metainstallflags --noconfirm"
+  v try_install_package "$i" "$metainstallflags"
 done
 
 install-dinit-service-packages(){
@@ -179,6 +372,9 @@ done
 # Installs mode-switch rule, udev hook, DKMS modules, and firmware
 # Idempotent: safe for machines without the hardware (steps gracefully skip)
 install_aic8800(){
+  case "${SKIP_AIC8800:-false}" in
+    true) printf "${STY_YELLOW}[$0]: SKIP_AIC8800=true — skipping AIC8800 setup.${STY_RST}\n"; return 0 ;;
+  esac
   local aic_dir="${REPO_ROOT}/dots-extra/aic8800-usb-5.0+git20260123.5f7be68d-8"
   local fw_dir="/lib/firmware/aic8800D80"
   local files_dir="${aic_dir}/files"
@@ -240,6 +436,9 @@ v install_aic8800
 
 ## Keyboard RGB backlight udev rule (rgb:kbd_backlight sysfs, no sudo needed)
 install_kbd_backlight_udev(){
+  case "${SKIP_KBD_BACKLIGHT:-false}" in
+    true) printf "${STY_YELLOW}[$0]: SKIP_KBD_BACKLIGHT=true — skipping kbd-backlight setup.${STY_RST}\n"; return 0 ;;
+  esac
   local rules_src="${REPO_ROOT}/dots-extra/etc/udev/rules.d/90-kbd-backlight.rules"
   local rules_dst="/etc/udev/rules.d/90-kbd-backlight.rules"
   if [[ ! -f "${rules_src}" ]]; then

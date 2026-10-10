@@ -128,7 +128,7 @@ hl.bind("SUPER + code:86", function() zoomfunction(0.3) end, { repeating = true 
 
 --##! Media
 local mediaNextCommand =
-"playerctl next || playerctl position `bc <<< \"100 * $(playerctl metadata mpris:length) / 1000000 / 100\"`"
+"playerctl next || playerctl position 1% || playerctl position $(bc <<< \"0.01*$(playerctl metadata mpris:length)/1000000\")"
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd(mediaNextCommand), { locked = true, description = "Media: Next track" })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd(mediaNextCommand), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })

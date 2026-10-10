@@ -1,8 +1,5 @@
 -- ######## Window rules ########
 
--- Disable blur for xwayland context menus
-hl.window_rule({match = {class = "^()$", title = "^()$" },                   no_blur = true })
-
 -- Disable blur for every window
 hl.window_rule({match = {class = ".*" }, no_blur = true })
 
@@ -77,8 +74,7 @@ hl.window_rule({match = {title = ".*\\.exe" }, immediate = true})
 hl.window_rule({match = {title = ".*minecraft.*" }, immediate = true})
 hl.window_rule({match = {class = "^(steam_app).*" }, immediate = true})
 
--- No shadow for tiled windows
-hl.window_rule({match = {float = 0 }, no_shadow = true})
+-- No shadow for tiled windows (float is not a valid match predicate, so this rule is removed)
 
 -- ######## Workspace rules ########
 hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })

@@ -39,6 +39,12 @@ end
 if is_file_exists(HOME .. "/.config/hypr/workspaces.lua") then
     require("workspaces")
 end
+
+-- Profile workspace overlay: load machine-specific workspace bindings
+local profile = os.getenv("MACHINE_PROFILE") or "desktop"
+if is_file_exists(HOME .. "/.config/hypr/profiles/" .. profile .. "/workspaces.lua") then
+    require("hypr.profiles." .. profile .. ".workspaces")
+end
 if is_file_exists(HOME .. "/.config/hypr/monitors.lua") then
     require("monitors")
 end

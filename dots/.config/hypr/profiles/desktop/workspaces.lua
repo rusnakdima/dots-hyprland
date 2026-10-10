@@ -1,0 +1,3 @@
+-- Profile: desktop — multi-monitor workspace bindings
+-- The base keybinds.lua already has full multi-monitor workspace bindings.
+-- This file exists for completeness and future desktop-specific overrides.

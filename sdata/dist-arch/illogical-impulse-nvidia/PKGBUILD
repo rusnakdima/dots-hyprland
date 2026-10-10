@@ -1,0 +1,12 @@
+groups=(illogical-impulse)
+pkgname=illogical-impulse-nvidia
+pkgver=1.0
+pkgrel=1
+pkgdesc="Illogical Impulse NVIDIA driver meta-package"
+arch=(x86_64)
+license=(MIT)
+depends=(
+  nvidia
+  nvidia-utils
+  libva-nvidia-driver
+)

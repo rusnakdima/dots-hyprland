@@ -28,3 +28,12 @@ BACKUP_DIR="${BACKUP_DIR:-$HOME/ii-original-dots-backup}"
 DOTS_CORE_CONFDIR="${XDG_CONFIG_HOME}/illogical-impulse"
 INSTALLED_LISTFILE="${DOTS_CORE_CONFDIR}/installed_listfile"
 FIRSTRUN_FILE="${DOTS_CORE_CONFDIR}/installed_true"
+
+# Machine profile: auto (probe hardware), laptop, or desktop
+MACHINE_PROFILE="${MACHINE_PROFILE:-auto}"
+
+# Install skip flags (set via --skip-* options in setup install)
+SKIP_ALLGREETING="${SKIP_ALLGREETING:-false}"
+SKIP_ALLDEPS="${SKIP_ALLDEPS:-false}"
+SKIP_ALLSETUPS="${SKIP_ALLSETUPS:-false}"
+SKIP_ALLFILES="${SKIP_ALLFILES:-false}"

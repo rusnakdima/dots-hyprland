@@ -15,9 +15,10 @@ Options for install:
       --skip-allsetups      Skip the whole process setting up permissions/services etc
       --skip-allfiles       Skip the whole process copying configuration files
       --ignore-outdate      Ignore outdate checking for community supported \"dist-*\".
-  -s, --skip-sysupdate      Skip system package upgrade e.g. \"sudo pacman -Syu\"
+      --skip-sysupdate      Skip system package upgrade e.g. "sudo pacman -Syu"
       --skip-plasmaintg     Skip installing plasma-browser-integration
       --skip-backup         Skip backup conflicting files
+      --profile <mode>      Machine profile: auto, laptop, or desktop (default: auto)
       --skip-quickshell     Skip installing the config for Quickshell
       --skip-hyprland       Skip installing the config for Hyprland
       --skip-hyprland-entry Skip installing the entry config for Hyprland
@@ -47,7 +48,7 @@ cleancache(){
 # `man getopt` to see more
 para=$(getopt \
   -o hfFk:cs \
-  -l help,force,firstrun,fontset:,clean,skip-allgreeting,skip-alldeps,skip-allsetups,skip-allfiles,ignore-outdate,skip-sysupdate,skip-plasmaintg,skip-backup,skip-quickshell,skip-fish,skip-hyprland,skip-hyprland-entry,skip-fontconfig,skip-miscconf,core,exp-files,via-nix \
+  -l help,force,firstrun,fontset:,clean,skip-allgreeting,skip-alldeps,skip-allsetups,skip-allfiles,ignore-outdate,skip-sysupdate,skip-plasmaintg,skip-backup,profile:,skip-quickshell,skip-fish,skip-hyprland,skip-hyprland-entry,skip-fontconfig,skip-miscconf,core,exp-files,via-nix \
   -n "$0" -- "$@")
 [ $? != 0 ] && echo "$0: Error when getopt, please recheck parameters." && exit 1
 #####################################################################################
@@ -81,6 +82,11 @@ while true ; do
     --ignore-outdate) IGNORE_OUTDATE_CHECK=true;shift;;
     --skip-plasmaintg) SKIP_PLASMAINTG=true;shift;;
     --skip-backup) SKIP_BACKUP=true;shift;;
+    --profile)
+      case "$2" in
+        auto|laptop|desktop) MACHINE_PROFILE="$2"; export MACHINE_PROFILE; shift 2;;
+        *) echo "Wrong argument for --profile: must be auto, laptop, or desktop."; exit 1;;
+      esac;;
     --skip-hyprland) SKIP_HYPRLAND=true;shift;;
     --skip-hyprland-entry) SKIP_HYPRLAND_ENTRY=true;shift;;
     --skip-fish) SKIP_FISH=true;shift;;

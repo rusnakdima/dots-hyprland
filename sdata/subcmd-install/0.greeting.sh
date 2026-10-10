@@ -25,7 +25,7 @@ printf "  a) It has been designed to be idempotent which means you can run it mu
 printf "  b) Use ${STY_INVERT} --help ${STY_RST}${STY_CYAN} for more options.${STY_RST}\n"
 printf "${STY_YELLOW}${STY_BOLD}Note: ${STY_RST}"
 printf "${STY_YELLOW}"
-printf "It does not handle system-level/hardware stuff like Nvidia drivers. Please do it by yourself.\n"
+printf "GPU detection is automatic — NVIDIA drivers are installed when detected.\n"
 printf "${STY_RST}"
 printf "\n"
 pause
