@@ -99,25 +99,29 @@ Singleton {
     }
 
     // Update the layout name when it changes
-    Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            if (event.name === "activelayout") {
-                if (root.needsLayoutRefresh) {
-                    root.needsLayoutRefresh = false;
-                    fetchLayoutsProc.running = true;
-                }
-
-                // If there's only one layout, the updated layout is always the same
-                if (root.layoutCodes.length <= 1) return;
-
-                // Update when layout might have changed
-                const dataString = event.data;
-                root.currentLayoutName = dataString.substring(dataString.indexOf(",") + 1);
-            } else if (event.name == "configreloaded") {
-                // Mark layout code list to be updated when config is reloaded
-                root.needsLayoutRefresh = true;
+    // Hyprland IPC unavailable when HYPRLAND_IPC=OFF — skip connections
+    property bool hyprlandAvailable: typeof Hyprland !== 'undefined' && Hyprland !== null
+    Component.onCompleted: {
+        if (hyprlandAvailable) {
+            Hyprland.rawEvent.connect(onHyprlandRawEvent);
+        }
+    }
+    function onHyprlandRawEvent(event) {
+        if (event.name === "activelayout") {
+            if (root.needsLayoutRefresh) {
+                root.needsLayoutRefresh = false;
+                fetchLayoutsProc.running = true;
             }
+
+            // If there's only one layout, the updated layout is always the same
+            if (root.layoutCodes.length <= 1) return;
+
+            // Update when layout might have changed
+            const dataString = event.data;
+            root.currentLayoutName = dataString.substring(dataString.indexOf(",") + 1);
+        } else if (event.name == "configreloaded") {
+            // Mark layout code list to be updated when config is reloaded
+            root.needsLayoutRefresh = true;
         }
     }
 }

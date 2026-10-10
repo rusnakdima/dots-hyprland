@@ -11,6 +11,11 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
+/**
+ * Overview — workspace overview panel.
+ * Stub implementation when Hyprland IPC is disabled (HYPRLAND_IPC=OFF).
+ * Shows but is non-functional.
+ */
 Scope {
     id: overviewScope
     property bool dontAutoCancelSearch: false
@@ -18,8 +23,8 @@ Scope {
     PanelWindow {
         id: panelWindow
         property string searchingText: ""
-        readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
-        property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
+        property var monitor: null
+        property bool monitorIsFocused: false
         visible: GlobalStates.overviewOpen
 
         WlrLayershell.namespace: "quickshell:overview"

@@ -9,13 +9,17 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 
+/**
+ * OverviewWidget — shows workspace overview with window tiles.
+ * Stub implementation when Hyprland IPC is disabled (HYPRLAND_IPC=OFF).
+ * HyprlandMonitor and HyprlandData types are unavailable.
+ */
 Item {
     id: root
     required property var screen
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
-    readonly property var toplevels: ToplevelManager.toplevels
+    property var monitor: null
+    readonly property var toplevels: []
     // Clamp to avoid lock-screen temp workspace (2147483647 - N) leaking into UI
     readonly property int effectiveActiveWorkspaceId: Math.max(1, Math.min(100, monitor?.activeWorkspace?.id ?? 1))
     readonly property int workspacesShown: Config.options.overview.rows * Config.options.overview.columns

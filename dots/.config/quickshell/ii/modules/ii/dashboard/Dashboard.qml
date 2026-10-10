@@ -8,13 +8,17 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
+/**
+ * Dashboard — system dashboard with widgets.
+ * Stub implementation when Hyprland IPC is disabled (HYPRLAND_IPC=OFF).
+ */
 Scope {
     id: dashboardScope
 
     PanelWindow {
         id: panelWindow
-        readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
-        property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
+        property var monitor: null
+        property bool monitorIsFocused: false
         visible: GlobalStates.dashboardOpen
 
         WlrLayershell.namespace: "quickshell:dashboard"

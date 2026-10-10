@@ -13,7 +13,7 @@ Scope {
 
     PanelWindow {
         id: panelWindow
-        readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
+        readonly property var monitor: Hyprland.monitorFor(panelWindow.screen)
         property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
         visible: GlobalStates.powerMenuOpen
 

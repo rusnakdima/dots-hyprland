@@ -34,14 +34,20 @@ Singleton {
             return;
         }
 
-        const focusedName = Hyprland.focusedMonitor.name;
+        // Hyprland IPC unavailable when HYPRLAND_IPC=OFF
+        if (typeof Hyprland === 'undefined') return;
+        const focusedName = Hyprland.focusedMonitor?.name;
+        if (!focusedName) return;
         const monitor = monitors.find(m => focusedName === m.screen.name);
         if (monitor)
             monitor.setBrightness(monitor.brightness + 0.05);
     }
 
     function decreaseBrightness(): void {
-        const focusedName = Hyprland.focusedMonitor.name;
+        // Hyprland IPC unavailable when HYPRLAND_IPC=OFF
+        if (typeof Hyprland === 'undefined') return;
+        const focusedName = Hyprland.focusedMonitor?.name;
+        if (!focusedName) return;
         const monitor = monitors.find(m => focusedName === m.screen.name);
         if (monitor && monitor.brightness > 0)
             monitor.setBrightness(monitor.brightness - 0.05);
@@ -203,8 +209,8 @@ Singleton {
             property string screenName: modelData.name
             property string screenshotPath: `${root.screenshotDir}/screenshot-${screenName}.png`
             Connections {
-                enabled: Config.options.light.antiFlashbang.enable && Appearance.m3colors.darkmode
-                target: Hyprland
+                enabled: (Config.options.light.antiFlashbang.enable && Appearance.m3colors.darkmode) && (typeof Hyprland !== 'undefined')
+                target: (typeof Hyprland !== 'undefined') ? Hyprland : null
                 function onRawEvent(event) {
                     if (["activewindowv2", "windowtitlev2"].includes(event.name)) {
                         screenshotTimer.interval = root.contentSwitchDelay;

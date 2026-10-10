@@ -53,20 +53,16 @@ PanelWindow {
     property bool contentRegionOpacity: Config.options.regionSelector.targetRegions.contentRegionOpacity
 
     // Vars for indicators
-    readonly property var windows: [...HyprlandData.windowList].sort((a, b) => {
-        // Sort floating=true windows before others
-        if (a.floating === b.floating) return 0;
-        return a.floating ? -1 : 1;
-    })
-    readonly property var layers: HyprlandData.layers
+    readonly property var windows: []
+    readonly property var layers: ({})
     readonly property real falsePositivePreventionRatio: 0.5
 
     // Screen & interaction vars
-    readonly property HyprlandMonitor hyprlandMonitor: Hyprland.monitorFor(screen)
-    readonly property real monitorScale: hyprlandMonitor.scale
-    readonly property real monitorOffsetX: hyprlandMonitor.x
-    readonly property real monitorOffsetY: hyprlandMonitor.y
-    property int activeWorkspaceId: hyprlandMonitor.activeWorkspace?.id ?? 0
+    readonly property var hyprlandMonitor: null
+    readonly property real monitorScale: 1
+    readonly property real monitorOffsetX: 0
+    readonly property real monitorOffsetY: 0
+    property int activeWorkspaceId: 1
     property string screenshotPath: `${root.screenshotDir}/image-${screen.name}`
     property real dragStartX: 0
     property real dragStartY: 0
@@ -91,7 +87,7 @@ PanelWindow {
         }
     })
     readonly property list<var> layerRegions: {
-        const layersOfThisMonitor = root.layers[root.hyprlandMonitor.name]
+        const layersOfThisMonitor = root.layers[root.hyprlandMonitor?.name]
         const topLayers = layersOfThisMonitor?.levels["2"]
         if (!topLayers) return [];
         const nonBarTopLayers = topLayers
