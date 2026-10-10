@@ -1,3 +1,6 @@
+# XDG_RUNTIME_DIR — required by quickshell and many Wayland apps
+set -gx XDG_RUNTIME_DIR /run/user/(id -u)
+
 # Commands to run in interactive sessions can go here
 if status is-interactive
     # No greeting
