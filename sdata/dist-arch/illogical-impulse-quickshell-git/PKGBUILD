@@ -66,8 +66,10 @@ build() {
   cd "$_pkgname"
 
   # Fix strict-aliasing violation in model.hpp (causes build failure with GCC 16)
-  # The reinterpret_cast violates C++ strict-aliasing rules; replace with safe copy
-  sed -i 's/return \*reinterpret_cast<QList<QObject\*>\*>(\&this->mValuesList);/QList<QObject*> result; result.reserve(this->mValuesList.size()); for (T* item : this->mValuesList) { result.append(item); } return result;/' \
+  # The reinterpret_cast violates C++ strict-aliasing rules; replace with safe copy.
+  # Guard with if constexpr to handle T=void case (compiler still instantiates body).
+  sed -i '/#include <functional>/a #include <type_traits>' src/core/model.hpp
+  sed -i 's/return \*reinterpret_cast<QList<QObject\*>\*>(\&this->mValuesList);/QList<QObject*> result; result.reserve(this->mValuesList.size()); for (T* item : this->mValuesList) { if constexpr (std::is_void_v<T>) { Q_UNREACHABLE(); } else { result.append(item); } } return result;/' \
     src/core/model.hpp
 
   # Fix Qt 6.12 incompatibility: -Wno-sfinae-incomplete suppresses the Qt 6.12
