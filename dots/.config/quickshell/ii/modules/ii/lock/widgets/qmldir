@@ -1,0 +1,2 @@
+module qs.modules.ii.lock.widgets
+LockClock 1.0 LockClock.qml

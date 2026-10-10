@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
 import qs
 import qs.services
 import qs.modules.common
@@ -13,19 +12,19 @@ import qs.modules.waffle.actionCenter
 
 RowLayout {
     id: root
-    required property PwNode node
+    required property var node
     property alias icon: iconButton.iconName
     property alias monochrome: iconButton.monochrome
     monochrome: false
 
-    PwObjectTracker { // Necessary for useful info to be present in 'node'
-        objects: [root.node]
-    }
-
     WPanelIconButton {
         id: iconButton
-        iconName: WIcons.audioAppIcon(root.node)
-        onClicked: root.node.audio.muted = !root.node?.audio.muted
+        iconName: root.node ? WIcons.audioAppIcon(root.node) : ""
+        onClicked: {
+            if (root.node && root.node.audio) {
+                root.node.audio.muted = !root.node.audio.muted
+            }
+        }
 
         FluentIcon {
             id: muteIcon

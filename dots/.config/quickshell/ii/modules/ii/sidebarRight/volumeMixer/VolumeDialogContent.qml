@@ -5,7 +5,7 @@ import qs.modules.common.widgets
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
+
 
 ColumnLayout {
     id: root
@@ -46,9 +46,9 @@ ColumnLayout {
         model: root.devices.map(node => Audio.friendlyDeviceName(node))
         currentIndex: root.devices.findIndex(item => {
             if (root.isSink) {
-                return item.id === Pipewire.defaultAudioSink?.id
+                return item.id === Audio.sink?.id
             } else {
-                return item.id === Pipewire.defaultAudioSource?.id
+                return item.id === Audio.source?.id
             }
         })
         onActivated: (index) => {

@@ -4,15 +4,11 @@ import qs.services
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Services.Pipewire
 import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
-    required property PwNode node
-    PwObjectTracker {
-        objects: [root.node]
-    }
+    required property var node
 
     implicitHeight: rowLayout.implicitHeight
 

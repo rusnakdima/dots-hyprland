@@ -5,7 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Services.Pipewire
+
 import Quickshell.Services.UPower
 
 Item {
@@ -93,7 +93,7 @@ Item {
                 MaterialSymbol {
                     horizontalAlignment: Qt.AlignHCenter
                     fill: 0
-                    text: Pipewire.defaultAudioSource?.audio?.muted ? "mic_off" : "mic"
+                    text: Audio.source?.audio?.muted ? "mic_off" : "mic"
                     iconSize: Appearance.font.pixelSize.large
                     color: Appearance.colors.colOnLayer2
                 }

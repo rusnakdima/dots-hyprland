@@ -2,7 +2,6 @@ import qs.modules.common
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import Quickshell.Services.Pipewire
 pragma Singleton
 pragma ComponentBehavior: Bound
 
