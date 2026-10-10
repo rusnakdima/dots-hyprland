@@ -65,13 +65,13 @@ sha256sums=('SKIP'
 build() {
   cd "$_pkgname"
 
-  # Disable strict-aliasing enforcement and Qt 6.12 SFINAE-incomplete checks.
-  # The model.hpp reinterpret_cast is UB but data is valid; GCC 16 now enforces
-  # strict-aliasing as errors. -fno-strict-aliasing is required for this codebase.
+  # GCC 16 has stricter aliasing enforcement that breaks quickshell's model.hpp.
+  # Use GCC 15 which has compatible ABI with the system's Qt 6.12.0.
   cmake -GNinja -B build \
     -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
+    -DCMAKE_C_COMPILER=/usr/bin/gcc-15 \
+    -DCMAKE_CXX_COMPILER=/usr/bin/g++-15 \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_CXX_FLAGS="-fno-strict-aliasing -Wno-sfinae-incomplete" \
     -DSERVICE_PIPEWIRE=OFF \
     -DDISTRIBUTOR="AUR (package: quickshell-git)" \
     -DDISTRIBUTOR_DEBUGINFO_AVAILABLE=NO \
