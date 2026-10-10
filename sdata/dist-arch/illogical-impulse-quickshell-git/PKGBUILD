@@ -67,14 +67,20 @@ build() {
 
   # GCC 16 has stricter aliasing enforcement that breaks quickshell's model.hpp.
   # Use GCC 15 which has compatible ABI with the system's Qt 6.12.0.
+  # Disable HYPRLAND_IPC — Qt 6.12's moc requires complete types for QMetaType::fromType<T>()
+  # in Q_OBJECT classes, and the circular header deps (connection.hpp forward-declares
+  # HyprlandMonitor before monitor.hpp defines it) can't be resolved without a larger
+  # header restructure. Disabling it also removes the Hyprland-specific cascade of
+  # "Type unavailable" errors at runtime.
   cmake -GNinja -B build \
     -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
     -DCMAKE_C_COMPILER=/usr/bin/gcc-15 \
     -DCMAKE_CXX_COMPILER=/usr/bin/g++-15 \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DSERVICE_PIPEWIRE=OFF \
+    -DI3=OFF \
+    -DHYPRLAND_IPC=OFF \
     -DDISTRIBUTOR="AUR (package: quickshell-git)" \
-    -DDISTRIBUTOR_DEBUGINFO_AVAILABLE=NO \
     -DINSTALL_QML_PREFIX=lib/qt6/qml
 
   cmake --build build
