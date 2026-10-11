@@ -57,13 +57,13 @@ if [[ "$INSTALL_VIA_NIX" == "true" ]]; then
   printf "\n"
   printf "${STY_RST}"
   pause
-  source ${REPO_ROOT}/dist/${TARGET_ID}/install-deps.sh
+  source ${REPO_ROOT}/src/dist/${TARGET_ID}/install-deps.sh
 
 elif [[ "$OS_GROUP_ID" =~ ^(arch|gentoo|fedora)$ ]]; then
 
   TARGET_ID=$OS_GROUP_ID
   if ! [[ "${TARGET_ID}" = "arch" ]]; then
-    tmp_update_status="$(outdate_detect ${REPO_ROOT}/dist/arch ${REPO_ROOT}/dist/${TARGET_ID})"
+    tmp_update_status="$(outdate_detect ${REPO_ROOT}/src/dist/arch ${REPO_ROOT}/src/dist/${TARGET_ID})"
     if [[ "${tmp_update_status}" =~ ^(OUTDATED|EMPTY_TARGET|EMPTY_SOURCE|FORCE_OUTDATED|WIP)$ ]]; then
       printf "${STY_RED}${STY_BOLD}===URGENT===${STY_RST}\n"
       printf "${STY_RED}"
@@ -107,5 +107,5 @@ elif [[ "$OS_GROUP_ID" =~ ^(arch|gentoo|fedora)$ ]]; then
     fi
   fi
   printf "./src/dist/${TARGET_ID}/install-deps.sh will be used.\n"
-  source ${REPO_ROOT}/dist/${TARGET_ID}/install-deps.sh
+  source ${REPO_ROOT}/src/dist/${TARGET_ID}/install-deps.sh
 fi

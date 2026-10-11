@@ -15,8 +15,6 @@ Calendar 1.0 Calendar.qml
 CalendarPopup 1.0 CalendarPopup.qml
 CircleUtilButton 1.0 CircleUtilButton.qml
 ClockWidget 1.0 ClockWidget.qml
-ClockWidgetPopup 1.0 ClockWidgetPopup.qml
-HyprlandXkbIndicator 1.0 HyprlandXkbIndicator.qml
 KeyboardLayout 1.0 KeyboardLayout.qml
 LeftSidebarButton 1.0 LeftSidebarButton.qml
 Media 1.0 Media.qml

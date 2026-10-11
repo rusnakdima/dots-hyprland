@@ -93,7 +93,7 @@ Singleton {
         let command = "curl -s wttr.in";
 
         if (root.gpsActive && root.location.valid) {
-            command += `/${root.location.lat},${root.location.long}`;
+            command += `/${root.location.lat},${root.location.lon}`;
         } else {
             command += `/${formatCityName(root.city)}`;
         }
@@ -144,7 +144,7 @@ Singleton {
             // if it fails getting the location, use the last valid location
             if (position.latitudeValid && position.longitudeValid) {
                 root.location.lat = position.coordinate.latitude;
-                root.location.long = position.coordinate.longitude;
+                root.location.lon = position.coordinate.longitude;
                 root.location.valid = true;
                 // console.info(`📍 Location: ${position.coordinate.latitude}, ${position.coordinate.longitude}`);
                 root.getData();

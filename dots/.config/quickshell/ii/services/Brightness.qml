@@ -210,7 +210,7 @@ Singleton {
             property string screenshotPath: `${root.screenshotDir}/screenshot-${screenName}.png`
             Connections {
                 enabled: (Config.options.light.antiFlashbang.enable && Appearance.m3colors.darkmode) && (typeof Hyprland !== 'undefined')
-                target: (typeof Hyprland !== 'undefined') ? Hyprland : null
+                target: Hyprland
                 function onRawEvent(event) {
                     if (["activewindowv2", "windowtitlev2"].includes(event.name)) {
                         screenshotTimer.interval = root.contentSwitchDelay;

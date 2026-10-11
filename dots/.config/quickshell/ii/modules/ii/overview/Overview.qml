@@ -106,9 +106,10 @@ Scope {
                 }
             }
 
-            // TileLayout disabled: TileLayout.qml has QML syntax error in committed repo (head 470f03e8)
-            // TileLayout block removed to allow shell to load
-            // TODO: re-enable when TileLayout.qml is fixed upstream
+            // TileLayout disabled: TileLayout depends on Hyprland IPC types which are stubbed when
+            // HYPRLAND_IPC=OFF. The TileLayout.qml file itself is syntactically correct but uses
+            // HyprlandData.monitors and Hyprland.monitorFor() which require real Hyprland IPC.
+            // TODO(tracking): Create issue to track re-enabling when Hyprland IPC stubs support TileLayout
         }
     }
 

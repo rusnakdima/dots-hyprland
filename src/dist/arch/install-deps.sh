@@ -29,7 +29,7 @@ git_config_safe_dirs(){
   while IFS= read -r _dir; do
     [[ -d "$_dir" ]] || continue
     git config --global --add safe.directory "$_dir" 2>/dev/null || true
-  done < <(find "${REPO_ROOT}/dist/arch" -name ".git" -type d 2>/dev/null | while IFS= read -r _gd; do dirname "$_gd"; done)
+  done < <(find "${REPO_ROOT}/src/dist/arch" -name ".git" -type d 2>/dev/null | while IFS= read -r _gd; do dirname "$_gd"; done)
   # Also register the repo root itself.
   git config --global --add safe.directory "${REPO_ROOT}" 2>/dev/null || true
 }
@@ -100,7 +100,7 @@ v remove_deprecated_dependencies
 git_config_safe_dirs
 
 # GPU detection — runs before metapkg selection so GPU_NVIDIA etc. are populated.
-source "${REPO_ROOT}/lib/gpus.sh"
+source "${REPO_ROOT}/src/lib/gpus.sh"
 gpu_detect
 printf "${STY_CYAN}[$0]: GPU: ${GPU_COUNT} found, NVIDIA=${GPU_NVIDIA}${STY_RST}\n"
 
@@ -327,7 +327,7 @@ remove_stale_ii_packages(){
   # Use || true so a failure here does not abort the whole install — per-metapkg install will surface any remaining issue.
   sudo -n pacman -Rdd --noconfirm ${stale_pkgs} 2>/dev/null || true
   # Also clear stale built package files left over from previous partial installs to avoid makepkg confusion.
-  find "${REPO_ROOT}/dist/arch" -maxdepth 2 -name '*.pkg.tar.zst' -delete 2>/dev/null || true
+  find "${REPO_ROOT}/src/dist/arch" -maxdepth 2 -name '*.pkg.tar.zst' -delete 2>/dev/null || true
   return 0
 }
 remove_stale_ii_packages

@@ -65,65 +65,8 @@ ApplicationWindow {
             margins: contentPadding
         }
 
-        Item {
-            // Titlebar
-            visible: Config.options?.windows.showTitlebar
-            Layout.fillWidth: true
-            implicitHeight: Math.max(welcomeText.implicitHeight, windowControlsRow.implicitHeight)
-            StyledText {
-                id: welcomeText
-                anchors {
-                    left: Config.options.windows.centerTitle ? undefined : parent.left
-                    horizontalCenter: Config.options.windows.centerTitle ? parent.horizontalCenter : undefined
-                    verticalCenter: parent.verticalCenter
-                    leftMargin: 12
-                }
-                color: Appearance.colors.colOnLayer0
-                text: Translation.tr("Hi there! First things first...")
-                font {
-                    family: Appearance.font.family.title
-                    pixelSize: Appearance.font.pixelSize.title
-                    variableAxes: Appearance.font.variableAxes.title
-                }
-            }
-            RowLayout { // Window controls row
-                id: windowControlsRow
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                StyledText {
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    text: Translation.tr("Show next time")
-                }
-                StyledSwitch {
-                    id: showNextTimeSwitch
-                    checked: root.showNextTime
-                    scale: 0.6
-                    Layout.alignment: Qt.AlignVCenter
-                    onCheckedChanged: {
-                        if (checked) {
-                            Quickshell.execDetached(["rm", root.firstRunFilePath]);
-                        } else {
-                            Quickshell.execDetached(["bash", "-c", `echo '${StringUtils.shellSingleQuoteEscape(root.firstRunFileContent)}' > '${StringUtils.shellSingleQuoteEscape(root.firstRunFilePath)}'`]);
-                        }
-                    }
-                }
-                RippleButton {
-                    buttonRadius: Appearance.rounding.full
-                    implicitWidth: 35
-                    implicitHeight: 35
-                    onClicked: root.close()
-                    contentItem: MaterialSymbol {
-                        anchors.centerIn: parent
-                        horizontalAlignment: Text.AlignHCenter
-                        text: "close"
-                        iconSize: 20
-                    }
-
-                    StyledToolTip {
-                        text: Translation.tr("Tip: Close a window with Super+Q")
-                    }
-                }
-            }
+        WelcomeHeader {
+            showNextTime: root.showNextTime
         }
 
         Rectangle {
@@ -403,84 +346,7 @@ ApplicationWindow {
                     }
                 }
 
-                ContentSection {
-                    icon: "info"
-                    title: Translation.tr("Info")
-
-                    Flow {
-                        Layout.fillWidth: true
-                        spacing: 5
-
-                        RippleButtonWithIcon {
-                            materialIcon: "keyboard_alt"
-                            onClicked: {
-                                Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "cheatsheet", "toggle"]);
-                            }
-                            mainContentComponent: Component {
-                                RowLayout {
-                                    spacing: 10
-                                    StyledText {
-                                        font.pixelSize: Appearance.font.pixelSize.small
-                                        text: Translation.tr("Keybinds")
-                                        color: Appearance.colors.colOnSecondaryContainer
-                                    }
-                                    RowLayout {
-                                        spacing: 3
-                                        KeyboardKey {
-                                            key: "󰖳"
-                                        }
-                                        StyledText {
-                                            Layout.alignment: Qt.AlignVCenter
-                                            text: "+"
-                                        }
-                                        KeyboardKey {
-                                            key: "/"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        RippleButtonWithIcon {
-                            materialIcon: "help"
-                            mainText: Translation.tr("Usage")
-                            onClicked: {
-                                Qt.openUrlExternally("https://end-4.github.io/dots-hyprland-wiki/en/ii-qs/02usage/");
-                            }
-                        }
-                        RippleButtonWithIcon {
-                            materialIcon: "construction"
-                            mainText: Translation.tr("Configuration")
-                            onClicked: {
-                                Qt.openUrlExternally("https://end-4.github.io/dots-hyprland-wiki/en/ii-qs/03config/");
-                            }
-                        }
-                    }
-                }
-
-                ContentSection {
-                    icon: "monitoring"
-                    title: Translation.tr("Useless buttons")
-
-                    Flow {
-                        Layout.fillWidth: true
-                        spacing: 5
-
-                        RippleButtonWithIcon {
-                            nerdIcon: "󰊤"
-                            mainText: Translation.tr("GitHub")
-                            onClicked: {
-                                Qt.openUrlExternally("https://github.com/end-4/dots-hyprland");
-                            }
-                        }
-                        RippleButtonWithIcon {
-                            materialIcon: "favorite"
-                            mainText: "Funny number"
-                            onClicked: {
-                                Qt.openUrlExternally("https://github.com/sponsors/end-4");
-                            }
-                        }
-                    }
+                WelcomeFeatureList {
                 }
 
                 Item {

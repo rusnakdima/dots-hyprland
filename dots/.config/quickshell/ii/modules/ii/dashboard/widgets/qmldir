@@ -1,0 +1,11 @@
+module qs.modules.ii.dashboard.widgets
+Calendar 1.0 Calendar.qml
+CustomText 1.0 CustomText.qml
+Media 1.0 Media.qml
+Notes 1.0 Notes.qml
+Resources 1.0 Resources.qml
+System 1.0 System.qml
+Timers 1.0 Timers.qml
+Visualizer 1.0 Visualizer.qml
+Weather 1.0 Weather.qml
+WorldClock 1.0 WorldClock.qml

@@ -24,8 +24,8 @@ _pci_ids_resolve() {
   if [[ -z "$repo_root" ]] && [[ -f "${BASH_SOURCE[0]}" ]]; then
     repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
   fi
-  if [[ -n "$repo_root" ]] && [[ -f "${repo_root}/data/pci.ids" ]]; then
-    echo "${repo_root}/data/pci.ids"
+  if [[ -n "$repo_root" ]] && [[ -f "${repo_root}/src/data/pci.ids" ]]; then
+    echo "${repo_root}/src/data/pci.ids"
     return
   fi
   if [[ -f /usr/share/hwdata/pci.ids ]]; then

@@ -42,7 +42,7 @@ Item {
         anchors.fill: parent
         hoverEnabled: !Config.options.bar.tooltips.clickToShow
 
-        ClockWidgetPopup {
+        CalendarPopup {
             hoverTarget: mouseArea
         }
     }

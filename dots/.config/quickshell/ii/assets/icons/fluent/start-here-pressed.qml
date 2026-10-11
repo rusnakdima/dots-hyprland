@@ -4,16 +4,11 @@ import QtQuick.VectorImage
 import QtQuick.VectorImage.Helpers
 import QtQuick.Shapes
 import QtQuick.Effects
+import qs.modules.common.components
 
 StartHerePressed {
     implicitWidth: 64
     implicitHeight: 64
-    component AnimationsInfo : QtObject
-    {
-        property bool paused: false
-        property int loops: 1
-        signal restart()
-    }
     property AnimationsInfo animations : AnimationsInfo {}
     transform: [
         Scale { xScale: width / 64; yScale: height / 64 }

@@ -239,11 +239,37 @@ Singleton {
     property string sunrise: current ? formatTime(daily[0]?.sunrise ?? "") : ""
     property string sunset: current ? formatTime(daily[0]?.sunset ?? "") : ""
 
-    // Default location (Berlin) - should be updated from system location
+    // GeoClue position source for automatic location detection
+    PositionSource {
+        id: positionSource
+        updateInterval: 1000 // Update once on startup, then stop
+        onPositionChanged: {
+            if (position.latitudeValid && position.longitudeValid) {
+                root._location = {
+                    lat: position.coordinate.latitude,
+                    lon: position.coordinate.longitude,
+                    valid: true
+                };
+                location = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                root.refresh(false);
+                positionSource.stop();
+            }
+        }
+        onValidityChanged: {
+            if (!positionSource.valid) {
+                positionSource.stop();
+                // Fallback: try to get location from system timezone-based guess
+                root._location = { lat: 0, lon: 0, valid: false };
+                location = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            }
+        }
+    }
+
     Component.onCompleted: {
-        _location = { lat: 52.52, lon: 13.41, valid: true };
-        location = "Berlin";
-        refresh(false);
+        // Try to get location from GeoClue
+        positionSource.start();
+        // Fallback: if no GPS, use timezone-based location name
+        location = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
 
     // Timer for periodic refresh

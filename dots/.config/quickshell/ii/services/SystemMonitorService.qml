@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Io
 import qs
 import qs.modules.common
+import "services.metrics"
 
 Singleton {
     id: root
@@ -32,12 +33,13 @@ Singleton {
 
     onDetailedChanged: {
         if (!detailed) {
-            // Samples taken minutes apart would render as a continuous line / a
-            // long-window CPU average, so start fresh on the next open
-            gpuHistory = [];
+            Cpu.detailed = false;
+            Gpu.detailed = false;
             return;
         }
-        updateDisk.running = true;
+        Disk.detailed = true;
+        Cpu.detailed = true;
+        Gpu.detailed = true;
         root._pollDetailed();
     }
 
@@ -50,49 +52,62 @@ Singleton {
     property string uptime: "0m" // e.g. "2d 5h" or "3h 12m"
 
     // ========================================================================
-    // CPU
+    // CPU (delegated to Cpu module)
     // ========================================================================
 
-    readonly property string cpuIcon: "󰻠"
-    property string cpuName: ""
-    property int cpuUsage: 0
-    property int cpuTemp: 0
-    property var coreUsages: []   // per-thread usage, 0-100
-    property real cpuFreq: 0      // GHz (average over all threads)
-    property real loadAvg: 0
-    property var cpuHistory: []
+    readonly property string cpuIcon: Cpu.cpuIcon
+    property alias cpuName: Cpu.cpuName
+    property alias cpuUsage: Cpu.cpuUsage
+    property alias cpuTemp: Cpu.cpuTemp
+    property alias coreUsages: Cpu.coreUsages
+    property alias cpuFreq: Cpu.cpuFreq
+    property alias loadAvg: Cpu.loadAvg
+    property alias cpuHistory: Cpu.cpuHistory
+
+    Cpu {
+        id: cpuMonitor
+        cpuTempPath: internal.cpuTempPath
+    }
 
     // ========================================================================
-    // GPU
+    // GPU (delegated to Gpu module)
     // ========================================================================
 
-    readonly property string gpuIcon: "󰢮"
-    property string gpuType: "unknown" // "nvidia", "amd", "intel", "unknown"
-    property string gpuName: ""
-    property bool gpuSleeping: false   // dGPU runtime-suspended (we don't wake it)
-    property int gpuUsage: 0
-    property int gpuTemp: 0
-    property real gpuMemUsed: 0        // bytes
-    property real gpuMemTotal: 0       // bytes
-    property real gpuPower: -1         // watts, -1 when unavailable
-    property var gpuHistory: []
+    readonly property string gpuIcon: Gpu.gpuIcon
+    property alias gpuType: Gpu.gpuType
+    property alias gpuName: Gpu.gpuName
+    property alias gpuSleeping: Gpu.gpuSleeping
+    property alias gpuUsage: Gpu.gpuUsage
+    property alias gpuTemp: Gpu.gpuTemp
+    property alias gpuMemUsed: Gpu.gpuMemUsed
+    property alias gpuMemTotal: Gpu.gpuMemTotal
+    property alias gpuPower: Gpu.gpuPower
+    property alias gpuHistory: Gpu.gpuHistory
+
+    Gpu {
+        id: gpuMonitor
+    }
 
     // ========================================================================
     // MEMORY
     // ========================================================================
 
-    property int memUsage: 0
-    property real memUsed: 0     // bytes
-    property real memTotal: 0    // bytes
-    property real swapUsed: 0    // bytes
-    property real swapTotal: 0   // bytes
-    property var memHistory: []
+    property alias memUsage: Memory.memUsage
+    property alias memUsed: Memory.memUsed
+    property alias memTotal: Memory.memTotal
+    property alias swapUsed: Memory.swapUsed
+    property alias swapTotal: Memory.swapTotal
+    property alias memHistory: Memory.memHistory
+
+    Memory {}
 
     // ========================================================================
-    // DISK
+    // DISK (delegated to Disk module)
     // ========================================================================
 
-    property var disks: [] // [{ mount, used, total, usage }]
+    property alias disks: Disk.disks
+
+    Disk {}
 
     // ========================================================================
     // NETWORK
@@ -111,15 +126,7 @@ Singleton {
     // ========================================================================
 
     function formatBytes(bytes) {
-        if (bytes >= 1099511627776)
-            return (bytes / 1099511627776).toFixed(1) + " TiB";
-        if (bytes >= 1073741824)
-            return (bytes / 1073741824).toFixed(1) + " GiB";
-        if (bytes >= 1048576)
-            return (bytes / 1048576).toFixed(0) + " MiB";
-        if (bytes >= 1024)
-            return (bytes / 1024).toFixed(0) + " KiB";
-        return Math.round(bytes) + " B";
+        return StringUtils.formatBytes(bytes, "", true);
     }
 
     function formatSpeed(bytesPerSec) {
@@ -156,12 +163,6 @@ Singleton {
         return next;
     }
 
-    function _cleanCpuName(name) {
-        // "11th Gen Intel(R) Core(TM) i7-11800H @ 2.30GHz" -> "Core i7-11800H"
-        // "AMD Ryzen 7 5800X 8-Core Processor"              -> "Ryzen 7 5800X"
-        return name.replace(/\(R\)|\(TM\)|\bCPU\b|@.*$|\d+-Core Processor/gi, "").replace(/^\d+\w\w Gen /i, "").replace(/^(Intel|AMD)\s+/i, "").replace(/\s+/g, " ").trim();
-    }
-
     // ========================================================================
     // INTERNAL STATE
     // ========================================================================
@@ -169,20 +170,12 @@ Singleton {
     QtObject {
         id: internal
 
-        property var prevCpu: []          // [{ total, idle }] index 0 = aggregate
         property real prevRx: -1
         property real prevTx: -1
         property real prevNetTime: 0
 
         // Sensor paths resolved at startup
         property string cpuTempPath: ""
-        property string nvidiaPciPath: ""
-        property string amdBusyPath: ""
-        property string amdTempPath: ""
-        property string amdVramUsedPath: ""
-        property string amdVramTotalPath: ""
-        property string intelFreqPath: ""
-        property string intelFreqMaxPath: ""
     }
 
     // ========================================================================
@@ -195,47 +188,18 @@ Singleton {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            statFile.reload();
-            meminfoFile.reload();
+            Memory.poll();
             netFile.reload();
             uptimeFile.reload();
-            if (internal.cpuTempPath !== "")
-                cpuTempFile.reload();
 
             if (root.detailed)
                 root._pollDetailed();
         }
     }
 
-    Timer {
-        interval: 30000
-        running: root.detailed
-        repeat: true
-        onTriggered: updateDisk.running = true
-    }
-
     function _pollDetailed() {
-        cpuinfoFile.reload();
-        loadavgFile.reload();
-
-        switch (gpuType) {
-        case "nvidia":
-            if (internal.nvidiaPciPath !== "")
-                nvidiaPowerFile.reload();
-            else if (!updateNvidia.running)
-                updateNvidia.running = true;
-            break;
-        case "amd":
-            amdBusyFile.reload();
-            amdTempFile.reload();
-            amdVramUsedFile.reload();
-            amdVramTotalFile.reload();
-            break;
-        case "intel":
-            intelFreqFile.reload();
-            intelFreqMaxFile.reload();
-            break;
-        }
+        Cpu.pollDetailed();
+        Gpu.pollDetailed();
     }
 
     // ========================================================================
@@ -296,32 +260,32 @@ Singleton {
                         internal.cpuTempPath = value;
                     break;
                 case "gpu":
-                    root.gpuType = value;
+                    gpuMonitor.configure({ gpuType: value });
                     console.log("[SystemMonitor] Detected GPU type:", value);
                     break;
                 case "gpuName":
-                    root.gpuName = value;
+                    gpuMonitor.configure({ gpuName: value });
                     break;
                 case "nvidiaPci":
-                    internal.nvidiaPciPath = value;
+                    gpuMonitor.configure({ nvidiaPciPath: value });
                     break;
                 case "amdBusy":
-                    internal.amdBusyPath = value;
+                    gpuMonitor.configure({ amdBusyPath: value });
                     break;
                 case "amdTemp":
-                    internal.amdTempPath = value;
+                    gpuMonitor.configure({ amdTempPath: value });
                     break;
                 case "amdVramUsed":
-                    internal.amdVramUsedPath = value;
+                    gpuMonitor.configure({ amdVramUsedPath: value });
                     break;
                 case "amdVramTotal":
-                    internal.amdVramTotalPath = value;
+                    gpuMonitor.configure({ amdVramTotalPath: value });
                     break;
                 case "intelFreq":
-                    internal.intelFreqPath = value;
+                    gpuMonitor.configure({ intelFreqPath: value });
                     break;
                 case "intelFreqMax":
-                    internal.intelFreqMaxPath = value;
+                    gpuMonitor.configure({ intelFreqMaxPath: value });
                     break;
                 }
             }
@@ -340,137 +304,6 @@ Singleton {
     FileView {
         id: kernelFile
         path: "/proc/sys/kernel/osrelease"
-    }
-
-    // ========================================================================
-    // CPU
-    // ========================================================================
-
-    FileView {
-        id: statFile
-        path: "/proc/stat"
-        onLoaded: {
-            const lines = text().split("\n");
-            const prev = internal.prevCpu;
-            const next = [];
-            const usages = [];
-
-            for (const line of lines) {
-                if (!line.startsWith("cpu"))
-                    break;
-                const f = line.split(/\s+/);
-                let total = 0;
-                for (let i = 1; i <= 8; i++)
-                    total += parseInt(f[i]) || 0;
-                const idle = (parseInt(f[4]) || 0) + (parseInt(f[5]) || 0);
-                const idx = next.length;
-                next.push({ total, idle });
-
-                const p = prev[idx];
-                const dt = p ? total - p.total : 0;
-                usages.push(dt > 0 ? Math.max(0, Math.min(100, Math.round((1 - (idle - p.idle) / dt) * 100))) : 0);
-            }
-
-            internal.prevCpu = next;
-            if (prev.length === 0)
-                return;
-
-            root.cpuUsage = usages[0];
-            root.coreUsages = usages.slice(1);
-            root.cpuHistory = root._push(root.cpuHistory, usages[0]);
-        }
-    }
-
-    FileView {
-        id: cpuTempFile
-        path: internal.cpuTempPath
-        onLoaded: {
-            const t = parseInt(text());
-            if (!isNaN(t))
-                root.cpuTemp = Math.round(t / 1000);
-        }
-    }
-
-    FileView {
-        id: cpuinfoFile
-        path: "/proc/cpuinfo"
-        onLoaded: {
-            const data = text();
-            if (root.cpuName === "") {
-                const m = data.match(/^model name\s*:\s*(.+)$/m);
-                if (m)
-                    root.cpuName = root._cleanCpuName(m[1]);
-            }
-            const re = /^cpu MHz\s*:\s*([\d.]+)/gm;
-            let sum = 0, count = 0, m;
-            while ((m = re.exec(data)) !== null) {
-                sum += parseFloat(m[1]);
-                count++;
-            }
-            if (count > 0)
-                root.cpuFreq = sum / count / 1000;
-        }
-    }
-
-    FileView {
-        id: loadavgFile
-        path: "/proc/loadavg"
-        onLoaded: root.loadAvg = parseFloat(text().split(" ")[0]) || 0
-    }
-
-    // ========================================================================
-    // MEMORY
-    // ========================================================================
-
-    FileView {
-        id: meminfoFile
-        path: "/proc/meminfo"
-        onLoaded: {
-            const data = text();
-            const kb = key => {
-                const m = data.match(new RegExp("^" + key + ":\\s*(\\d+)", "m"));
-                return m ? parseInt(m[1]) * 1024 : 0;
-            };
-
-            const total = kb("MemTotal");
-            if (total <= 0)
-                return;
-
-            root.memTotal = total;
-            root.memUsed = total - kb("MemAvailable");
-            root.memUsage = Math.round(root.memUsed / total * 100);
-            root.swapTotal = kb("SwapTotal");
-            root.swapUsed = root.swapTotal - kb("SwapFree");
-            root.memHistory = root._push(root.memHistory, root.memUsage);
-        }
-    }
-
-    // ========================================================================
-    // DISK
-    // ========================================================================
-
-    Process {
-        id: updateDisk
-        command: ["df", "-B1", "--output=source,target,size,used", "-x", "tmpfs", "-x", "devtmpfs", "-x", "efivarfs", "-x", "overlay", "-x", "squashfs"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                // Keep "/" plus "/home" when it lives on another device
-                const rows = text.trim().split("\n").slice(1).map(l => l.trim().split(/\s+/));
-                const rootFs = rows.find(r => r[1] === "/");
-                const home = rows.find(r => r[1] === "/home");
-                const result = [];
-
-                for (const r of [rootFs, home]) {
-                    if (!r || (r === home && rootFs && home[0] === rootFs[0]))
-                        continue;
-                    const total = parseFloat(r[2]);
-                    const used = parseFloat(r[3]);
-                    if (total > 0)
-                        result.push({ mount: r[1], used, total, usage: Math.round(used / total * 100) });
-                }
-                root.disks = result;
-            }
-        }
     }
 
     // ========================================================================
@@ -547,112 +380,4 @@ Singleton {
         }
     }
 
-    // ========================================================================
-    // NVIDIA
-    // ========================================================================
-
-    // Reading runtime_status doesn't wake the card; nvidia-smi would, so we only
-    // query it when the dGPU is already awake.
-    FileView {
-        id: nvidiaPowerFile
-        path: internal.nvidiaPciPath !== "" ? internal.nvidiaPciPath + "/power/runtime_status" : ""
-        onLoaded: {
-            const status = text().trim();
-            root.gpuSleeping = status === "suspended" || status === "suspending";
-            if (root.gpuSleeping) {
-                root.gpuUsage = 0;
-                root.gpuHistory = root._push(root.gpuHistory, 0);
-            } else if (!updateNvidia.running) {
-                updateNvidia.running = true;
-            }
-        }
-        onLoadFailed: {
-            if (!updateNvidia.running)
-                updateNvidia.running = true;
-        }
-    }
-
-    Process {
-        id: updateNvidia
-        command: ["nvidia-smi", "--query-gpu=name,utilization.gpu,temperature.gpu,memory.used,memory.total,power.draw", "--format=csv,noheader,nounits"]
-        stdout: SplitParser {
-            onRead: data => {
-                const f = data.split(",").map(s => s.trim());
-                if (f.length < 6)
-                    return;
-
-                root.gpuName = f[0].replace(/^NVIDIA\s+/, "").replace(/^GeForce\s+/, "");
-                const usage = parseInt(f[1]);
-                const temp = parseInt(f[2]);
-                const power = parseFloat(f[5]);
-
-                if (!isNaN(usage)) {
-                    root.gpuUsage = usage;
-                    root.gpuHistory = root._push(root.gpuHistory, usage);
-                }
-                if (!isNaN(temp))
-                    root.gpuTemp = temp;
-                root.gpuMemUsed = (parseFloat(f[3]) || 0) * 1048576;
-                root.gpuMemTotal = (parseFloat(f[4]) || 0) * 1048576;
-                root.gpuPower = isNaN(power) ? -1 : power;
-            }
-        }
-    }
-
-    // ========================================================================
-    // AMD
-    // ========================================================================
-
-    FileView {
-        id: amdBusyFile
-        path: internal.amdBusyPath
-        onLoaded: {
-            const usage = parseInt(text());
-            if (isNaN(usage))
-                return;
-            root.gpuUsage = usage;
-            root.gpuHistory = root._push(root.gpuHistory, usage);
-        }
-    }
-
-    FileView {
-        id: amdTempFile
-        path: internal.amdTempPath
-        onLoaded: root.gpuTemp = Math.round((parseInt(text()) || 0) / 1000)
-    }
-
-    FileView {
-        id: amdVramUsedFile
-        path: internal.amdVramUsedPath
-        onLoaded: root.gpuMemUsed = parseFloat(text()) || 0
-    }
-
-    FileView {
-        id: amdVramTotalFile
-        path: internal.amdVramTotalPath
-        onLoaded: root.gpuMemTotal = parseFloat(text()) || 0
-    }
-
-    // ========================================================================
-    // INTEL (no utilization counter without root; frequency is the best proxy)
-    // ========================================================================
-
-    FileView {
-        id: intelFreqFile
-        path: internal.intelFreqPath
-    }
-
-    FileView {
-        id: intelFreqMaxFile
-        path: internal.intelFreqMaxPath
-        onLoaded: {
-            const cur = parseInt(intelFreqFile.text());
-            const max = parseInt(text());
-            if (isNaN(cur) || !(max > 0))
-                return;
-            const usage = Math.round(cur / max * 100);
-            root.gpuUsage = usage;
-            root.gpuHistory = root._push(root.gpuHistory, usage);
-        }
-    }
 }

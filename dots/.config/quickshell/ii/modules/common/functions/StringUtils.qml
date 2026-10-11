@@ -295,4 +295,28 @@ Singleton {
             }
         );
     }
+
+    /**
+     * Formats bytes with optional suffix (e.g. "/s" for rates).
+     * Uses binary units (powers of 1024).
+     * @param { number } bytes
+     * @param { string } suffix
+     * @param { boolean } useBinaryPrefixes - if true, use KiB/MiB/GiB/TiB naming
+     * @returns { string }
+     */
+    function formatBytes(bytes, suffix = "", useBinaryPrefixes = false) {
+        const decimalUnits = ["B", "KB", "MB", "GB", "TB"]
+        const binaryUnits = ["B", "KiB", "MiB", "GiB", "TiB"]
+        const units = useBinaryPrefixes ? binaryUnits : decimalUnits
+        let value = Math.max(0, Number(bytes) || 0)
+        let unitIndex = 0
+
+        while (value >= 1024 && unitIndex < units.length - 1) {
+            value /= 1024
+            unitIndex++
+        }
+
+        const precision = unitIndex > 0 && value < 100 ? 1 : 0
+        return `${value.toFixed(precision)} ${units[unitIndex]}${suffix}`
+    }
 }

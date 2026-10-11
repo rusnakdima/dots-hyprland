@@ -38,25 +38,11 @@ StyledPopup {
     }
 
     function formatRate(rate) {
-        return formatBytes(rate, "/s")
+        return StringUtils.formatBytes(rate, "/s")
     }
 
     function formatTotal(bytes) {
-        return formatBytes(bytes, "")
-    }
-
-    function formatBytes(bytes, suffix) {
-        const units = ["B", "KB", "MB", "GB", "TB"]
-        let value = Math.max(0, Number(bytes) || 0)
-        let unitIndex = 0
-
-        while (value >= 1024 && unitIndex < units.length - 1) {
-            value /= 1024
-            unitIndex++
-        }
-
-        const precision = unitIndex > 0 && value < 100 ? 1 : 0
-        return `${value.toFixed(precision)} ${units[unitIndex]}${suffix}`
+        return StringUtils.formatBytes(bytes, "")
     }
 
     component SpeedCard: Rectangle {
