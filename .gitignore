@@ -7,6 +7,9 @@ __pycache__/
 
 /dots/.config/quickshell/ii/.qmlls.ini
 
+# Large upstream hwids data file
+sdata/data/pci.ids
+
 # exp-update
 /.update-lock
 

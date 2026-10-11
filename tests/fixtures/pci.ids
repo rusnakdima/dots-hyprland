@@ -1,0 +1,11 @@
+#
+#	List of PCI IDs
+#
+#	Minimal fixture for testing GPU detection
+#
+
+10de  NVIDIA Corporation
+	2204  GeForce RTX 3080
+
+8086  Intel Corporation
+	9a49  UHD Graphics 617

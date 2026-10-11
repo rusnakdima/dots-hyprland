@@ -95,6 +95,14 @@ x Hyprland --version
 x _check_quickshell_version
 x _check_PKGBUILD_version
 
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+source "${REPO_ROOT}/sdata/lib/gpus.sh"
+gpu_detect
+
+e "Checking GPU topology"
+x gpu_summary
+x gpu_status
+
 e "Finished. Output saved as \"$output_file\"."
 if ! command -v curl 2>&1 >>/dev/null ;then echo "\"curl\" not found, pastebin upload unavailable.";exit;fi
 echo "(Optional) Do you agree to upload the file \"$output_file\" to the online pastebin (https://0x0.st)?"

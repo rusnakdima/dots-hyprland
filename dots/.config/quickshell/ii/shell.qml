@@ -12,6 +12,7 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import "modules/common"
 import "modules/settings"
+import "modules/ii/settings"
 import "panelFamilies"
 import "services"
 
@@ -62,6 +63,19 @@ ShellRoot {
 
     // Stuff for every panel family
     ReloadPopup {
+    }
+
+    // Settings window — loaded lazily so it doesn't consume resources until opened
+    LazyLoader {
+        active: true
+        component: SettingsWindow {}
+    }
+
+    // Global shortcut for settings window toggle (Super+I)
+    GlobalShortcut {
+        name: "settingsToggle"
+        description: "Toggle settings window"
+        onPressed: SettingsService.toggle()
     }
 
     Connections {
