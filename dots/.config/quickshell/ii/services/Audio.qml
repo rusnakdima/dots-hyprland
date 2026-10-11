@@ -20,6 +20,8 @@ Singleton {
     readonly property real hardMaxValue: 2.00
     property string audioTheme: Config.options.sounds.theme
     property real value: 0
+    property real volume: 0
+    property bool muted: false
 
     // Lists — empty stubs
     readonly property list<var> outputAppNodes: []
@@ -46,5 +48,21 @@ Singleton {
         const oggPath = `/usr/share/sounds/${root.audioTheme}/stereo/${soundName}.ogg`;
         Quickshell.execDetached(["ffplay", "-nodisp", "-autoexit", ogaPath]);
         Quickshell.execDetached(["ffplay", "-nodisp", "-autoexit", oggPath]);
+    }
+
+    IpcHandler {
+        target: "audio"
+
+        property real volume: root.volume
+        property bool muted: root.muted
+
+        function setVolume(v: real): void { root.volume = Math.max(0, Math.min(1, v)); }
+        function setMuted(m: bool): void { root.muted = m; }
+
+        signal volumeChanged(real vol)
+        signal mutedChanged(bool muted)
+
+        onVolumeChanged: volumeChanged(root.volume)
+        onMutedChanged: mutedChanged(root.muted)
     }
 }

@@ -39,6 +39,26 @@ Singleton {
         }
     }
 
+    IpcHandler {
+        target: "globalstates"
+
+        property bool barOpen: root.barOpen
+        property bool dashboardOpen: root.dashboardOpen
+        property bool screenLocked: root.screenLocked
+
+        function openDashboard(): void { root.dashboardOpen = true; }
+        function closeDashboard(): void { root.dashboardOpen = false; }
+        function lockScreen(): void { root.screenLocked = true; }
+
+        signal barOpenChanged(bool open)
+        signal dashboardOpenChanged(bool open)
+        signal screenLockedChanged(bool locked)
+
+        onBarOpenChanged: barOpenChanged(root.barOpen)
+        onDashboardOpenChanged: dashboardOpenChanged(root.dashboardOpen)
+        onScreenLockedChanged: screenLockedChanged(root.screenLocked)
+    }
+
     GlobalShortcut {
         name: "workspaceNumber"
         description: "Hold to show workspace numbers, release to show icons"

@@ -47,6 +47,8 @@ Singleton {
         return Qt.locale().toString(clock.date, fmt);
     }
     property string date
+    property string timeString: time
+    property string dateString: date
     function updateDate() {
         let fmt = Config.options.time.dateWithYearFormat;
         date = Qt.locale().toString(clock.date, fmt || "dd/MM/yyyy");
@@ -98,5 +100,16 @@ Singleton {
         id: fileUptime
 
         path: "/proc/uptime"
+    }
+
+    IpcHandler {
+        target: "datetime"
+
+        property string timeString: root.timeString
+        property string dateString: root.dateString
+
+        signal timeStringChanged(string timeString)
+
+        onTimeStringChanged: timeStringChanged(root.timeString)
     }
 }

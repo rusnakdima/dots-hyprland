@@ -256,6 +256,15 @@ Singleton {
     IpcHandler {
         target: "brightness"
 
+        property real brightness: root.monitors.length > 0 ? root.monitors[0].brightness : 0
+
+        function setBrightness(b: real): void {
+            b = Math.max(0, Math.min(1, b));
+            for (let i = 0; i < root.monitors.length; i++) {
+                root.monitors[i].setBrightness(b);
+            }
+        }
+
         function increment() {
             root.increaseBrightness()
         }
@@ -263,6 +272,10 @@ Singleton {
         function decrement() {
             root.decreaseBrightness()
         }
+
+        signal brightnessChanged(real brightness)
+
+        onBrightnessChanged: brightnessChanged(brightness)
     }
 
     GlobalShortcut {
