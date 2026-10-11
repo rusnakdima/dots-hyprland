@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import "../../../components/"
 
 // Base row for settings: label + description on left, control on right.

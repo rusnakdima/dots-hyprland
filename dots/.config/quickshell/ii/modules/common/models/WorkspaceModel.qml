@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import qs.services
+import qs.modules.services
 import qs.modules.common as C
 
 NestableObject {

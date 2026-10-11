@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Qt.labs.synchronizer
 import Quickshell
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.waffle.looks

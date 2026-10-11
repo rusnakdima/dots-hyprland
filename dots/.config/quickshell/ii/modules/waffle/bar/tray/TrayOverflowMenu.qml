@@ -4,7 +4,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.waffle.looks

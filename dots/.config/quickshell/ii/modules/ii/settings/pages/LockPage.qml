@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import "../rows/"
 
 // Lock screen settings: hyprlock, blur, clock, security

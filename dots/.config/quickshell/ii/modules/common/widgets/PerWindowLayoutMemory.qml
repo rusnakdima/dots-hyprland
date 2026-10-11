@@ -16,7 +16,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 

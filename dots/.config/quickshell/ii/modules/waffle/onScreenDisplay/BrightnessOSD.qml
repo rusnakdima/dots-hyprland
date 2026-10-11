@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
-import qs.services
+import qs.modules.services
 import qs.modules.waffle.looks
 
 OSDValue {

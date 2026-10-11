@@ -1,7 +1,8 @@
+import QtQml
 import QtQuick
 import Quickshell.Io
 import qs.modules.common.models.hyprland
-import qs.services
+import qs.modules.services
 
 QuickToggleModel {
     id: root

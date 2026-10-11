@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs
 import qs.modules.common
-import qs.services
+import qs.modules.services
 
 Scope {
     id: root

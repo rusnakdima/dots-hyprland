@@ -5,7 +5,7 @@ import qs.modules.common.widgets
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import qs.services
+import qs.modules.services
 
 
 AndroidQuickToggleButton {

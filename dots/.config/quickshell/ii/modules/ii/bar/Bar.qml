@@ -6,7 +6,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 

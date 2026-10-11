@@ -10,15 +10,16 @@ import QtQuick.Window
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
-import "modules/common"
-import "modules/settings"
-import "modules/ii/settings"
+import qs.modules.common
+import qs.modules.settings
+import qs.modules.ii.settings
+import qs.modules.services
+import qs.modules.globals
 import "panelFamilies"
-import "services"
 
 ShellRoot {
-    // Settings IPC handler singleton — loaded via `import "modules/settings"` above
-    // (IpcHandler registered automatically when singleton module is imported)
+    // Settings IPC handler singleton — loaded via `import qs.modules.settings`
+    // (IpcHandler registered automatically when module is imported)
 
     id: root
 

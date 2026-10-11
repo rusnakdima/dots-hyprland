@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 import Qt5Compat.GraphicalEffects
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions

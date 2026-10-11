@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Services.UPower
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions

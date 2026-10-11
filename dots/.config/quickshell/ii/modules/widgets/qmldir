@@ -1,0 +1,14 @@
+module qs.modules.widgets
+Dock Dock 1.0 launcher/Dock.qml
+Dock DockAppButton 1.0 launcher/DockAppButton.qml
+Dock DockApps 1.0 launcher/DockApps.qml
+Dock DockButton 1.0 launcher/DockButton.qml
+Dock DockSeparator 1.0 launcher/DockSeparator.qml
+PowerWindow 1.0 powermenu/PowerWindow.qml
+Overview 1.0 overview/Overview.qml
+OverviewWidget 1.0 overview/OverviewWidget.qml
+OverviewWindow 1.0 overview/OverviewWindow.qml
+SearchBar 1.0 overview/SearchBar.qml
+SearchItem 1.0 overview/SearchItem.qml
+SearchWidget 1.0 overview/SearchWidget.qml
+TileLayout 1.0 overview/TileLayout.qml

@@ -7,7 +7,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.utils

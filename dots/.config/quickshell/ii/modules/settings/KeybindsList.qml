@@ -19,7 +19,7 @@ import Quickshell.Io
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
-import qs.services
+import qs.modules.services
 
 Item {
     id: root

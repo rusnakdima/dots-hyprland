@@ -1,4 +1,4 @@
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import "calendar_layout.js" as CalendarLayout

@@ -1,6 +1,6 @@
 // pragma NativeMethodBehavior: AcceptThisObject
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.models
 import qs.modules.common.widgets

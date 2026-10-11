@@ -11,7 +11,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 import Quickshell
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions as CF

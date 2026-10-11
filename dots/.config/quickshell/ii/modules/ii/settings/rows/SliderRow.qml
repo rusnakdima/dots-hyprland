@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import "../../../components/"
 
 // Numeric setting with full-width slider below the label

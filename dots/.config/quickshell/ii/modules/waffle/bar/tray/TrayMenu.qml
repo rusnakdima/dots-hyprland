@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.waffle.looks

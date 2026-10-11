@@ -1,7 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import "../../../components/"
 
 // On/off setting row bound to StateService path

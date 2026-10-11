@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import qs.modules.common
-import qs.services
+import qs.modules.services
 
 /*
  * DashboardConfigOverlay — config mode UI for the dashboard canvas.

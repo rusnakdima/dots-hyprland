@@ -5,7 +5,7 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Bluetooth
 import qs
-import qs.services
+import qs.modules.services
 import qs.services.network
 import qs.modules.common
 import qs.modules.common.functions

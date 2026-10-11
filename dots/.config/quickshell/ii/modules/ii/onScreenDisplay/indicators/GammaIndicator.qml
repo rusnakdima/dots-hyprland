@@ -1,4 +1,4 @@
-import qs.services
+import qs.modules.services
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland

@@ -1,6 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
-import qs.services
+import qs.modules.services
 
 // The dashboard's GIF visualizer, moving only while something plays
 AnimatedImage {

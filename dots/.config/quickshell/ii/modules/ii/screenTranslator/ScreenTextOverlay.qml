@@ -11,7 +11,7 @@ import qs.modules.common.functions
 import qs.modules.common.models.gCloud
 import qs.modules.common.utils
 import qs.modules.common.widgets
-import qs.services
+import qs.modules.services
 
 Item {
     id: root

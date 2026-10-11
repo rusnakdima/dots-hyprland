@@ -1,0 +1,10 @@
+module qs.modules.services.booru
+
+Provider 1.0 Provider.qml
+YandereProvider 1.0 YandereProvider.qml
+KonachanProvider 1.0 KonachanProvider.qml
+ZerochanProvider 1.0 ZerochanProvider.qml
+DanbooruProvider 1.0 DanbooruProvider.qml
+GelbooruProvider 1.0 GelbooruProvider.qml
+WaifuProvider 1.0 WaifuProvider.qml
+AlcyProvider 1.0 AlcyProvider.qml

@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 import qs.modules.common.functions
 import qs.modules.common.utils
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import ".."
 

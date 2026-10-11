@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import org.kde.kirigami as Kirigami
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.waffle.looks
 

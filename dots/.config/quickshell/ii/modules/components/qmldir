@@ -1,0 +1,5 @@
+module qs.modules.components
+Box 1.0 Box.qml
+ButtonGroup 1.0 ButtonGroup.qml
+MaterialSymbol 1.0 MaterialSymbol.qml
+RippleButton 1.0 RippleButton.qml

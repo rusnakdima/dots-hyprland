@@ -1,5 +1,6 @@
+import QtQml
 import QtQuick
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.widgets

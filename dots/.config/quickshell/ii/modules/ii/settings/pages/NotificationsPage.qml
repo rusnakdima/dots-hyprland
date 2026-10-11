@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import "../rows/"
 
 // Notifications settings: popup, monitor, groups, unread

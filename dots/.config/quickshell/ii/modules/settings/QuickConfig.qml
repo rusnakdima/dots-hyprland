@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Io
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions

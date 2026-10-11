@@ -6,7 +6,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Qt5Compat.GraphicalEffects
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.ii.overlay

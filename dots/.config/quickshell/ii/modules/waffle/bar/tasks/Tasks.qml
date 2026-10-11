@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import qs.modules.common
 import qs.modules.waffle.looks
-import qs.services
+import qs.modules.services
 
 MouseArea {
     id: root

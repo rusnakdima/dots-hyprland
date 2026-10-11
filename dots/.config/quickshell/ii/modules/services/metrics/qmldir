@@ -1,0 +1,5 @@
+module qs.modules.services.metrics
+singleton Cpu 1.0 Cpu.qml
+singleton Gpu 1.0 Gpu.qml
+singleton Memory 1.0 Memory.qml
+singleton Disk 1.0 Disk.qml

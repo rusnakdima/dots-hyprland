@@ -1,6 +1,6 @@
 pragma ComponentBehavior: Bound
 
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import QtQuick
 import QtQuick.Layouts

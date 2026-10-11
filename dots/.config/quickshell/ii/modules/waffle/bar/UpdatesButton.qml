@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.waffle.looks
 import qs.modules.waffle.bar.tray

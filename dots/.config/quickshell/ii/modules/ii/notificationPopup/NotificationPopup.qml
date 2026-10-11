@@ -2,7 +2,7 @@ import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.ii.notificationPopup
-import qs.services
+import qs.modules.services
 import QtQuick
 import QtQuick.Controls
 import Quickshell

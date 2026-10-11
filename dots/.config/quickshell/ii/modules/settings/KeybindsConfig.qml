@@ -24,7 +24,7 @@ import Quickshell.Io
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions as CF
-import qs.services
+import qs.modules.services
 ContentPage {
 
     function trimmedHome(): string {

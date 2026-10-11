@@ -6,7 +6,7 @@ import Qt5Compat.GraphicalEffects
 import Quickshell.Io
 import qs.modules.common
 import qs.modules.common.widgets
-import qs.services
+import qs.modules.services
 
 Rectangle {
     id: root

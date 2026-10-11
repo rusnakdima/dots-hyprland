@@ -1,0 +1,7 @@
+module qs.modules.dashboard
+Dashboard 1.0 Dashboard.qml
+DashboardCanvas 1.0 DashboardCanvas.qml
+DashboardConfigOverlay 1.0 DashboardConfigOverlay.qml
+DashboardActionButton 1.0 DashboardActionButton.qml
+DashboardWidgetBlock 1.0 DashboardWidgetBlock.qml
+IcsParser 1.0 IcsParser.qml

@@ -1,6 +1,6 @@
 import QtQuick
 import org.kde.kirigami as Kirigami
-import qs.services
+import qs.modules.services
 import qs.modules.common
 
 Kirigami.Icon {

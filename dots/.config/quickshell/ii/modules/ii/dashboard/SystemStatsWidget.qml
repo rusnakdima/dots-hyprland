@@ -1,5 +1,5 @@
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io

@@ -2,7 +2,7 @@ import qs.modules.common.widgets
 import qs.modules.common
 import QtQuick
 import QtQuick.Layouts
-import qs.services
+import qs.modules.services
 
 RowLayout {
     id: root

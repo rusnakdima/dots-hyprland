@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.modules.common
-import qs.services
+import qs.modules.services
 import "../../components/"
 
 // One-of-many setting shown as a SegmentedControl

@@ -1,3 +1,4 @@
+import QtQml
 import qs.modules.ii.bar.weather
 import qs.modules.ii.tools
 import QtQuick
@@ -5,7 +6,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
 import qs
-import qs.services
+import qs.modules.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
