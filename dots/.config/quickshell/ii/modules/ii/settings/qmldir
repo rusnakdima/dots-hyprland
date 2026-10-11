@@ -1,2 +1,4 @@
 module qs.modules.ii.settings
 singleton SettingsService 1.0 SettingsService.qml
+SearchResults 1.0 SearchResults.qml
+SettingsWindow 1.0 SettingsWindow.qml

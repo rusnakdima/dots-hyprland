@@ -21,7 +21,7 @@
 # TODO: Implement variants like keybindings, terminals, etc under user_preferences.
 
 # Configuration file
-CONFIG_FILE="src/subcmd-install/3.files-exp.yaml"
+CONFIG_FILE="src/subcmd/install/3.files-exp.yaml"
 
 # =============================================================================
 wizard_update_preferences() {

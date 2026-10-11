@@ -72,7 +72,15 @@ PanelWindow {
         }
     }
 
-    QtObject {
+    // Public API to check if mirror is active
+    property bool isActive: visible && _internal.cameraReady
+
+    // Toggle visibility
+    function toggle() {
+        visible = !visible;
+    }
+
+    Item {
         id: _internal
 
         property bool cameraReady: false
@@ -175,7 +183,6 @@ PanelWindow {
                 height: 32
                 radius: 16
                 color: flipMouseArea.containsMouse ? Appearance.colors.colSurfaceContainerHighest : "transparent"
-                cursorShape: Qt.PointingHandCursor
 
                 MaterialSymbol {
                     anchors.centerIn: parent
@@ -188,6 +195,7 @@ PanelWindow {
                     id: flipMouseArea
                     anchors.fill: parent
                     hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         isFlipped = !isFlipped;
                         savePosition();
@@ -201,7 +209,6 @@ PanelWindow {
                 height: 32
                 radius: 16
                 color: closeMouseArea.containsMouse ? Appearance.colors.colErrorContainer : "transparent"
-                cursorShape: Qt.PointingHandCursor
 
                 MaterialSymbol {
                     anchors.centerIn: parent
@@ -214,6 +221,7 @@ PanelWindow {
                     id: closeMouseArea
                     anchors.fill: parent
                     hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         savePosition();
                         mirrorWindow.visible = false;
@@ -308,23 +316,25 @@ PanelWindow {
         }
     }
 
-    // Horizontal flip via scale transform
-    transform: Scale {
-        origin.x: mirrorWindow.width / 2
-        xScale: isFlipped ? -1 : 1
-    }
-
-    Keys.onEscapePressed: {
-        savePosition();
-        mirrorWindow.visible = false;
-        _internal.stopCamera();
-    }
-
     // Auto-retry when camera is reconnected
     Timer {
         id: retryTimer
         interval: 3000
         running: _internal.cameraUnplugged && mirrorWindow.visible
         onTriggered: probeProc.running = true
+    }
+
+    // Keyboard handling - Item can receive Keys events
+    Item {
+        id: keyboardHandler
+        anchors.fill: parent
+        focus: true
+        visible: false
+
+        Keys.onEscapePressed: {
+            savePosition();
+            mirrorWindow.visible = false;
+            _internal.stopCamera();
+        }
     }
 }

@@ -43,7 +43,7 @@ PanelWindow {
         _internal.stop();
     }
 
-    QtObject {
+    Item {
         id: _internal
 
         property bool isRecording: false
@@ -204,7 +204,6 @@ PanelWindow {
                 height: 36
                 radius: Appearance.rounding.full
                 color: Appearance.colors.colError
-                cursorShape: Qt.PointingHandCursor
 
                 StyledText {
                     anchors.centerIn: parent
@@ -216,6 +215,7 @@ PanelWindow {
 
                 MouseArea {
                     anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         _internal.stop();
                         screenrecordTool.visible = false;
@@ -266,13 +266,6 @@ PanelWindow {
         }
     }
 
-    Keys.onEscapePressed: {
-        if (_internal.isRecording) {
-            _internal.stop();
-        }
-        screenrecordTool.visible = false;
-    }
-
     // Auto-close when not recording and no binary
     onVisibleChanged: {
         if (visible && !_internal.binaryAvailable) {
@@ -291,6 +284,21 @@ PanelWindow {
             if (!_internal.binaryAvailable) {
                 screenrecordTool.visible = false;
             }
+        }
+    }
+
+    // Keyboard handling - Item can receive Keys events
+    Item {
+        id: keyboardHandler
+        anchors.fill: parent
+        focus: true
+        visible: false
+
+        Keys.onEscapePressed: {
+            if (_internal.isRecording) {
+                _internal.stop();
+            }
+            screenrecordTool.visible = false;
         }
     }
 }

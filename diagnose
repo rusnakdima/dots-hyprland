@@ -96,7 +96,7 @@ x _check_quickshell_version
 x _check_PKGBUILD_version
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
-source "${REPO_ROOT}/sdata/lib/gpus.sh"
+source "${REPO_ROOT}/src/lib/gpus.sh"
 gpu_detect
 
 e "Checking GPU topology"

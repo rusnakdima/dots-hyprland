@@ -1,0 +1,6 @@
+module qs.modules.ii.tools
+ColorPicker 1.0 ColorPicker.qml
+MirrorWindow 1.0 MirrorWindow.qml
+OcrQrTool 1.0 OcrQrTool.qml
+ScreenrecordTool 1.0 ScreenrecordTool.qml
+ToolsMenu 1.0 ToolsMenu.qml

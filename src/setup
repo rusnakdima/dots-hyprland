@@ -2,6 +2,15 @@
 cd "$(dirname "$0")"
 # Use REPO_ROOT instead of base - when scripts are sourced they do not need export to inherit vars
 REPO_ROOT="$(pwd)"
+# cd to the actual repo root (parent of src/) so dots/... paths resolve correctly
+cd ..
+REPO_ROOT="$(pwd)"
+# back to src/ for the sourced libs and subcmd references below
+cd "$REPO_ROOT/src"
+
+# Make REPO_ROOT available to sourced scripts
+export REPO_ROOT
+
 source ./lib/environment-variables.sh
 source ./lib/functions.sh
 source ./lib/package-installers.sh
@@ -9,6 +18,10 @@ source ./lib/dist-determine.sh
 
 prevent_sudo_or_root
 set -e
+
+# cd to the repo root so dots/... paths resolve in sourced scripts,
+# but keep SUBCMD_DIR absolute so ./subcmd/ refs still work
+cd "$REPO_ROOT"
 
 #####################################################################################
 showhelp_global(){
@@ -52,12 +65,12 @@ case $1 in
   # Correct subcommand
   install|uninstall|exp-update|exp-merge|resetfirstrun|checkdeps|virtmon|sync)
     SUBCMD_NAME=$1
-    SUBCMD_DIR=./src/subcmd/$1
+    SUBCMD_DIR="${REPO_ROOT}/src/subcmd/$1"
     shift;;
   # Correct subcommand but not using ./src/subcmd-$1
   install-deps|install-setups|install-files)
     SUBCMD_NAME=$1
-    SUBCMD_DIR=./src/subcmd/install
+    SUBCMD_DIR="${REPO_ROOT}/src/subcmd/install"
     shift;;
   # Wrong subcommand
   *)printf "${STY_RED}Unknown subcommand \"$1\".${STY_RST}\n";showhelp_global;exit 1;;

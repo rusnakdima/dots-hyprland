@@ -8,6 +8,7 @@ import Quickshell.Wayland
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.config
+import Quickshell.Hyprland._FocusGrab
 
 PanelWindow {
     id: toolsMenu
@@ -40,11 +41,8 @@ PanelWindow {
         visible = false;
     }
 
-    // Keyboard: Escape closes
-    Keys.onEscapePressed: close()
-
     // Focus grab
-    FocusGrab {
+    HyprlandFocusGrab {
         windows: [toolsMenu]
         active: toolsMenu.visible
     }
@@ -150,12 +148,12 @@ PanelWindow {
                     }
                 }
 
-                // Webcam Mirror
+                // Webcam Mirror - use function to avoid binding loop
                 ToolButton {
-                    icon: mirrorWindow.visible ? "videocam_off" : "videocam"
-                    label: mirrorWindow.visible ? "Close Cam" : "Mirror"
+                    icon: mirrorWindow.isActive ? "videocam_off" : "videocam"
+                    label: mirrorWindow.isActive ? "Close Cam" : "Mirror"
                     onClicked: {
-                        mirrorWindow.visible = !mirrorWindow.visible;
+                        mirrorWindow.toggle();
                         toolsMenu.close();
                     }
                 }
@@ -186,6 +184,16 @@ PanelWindow {
 
     MirrorWindow {
         id: mirrorWindow
+    }
+
+    // Keyboard handling - Item can receive Keys events
+    Item {
+        id: keyboardHandler
+        anchors.fill: parent
+        focus: true
+        visible: false
+
+        Keys.onEscapePressed: toolsMenu.close()
     }
 
     // ToolButton component
