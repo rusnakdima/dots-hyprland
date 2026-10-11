@@ -8,7 +8,7 @@ THOME=$(temp_home)
 export HOME="$THOME"
 
 # Source environment-variables.sh and verify all SKIP_ vars have defaults
-source "$REPO_ROOT/sdata/lib/environment-variables.sh"
+source "$REPO_ROOT/src/lib/environment-variables.sh"
 
 # Verify SKIP_ variables are set (not unbound)
 for _var in SKIP_ALLGREETING SKIP_ALLDEPS SKIP_ALLSETUPS SKIP_ALLFILES MACHINE_PROFILE; do
@@ -30,6 +30,6 @@ done
 
 # Verify SKIP_SYSUPDATE is handled with default in install-deps.sh
 # (just verify the pattern is correct, actual test is the install running)
-grep -q 'SKIP_SYSUPDATE:-false' "$REPO_ROOT/sdata/dist-arch/install-deps.sh" && pass "SKIP_SYSUPDATE uses \${SKIP_SYSUPDATE:-false} pattern" || fail "SKIP_SYSUPDATE not defaulted in install-deps.sh"
+grep -q 'SKIP_SYSUPDATE:-false' "$REPO_ROOT/src/dist/arch/install-deps.sh" && pass "SKIP_SYSUPDATE uses \${SKIP_SYSUPDATE:-false} pattern" || fail "SKIP_SYSUPDATE not defaulted in install-deps.sh"
 
 echo "All install-skip-flags tests passed"

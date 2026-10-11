@@ -9,7 +9,7 @@ export HOME="$THOME"
 
 # Create fake repo structure
 FAKE_REPO="${THOME}/fake-dots"
-mkdir -p "${FAKE_REPO}/sdata/dist-arch"
+mkdir -p "${FAKE_REPO}/src/dist-arch"
 mkdir -p "${FAKE_REPO}/cache"
 
 # Record which directories git config is called with
@@ -30,7 +30,7 @@ REPO_ROOT="$FAKE_REPO"
 git_config_safe_dirs(){
   local _dirs=(
     "${REPO_ROOT}"
-    "${REPO_ROOT}/sdata/dist-arch"
+    "${REPO_ROOT}/src/dist-arch"
     "${REPO_ROOT}/cache"
   )
   local _dir

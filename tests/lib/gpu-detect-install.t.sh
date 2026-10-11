@@ -20,7 +20,7 @@ gpu_detect_with_fixtures(){
   export LYNE_SYSFS="${REPO_ROOT}/tests/fixtures/sysfs"
   export LYNE_PCI_IDS="${REPO_ROOT}/tests/fixtures/pci.ids"
   # shellcheck disable=SC1090
-  source "${REPO_ROOT}/sdata/lib/gpus.sh"
+  source "${REPO_ROOT}/src/lib/gpus.sh"
   gpu_detect
 }
 
@@ -28,14 +28,14 @@ gpu_detect_with_fixtures(){
 build_metapkgs(){
   local _profile="${1:-desktop}"
   metapkgs_base=(
-    "./sdata/dist-arch/illogical-impulse-basic"
-    "./sdata/dist-arch/illogical-impulse-hyprland"
+    "./src/dist/arch/illogical-impulse-basic"
+    "./src/dist/arch/illogical-impulse-hyprland"
   )
   metapkgs_laptop=(
-    "./sdata/dist-arch/illogical-impulse-backlight"
+    "./src/dist/arch/illogical-impulse-backlight"
   )
   metapkgs_nvidia=(
-    "./sdata/dist-arch/illogical-impulse-nvidia"
+    "./src/dist/arch/illogical-impulse-nvidia"
   )
   metapkgs=("${metapkgs_base[@]}")
   if [[ "$_profile" == "laptop" ]]; then

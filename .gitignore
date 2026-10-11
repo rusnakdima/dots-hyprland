@@ -8,7 +8,7 @@ __pycache__/
 /dots/.config/quickshell/ii/.qmlls.ini
 
 # Large upstream hwids data file
-sdata/data/pci.ids
+src/data/pci.ids
 
 # exp-update
 /.update-lock
@@ -24,10 +24,10 @@ sdata/data/pci.ids
 local/
 
 # MicroTeX build artifact
-sdata/dist-arch/illogical-impulse-microtex-git/src/
+src/dist/arch/illogical-impulse-microtex-git/src/
 
 # Vendored driver repo (nested .git, ~102 MB)
-dots-extra/aic8800-*/
+sys/aic8800-*/
 
 # Local planning prose
 /docs/

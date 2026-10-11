@@ -1,4 +1,2 @@
 #!/usr/bin/env bash
-set -e
-cd "$(dirname "$0")"
-./setup install-files --force --skip-backup
+exec "$(dirname "$(dirname "$0")")/src/cmd/refresh-configs" "$@"
