@@ -78,3 +78,11 @@ case "${SKIP_HYPRLAND}" in
 esac
 
 install_file "dots/.local/share/icons/illogical-impulse.svg" "${XDG_DATA_HOME}"/icons/illogical-impulse.svg
+
+# Install cava default config for audio visualizer
+case "${SKIP_CAVA}" in
+  true) true;;
+  *)
+    install_dir__ignore_existing "dots/.config/cava" "${XDG_CONFIG_HOME}/cava"
+    ;;
+esac

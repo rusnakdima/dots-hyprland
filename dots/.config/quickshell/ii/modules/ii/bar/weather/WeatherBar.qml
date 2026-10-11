@@ -18,9 +18,9 @@ MouseArea {
 
     onPressed: {
         if (mouse.button === Qt.RightButton) {
-            Weather.getData();
-            Quickshell.execDetached(["notify-send", 
-                Translation.tr("Weather"), 
+            WeatherService.refresh(true);
+            Quickshell.execDetached(["notify-send",
+                Translation.tr("Weather"),
                 Translation.tr("Refreshing (manually triggered)")
                 , "-a", "Shell"
             ])
@@ -31,10 +31,11 @@ MouseArea {
     RowLayout {
         id: rowLayout
         anchors.centerIn: parent
+        spacing: 6
 
         MaterialSymbol {
             fill: 0
-            text: Icons.getWeatherIcon(Weather.data.wCode) ?? "cloud"
+            text: WeatherService.current ? WeatherService.icon(WeatherService.current.code, WeatherService.current.isDay) : "cloud"
             iconSize: Appearance.font.pixelSize.large
             color: Appearance.colors.colOnLayer1
             Layout.alignment: Qt.AlignVCenter
@@ -44,7 +45,7 @@ MouseArea {
             visible: true
             font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colOnLayer1
-            text: Weather.data?.temp ?? "--°"
+            text: WeatherService.current ? WeatherService.current.temp + "°" : "--°"
             Layout.alignment: Qt.AlignVCenter
         }
     }

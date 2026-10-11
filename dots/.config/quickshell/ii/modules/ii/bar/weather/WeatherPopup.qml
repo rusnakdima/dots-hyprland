@@ -9,107 +9,177 @@ import qs.modules.ii.bar
 StyledPopup {
     id: root
 
+    readonly property string description: {
+        if (!WeatherService.current) return "";
+        return WeatherService.description(WeatherService.current.code);
+    }
+
     ColumnLayout {
-        id: columnLayout
-        anchors.centerIn: parent
-        implicitWidth: Math.max(header.implicitWidth, gridLayout.implicitWidth)
-        implicitHeight: gridLayout.implicitHeight
-        spacing: 5
+        id: mainLayout
+        implicitWidth: 340
+        spacing: 4
 
-        // Header
-        ColumnLayout {
-            id: header
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 2
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: heroLayout.implicitHeight + 32
+            radius: Appearance.rounding.large
+            bottomLeftRadius: Appearance.rounding.small
+            bottomRightRadius: Appearance.rounding.small
+            color: Appearance.colors.colPrimaryContainer
 
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 6
-
-                MaterialSymbol {
-                    fill: 0
-                    font.weight: Font.Medium
-                    text: "location_on"
-                    iconSize: Appearance.font.pixelSize.large
-                    color: Appearance.colors.colOnSurfaceVariant
+            ColumnLayout {
+                id: heroLayout
+                anchors {
+                    fill: parent
+                    margins: 16
                 }
+                spacing: 8
 
-                StyledText {
-                    text: Weather.data.city
-                    font {
-                        weight: Font.Medium
-                        pixelSize: Appearance.font.pixelSize.normal
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 12
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 0
+
+                        RowLayout {
+                            spacing: 4
+
+                            MaterialSymbol {
+                                text: "location_on"
+                                fill: 1
+                                iconSize: Appearance.font.pixelSize.normal
+                                color: Appearance.colors.colOnPrimaryContainer
+                            }
+
+                            StyledText {
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                text: WeatherService.location || ""
+                                font.pixelSize: Appearance.font.pixelSize.normal
+                                font.weight: Font.DemiBold
+                                color: Appearance.colors.colOnPrimaryContainer
+                            }
+                        }
+
+                        StyledText {
+                            text: WeatherService.current ? WeatherService.current.temp + "°" : "--°"
+                            font.family: Appearance.font.family.expressive
+                            font.pixelSize: 64
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colOnPrimaryContainer
+                        }
+
+                        StyledText {
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
+                            text: root.description
+                            font.pixelSize: Appearance.font.pixelSize.small
+                            font.weight: Font.Medium
+                            color: Appearance.colors.colOnPrimaryContainer
+                        }
+
+                        StyledText {
+                            visible: WeatherService.current?.feelsLike !== undefined
+                            text: Translation.tr("Feels like %1°").arg(WeatherService.current?.feelsLike ?? "--")
+                            font.pixelSize: Appearance.font.pixelSize.smaller
+                            color: Appearance.colors.colOnPrimaryContainer
+                            opacity: 0.75
+                        }
                     }
-                    color: Appearance.colors.colOnSurfaceVariant
+
+                    MaterialShapeWrappedMaterialSymbol {
+                        Layout.alignment: Qt.AlignTop
+                        shape: MaterialShape.Shape.Sunny
+                        text: WeatherService.current ? WeatherService.icon(WeatherService.current.code, WeatherService.current.isDay) : "cloud"
+                        fill: 1
+                        iconSize: 44
+                        implicitSize: 92
+                        color: Appearance.colors.colPrimary
+                        colSymbol: Appearance.colors.colOnPrimary
+                    }
                 }
-            }
-            StyledText {
-                id: temp
-                font.pixelSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colOnSurfaceVariant
-                text: Weather.data.temp + " • " + Translation.tr("Feels like %1").arg(Weather.data.tempFeelsLike)
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+
+                    SunChip {
+                        icon: "wb_twilight"
+                        label: WeatherService.sunrise || "--"
+                    }
+
+                    SunChip {
+                        icon: "bedtime"
+                        label: WeatherService.sunset || "--"
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+                }
             }
         }
 
-        // Metrics grid
         GridLayout {
-            id: gridLayout
+            Layout.fillWidth: true
             columns: 2
-            rowSpacing: 5
-            columnSpacing: 5
+            rowSpacing: 4
+            columnSpacing: 4
             uniformCellWidths: true
 
             WeatherCard {
-                title: Translation.tr("UV Index")
-                symbol: "wb_sunny"
-                value: Weather.data.uv
-            }
-            WeatherCard {
                 title: Translation.tr("Wind")
                 symbol: "air"
-                value: `(${Weather.data.windDir}) ${Weather.data.wind}`
-            }
-            WeatherCard {
-                title: Translation.tr("Precipitation")
-                symbol: "rainy_light"
-                value: Weather.data.precip
+                value: WeatherService.current ? `${WeatherService.current.wind} m/s` : "--"
             }
             WeatherCard {
                 title: Translation.tr("Humidity")
                 symbol: "humidity_low"
-                value: Weather.data.humidity
+                value: WeatherService.current ? `${WeatherService.current.humidity}%` : "--"
             }
             WeatherCard {
-                title: Translation.tr("Visibility")
-                symbol: "visibility"
-                value: Weather.data.visib
+                title: Translation.tr("UV Index")
+                symbol: "wb_sunny"
+                value: WeatherService.current?.uv !== undefined ? `${WeatherService.current.uv}` : "--"
             }
             WeatherCard {
-                title: Translation.tr("Pressure")
-                symbol: "readiness_score"
-                value: Weather.data.press
-            }
-            WeatherCard {
-                title: Translation.tr("Sunrise")
-                symbol: "wb_twilight"
-                value: Weather.data.sunrise
-            }
-            WeatherCard {
-                title: Translation.tr("Sunset")
-                symbol: "bedtime"
-                value: Weather.data.sunset
+                title: Translation.tr("Precipitation")
+                symbol: "rainy_light"
+                value: WeatherService.current?.precip !== undefined ? `${WeatherService.current.precip} mm` : "--"
             }
         }
+    }
 
-        // Footer: last refresh
-        StyledText {
-            Layout.alignment: Qt.AlignHCenter
-            text: Translation.tr("Last refresh: %1").arg(Weather.data.lastRefresh)
-            font {
-                weight: Font.Medium
-                pixelSize: Appearance.font.pixelSize.smaller
+    component SunChip: Rectangle {
+        id: chip
+        required property string icon
+        required property string label
+        implicitWidth: chipRow.implicitWidth + 20
+        implicitHeight: chipRow.implicitHeight + 10
+        radius: Appearance.rounding.full
+        color: Appearance.colors.colPrimary
+
+        RowLayout {
+            id: chipRow
+            anchors.centerIn: parent
+            spacing: 5
+
+            MaterialSymbol {
+                text: chip.icon
+                fill: 1
+                iconSize: Appearance.font.pixelSize.normal
+                color: Appearance.colors.colOnPrimary
             }
-            color: Appearance.colors.colOnSurfaceVariant
+
+            StyledText {
+                text: chip.label
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.weight: Font.Medium
+                color: Appearance.colors.colOnPrimary
+            }
         }
     }
 }

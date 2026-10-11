@@ -12,4 +12,8 @@ depends=(
   tesseract
   tesseract-data-eng
   wf-recorder
+  wl-screenrecord
+  grim
+  zbar
+  mpv
 )

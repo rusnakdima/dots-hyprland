@@ -1,6 +1,7 @@
 import qs
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.ii.dashboard
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -51,52 +52,9 @@ Scope {
             radius: Appearance.rounding.windowRounding
         }
 
-        Column {
-            id: dashboardLayout
-            anchors.centerIn: parent
-            spacing: 24
-
-            // Title
-            Text {
-                text: "Dashboard"
-                font.pixelSize: 32
-                font.bold: true
-                color: Appearance.colors.colOnSurface
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-            // Widget blocks row
-            Row {
-                id: widgetRow
-                spacing: 16
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                // Quick actions widget
-                QuickActionsWidget {
-                    width: 280
-                    height: 160
-                }
-
-                // System stats widget block
-                SystemStatsWidget {
-                    width: 280
-                    height: 160
-                }
-
-                // Weather widget block
-                WeatherWidget {
-                    width: 220
-                    height: 160
-                }
-            }
-
-            // Close hint
-            Text {
-                text: "Press Esc or Super+D to close"
-                font.pixelSize: 12
-                color: Appearance.colors.colOnSurfaceVariant
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+        DashboardCanvas {
+            anchors.fill: parent
+            anchors.margins: 20
         }
     }
 

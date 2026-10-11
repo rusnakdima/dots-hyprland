@@ -289,6 +289,7 @@ Singleton {
                     property bool showDarkModeToggle: true
                     property bool showPerformanceProfileToggle: false
                     property bool showScreenRecord: false
+                    property bool showTools: true
                 }
                 property JsonObject workspaces: JsonObject {
                     property bool monochromeIcons: true
@@ -306,7 +307,29 @@ Singleton {
                     property bool enableGPS: true // gps based location
                     property string city: "" // When 'enableGPS' is false
                     property bool useUSCS: false // Instead of metric (SI) units
+                    property string units: "metric" // "metric" or "uscs"
                     property int fetchInterval: 10 // minutes
+                }
+                property JsonObject bluetooth: JsonObject {
+                    property bool enabled: false
+                }
+                property JsonObject networkspeed: JsonObject {
+                    property bool enabled: false
+                }
+                property JsonObject avatar: JsonObject {
+                    property bool enabled: false
+                }
+                property JsonObject visualizer: JsonObject {
+                    property bool enabled: false
+                }
+                property JsonObject updatescount: JsonObject {
+                    property bool enabled: false
+                }
+                property JsonObject keyboard: JsonObject {
+                    property bool enabled: false
+                }
+                property JsonObject calendar: JsonObject {
+                    property bool enabled: false
                 }
                 property JsonObject indicators: JsonObject {
                     property JsonObject notifications: JsonObject {
@@ -315,6 +338,16 @@ Singleton {
                 }
                 property JsonObject tooltips: JsonObject {
                     property bool clickToShow: false
+                }
+                property JsonObject background: JsonObject {
+                    property bool useShader: false
+                    property string shaderName: "linear_gradient"
+                    property string gradientColor1: "#primary"
+                    property string gradientColor2: "#surface"
+                    property real gradientAngle: 0
+                }
+                property JsonObject clockShader: JsonObject {
+                    property bool enabled: false
                 }
             }
 
@@ -697,6 +730,49 @@ Singleton {
                 }
                 property JsonObject calendar: JsonObject {
                     property bool force2CharDayOfWeek: true
+                }
+            }
+
+            property JsonObject dashboard: JsonObject {
+                property JsonObject widgets: JsonObject {
+                    // widget positions and configs stored in StateService, not here
+                }
+                property JsonObject widgetTypes: JsonObject {
+                    property JsonObject calendar: JsonObject {
+                        property bool enabled: true
+                    }
+                    property JsonObject notes: JsonObject {
+                        property bool enabled: true
+                    }
+                    property JsonObject worldClock: JsonObject {
+                        property bool enabled: true
+                        property list<string> timezones: ["America/New_York", "Europe/London"]
+                    }
+                    property JsonObject visualizer: JsonObject {
+                        property bool enabled: true
+                        property string style: "bars" // bars, mirror, aurora
+                    }
+                    property JsonObject resources: JsonObject {
+                        property bool enabled: true
+                    }
+                    property JsonObject timers: JsonObject {
+                        property bool enabled: true
+                    }
+                    property JsonObject customText: JsonObject {
+                        property bool enabled: true
+                        property string text: "Custom Text"
+                        property int fontSize: 16
+                        property bool bold: false
+                    }
+                    property JsonObject media: JsonObject {
+                        property bool enabled: true
+                    }
+                    property JsonObject system: JsonObject {
+                        property bool enabled: true
+                    }
+                    property JsonObject weather: JsonObject {
+                        property bool enabled: true
+                    }
                 }
             }
         }

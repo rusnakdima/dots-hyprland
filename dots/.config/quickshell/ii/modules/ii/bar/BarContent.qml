@@ -1,4 +1,5 @@
 import qs.modules.ii.bar.weather
+import qs.modules.ii.tools
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -8,6 +9,7 @@ import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
+import qs.modules.common.shaders
 
 Item { // Bar content region
     id: root
@@ -16,6 +18,22 @@ Item { // Bar content region
     property var brightnessMonitor: Brightness.getMonitorForScreen(screen)
     property real useShortenedForm: (Appearance.sizes.barHellaShortenScreenWidthThreshold >= screen?.width) ? 2 : (Appearance.sizes.barShortenScreenWidthThreshold >= screen?.width) ? 1 : 0
     readonly property int centerSideModuleWidth: (useShortenedForm == 2) ? Appearance.sizes.barCenterSideModuleWidthHellaShortened : (useShortenedForm == 1) ? Appearance.sizes.barCenterSideModuleWidthShortened : Appearance.sizes.barCenterSideModuleWidth
+
+    function resolveColorToken(token) {
+        if (token === "#primary") return Appearance.colors.colPrimary;
+        if (token === "#surface") return Appearance.colors.colSurface;
+        if (token === "#layer0") return Appearance.colors.colLayer0;
+        if (token === "#layer1") return Appearance.colors.colLayer1;
+        if (token === "#onLayer0") return Appearance.colors.colOnLayer0;
+        if (token === "#onLayer1") return Appearance.colors.colOnLayer1;
+        // Handle hex colors
+        if (token && token.startsWith && token.startsWith("#")) {
+            if (token.length === 7 || token.length === 9) {
+                return token;
+            }
+        }
+        return Appearance.colors.colPrimary;
+    }
 
     component VerticalBarSeparator: Rectangle {
         Layout.topMargin: Appearance.sizes.baseBarHeight / 3
@@ -27,7 +45,7 @@ Item { // Bar content region
 
     // Background shadow
     Loader {
-        active: Config.options.bar.showBackground && Config.options.bar.cornerStyle === 1 && Config.options.bar.floatStyleShadow
+        active: Config.options.bar.showBackground && Config.options.bar.cornerStyle === 1 && Config.options.bar.floatStyleShadow && !Config.options.bar.background.useShader
         anchors.fill: barBackground
         sourceComponent: StyledRectangularShadow {
             anchors.fill: undefined // The loader's anchors act on this, and this should not have any anchor
@@ -35,16 +53,34 @@ Item { // Bar content region
         }
     }
     // Background
-    Rectangle {
+    Item {
         id: barBackground
         anchors {
             fill: parent
-            margins: Config.options.bar.cornerStyle === 1 ? (Appearance.sizes.hyprlandGapsOut) : 0 // idk why but +1 is needed
+            margins: Config.options.bar.cornerStyle === 1 ? (Appearance.sizes.hyprlandGapsOut) : 0
         }
-        color: Config.options.bar.showBackground ? Appearance.colors.colLayer0 : "transparent"
-        radius: Config.options.bar.cornerStyle === 1 ? Appearance.rounding.windowRounding : 0
-        border.width: Config.options.bar.cornerStyle === 1 ? 1 : 0
-        border.color: Appearance.colors.colLayer0Border
+        visible: Config.options.bar.showBackground
+
+        ShaderWrapper {
+            id: barShader
+            anchors.fill: parent
+            visible: Config.options.bar.background.useShader
+            shaderName: Config.options.bar.background.shaderName
+            color1: resolveColorToken(Config.options.bar.background.gradientColor1)
+            color2: resolveColorToken(Config.options.bar.background.gradientColor2)
+            angle: Config.options.bar.background.gradientAngle
+            useShader: Config.options.bar.background.useShader
+        }
+
+        Rectangle {
+            id: barBackgroundSolid
+            anchors.fill: parent
+            visible: !Config.options.bar.background.useShader
+            color: Config.options.bar.showBackground ? Appearance.colors.colLayer0 : "transparent"
+            radius: Config.options.bar.cornerStyle === 1 ? Appearance.rounding.windowRounding : 0
+            border.width: Config.options.bar.cornerStyle === 1 ? 1 : 0
+            border.color: Appearance.colors.colLayer0Border
+        }
     }
 
     FocusedScrollMouseArea { // Left side | scroll to change brightness
@@ -174,7 +210,13 @@ Item { // Bar content region
                     showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
                     Layout.alignment: Qt.AlignVCenter
                     Layout.fillWidth: true
-                    visible: Config.options?.bar?.elements?.clock ?? true
+                    visible: (Config.options?.bar?.elements?.clock ?? true) && !Config.options.bar.clockShader.enabled
+                }
+
+                ClockShader {
+                    Layout.alignment: Qt.AlignVCenter
+                    Layout.fillWidth: true
+                    visible: (Config.options?.bar?.elements?.clock ?? true) && Config.options.bar.clockShader.enabled
                 }
 
                 UtilButtons {
@@ -184,6 +226,42 @@ Item { // Bar content region
 
                 BatteryIndicator {
                     visible: (root.useShortenedForm < 2 && Battery.available) && (Config.options?.bar?.elements?.battery ?? true)
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                // New bar widgets
+                Bluetooth {
+                    visible: Config.options.bar.bluetooth.enabled
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                NetworkSpeed {
+                    visible: Config.options.bar.networkspeed.enabled
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                Avatar {
+                    visible: Config.options.bar.avatar.enabled
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                AudioVisualizer {
+                    visible: Config.options.bar.visualizer.enabled
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                UpdatesCount {
+                    visible: Config.options.bar.updatescount.enabled
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                KeyboardLayout {
+                    visible: Config.options.bar.keyboard.enabled
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                Calendar {
+                    visible: Config.options.bar.calendar.enabled
                     Layout.alignment: Qt.AlignVCenter
                 }
             }
@@ -322,6 +400,22 @@ Item { // Bar content region
                 }
             }
 
+            // Tools button
+            Loader {
+                active: Config.options.bar.utilButtons.showTools ?? true
+                sourceComponent: CircleUtilButton {
+                    Layout.alignment: Qt.AlignVCenter
+                    onClicked: toolsMenuLoader.item.open()
+                    MaterialSymbol {
+                        horizontalAlignment: Qt.AlignHCenter
+                        fill: 0
+                        text: "apps"
+                        iconSize: Appearance.font.pixelSize.large
+                        color: Appearance.colors.colOnLayer2
+                    }
+                }
+            }
+
             SysTray {
                 visible: root.useShortenedForm === 0
                 Layout.fillWidth: false
@@ -344,5 +438,12 @@ Item { // Bar content region
                 }
             }
         }
+    }
+
+    // Tools menu (loaded outside RowLayout since ToolsMenu is a PanelWindow)
+    Loader {
+        id: toolsMenuLoader
+        active: true
+        sourceComponent: ToolsMenu {}
     }
 }
