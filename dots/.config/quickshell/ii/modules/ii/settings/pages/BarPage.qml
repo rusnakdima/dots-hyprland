@@ -64,11 +64,23 @@ ColumnLayout {
 
         SelectRow {
             label: "Style"
-            description: "Visual style of workspace indicators"
-            path: "bar.style"
+            description: "Visual style of workspace buttons"
+            path: "bar.workspaces.style"
             options: [
-                { label: "Default", value: "default" },
-                { label: "Pills", value: "pills" }
+                { label: "Default (pills)", value: "default" },
+                { label: "Dots (animated)", value: "dots" },
+                { label: "Gnome (stub)", value: "gnome" },
+                { label: "Ticks (stub)", value: "ticks" }
+            ]
+        }
+
+        SelectRow {
+            label: "Indicator"
+            description: "Indicator type for workspace buttons"
+            path: "bar.workspaces.indicatorStyle"
+            options: [
+                { label: "Dot", value: "dot" },
+                { label: "Icon", value: "icon" }
             ]
         }
 

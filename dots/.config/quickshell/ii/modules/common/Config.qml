@@ -298,6 +298,8 @@ Singleton {
                     property int showNumberDelay: 300 // milliseconds
                     property list<string> numberMap: ["1", "2"] // Characters to show instead of numbers on workspace indicator
                     property bool useNerdFont: false
+                    property string indicatorStyle: "dot"   // "dot" | "icon"
+                    property string style: "default"        // "default" | "gnome" | "dots" | "ticks"
                 }
                 property JsonObject weather: JsonObject {
                     property bool enable: false

@@ -1,0 +1,28 @@
+{
+    // ii quickshell — waybar workspace module
+    // Place this in ~/.config/waybar/config or include it from your waybar config.
+
+    "workspace": {
+        "format": "{icon}",
+        "format-icons": {
+            "active": "●",
+            "persistent": "◉",
+            "empty": "○",
+            "special": "✦"
+        },
+        "on-click": "hyprctl dispatch workspace {}",
+        "on-click-right": "hyprctl dispatch movetoworkspace {}",
+        "on-scroll-up": "hyprctl dispatch workspace +1",
+        "on-scroll-down": "hyprctl dispatch workspace -1",
+        "smooth-scroll": true,
+        "exec": "~/.config/quickshell/ii/.config/waybar/modules/workspaces.sh",
+        "return-type": "json",
+        "tooltip-format": "{name}",
+        "tooltip-format-alt": "Workspace {id} — {state}",
+        "always-show": false,
+        "all-outputs": false
+    },
+
+    // Include this in your main waybar config:
+    // "modules-left": ["workspace", ...],
+}
