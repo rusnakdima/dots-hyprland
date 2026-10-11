@@ -2,10 +2,10 @@
 cd "$(dirname "$0")"
 # Use REPO_ROOT instead of base - when scripts are sourced they do not need export to inherit vars
 REPO_ROOT="$(pwd)"
-source ./src/lib/environment-variables.sh
-source ./src/lib/functions.sh
-source ./src/lib/package-installers.sh
-source ./src/lib/dist-determine.sh
+source ./lib/environment-variables.sh
+source ./lib/functions.sh
+source ./lib/package-installers.sh
+source ./lib/dist-determine.sh
 
 prevent_sudo_or_root
 set -e
