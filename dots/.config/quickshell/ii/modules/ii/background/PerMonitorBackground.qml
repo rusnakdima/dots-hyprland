@@ -83,7 +83,12 @@ Singleton {
 
         Process {
             id: hyprpaperProc
-            command: ["bash", "-c", `hyprpaperctl wallpaper "${path}" 2>/dev/null || hyprpaper "${monitorName}", "${path}" 2>/dev/null || (sleep 0.3 && wpaperd --set "${path}" 2>/dev/null) || true`]
+            command: ["bash", "-c", `hyprpaper --wallpaper "${monitorName},${path}" 2>/dev/null || true`]
+        }
+
+        Process {
+            id: wpaperProc
+            command: ["bash", "-c", `wpaperd --set "${path}" 2>/dev/null || true`]
         }
 
         Quickshell.execDetached([

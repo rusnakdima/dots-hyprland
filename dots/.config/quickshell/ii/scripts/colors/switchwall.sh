@@ -155,6 +155,24 @@ set_thumbnail_path() {
     fi
 }
 
+# Update hyprlock.conf with wallpaper path (for lock screen background)
+# Skips video wallpapers since hyprlock doesn't support them
+update_hyprlock_bg() {
+    local imgpath="$1"
+    local HYPRLOCK_CONF="$HOME/.config/hypr/hyprlock.conf"
+
+    # Skip for video wallpapers (hyprlock doesn't support video)
+    if is_video "$imgpath"; then
+        return 0
+    fi
+
+    if [ -f "$HYPRLOCK_CONF" ]; then
+        local escaped_path
+        escaped_path=$(echo "$imgpath" | sed 's/[\/&]/\\&/g')
+        sed -i "s|background {[[:space:]]*color[[:space:]]*=[[:space:]]*rgba([^)]*)}|background { path = \"$escaped_path\" }|" "$HYPRLOCK_CONF"
+    fi
+}
+
 categorize_wallpaper() {
     img_cat=$("$SCRIPT_DIR/../ai/gemini-categorize-wallpaper.sh" "$1")
     # notify-send "Wallpaper category" "$img_cat"
@@ -255,6 +273,8 @@ switch() {
             generate_colors_material_args=(--path "$imgpath")
             # Update wallpaper path in config
             set_wallpaper_path "$imgpath"
+            # Update hyprlock.conf with wallpaper path for lock screen
+            update_hyprlock_bg "$imgpath"
             remove_restore
         fi
     fi
