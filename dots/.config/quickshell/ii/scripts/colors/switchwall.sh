@@ -169,7 +169,7 @@ update_hyprlock_bg() {
     if [ -f "$HYPRLOCK_CONF" ]; then
         local escaped_path
         escaped_path=$(echo "$imgpath" | sed 's/[\/&]/\\&/g')
-        sed -i "s|background {[[:space:]]*color[[:space:]]*=[[:space:]]*rgba([^)]*)}|background { path = \"$escaped_path\" }|" "$HYPRLOCK_CONF"
+        perl -i -0777 -pe "s|background\\s*\\{\\s*color\\s*=\\s*rgba\\([^)]*\\)\\s*\\}|background { path = \"$escaped_path\" }|g" "$HYPRLOCK_CONF"
     fi
 }
 
